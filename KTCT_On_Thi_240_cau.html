@@ -1,0 +1,3736 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ôn Thi Kinh tế chính trị Mác – Lênin (Chương 1–6)</title>
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --bg-color: #f4f6f9;
+            --text-color: #333;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        /* Header & Stats */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .stats {
+            font-size: 0.9rem;
+            display: flex;
+            gap: 15px;
+        }
+
+        .stat-item {
+            font-weight: bold;
+        }
+        .stat-correct { color: var(--success-color); }
+        .stat-wrong { color: var(--danger-color); }
+
+        /* Question Area */
+        .question-box {
+            margin-bottom: 25px;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        /* Options */
+        .options-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .option-btn {
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: #fff;
+            text-align: left;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .option-btn:hover:not(.disabled) {
+            background-color: #f8f9fa;
+            border-color: var(--primary-color);
+        }
+
+        /* Trạng thái khi đã chọn/hiển thị kết quả */
+        .option-btn.disabled {
+            cursor: default;
+            opacity: 0.9;
+        }
+
+        .option-btn.correct {
+            background-color: #d4edda;
+            border-color: var(--success-color);
+            color: #155724;
+            font-weight: bold;
+        }
+
+        .option-btn.wrong {
+            background-color: #f8d7da;
+            border-color: var(--danger-color);
+            color: #721c24;
+            opacity: 0.7;
+        }
+
+        /* Explanation */
+        .explanation {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            border-radius: 8px;
+            color: #856404;
+            animation: fadeIn 0.5s;
+        }
+
+        .explanation h4 { margin-top: 0; }
+
+        /* Footer Controls */
+        .footer-controls {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-primary { background-color: var(--primary-color); color: white; }
+        .btn-secondary { background-color: #6c757d; color: white; }
+        .btn-warning { background-color: #ffc107; color: #333; }
+        .btn-success { background-color: var(--success-color); color: white; }
+        
+        /* Action Button (Large) */
+        .action-btn { 
+            width: 100%; 
+            margin-top: 20px; 
+            padding: 15px; 
+            font-size: 1.2rem; 
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: none; /* Mặc định ẩn, chỉ hiện khi đã chọn đáp án */
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+
+        /* ===== MENU DANH SÁCH CÂU HỎI ===== */
+        .question-menu-btn {
+            position: fixed;
+            top: 18px;
+            right: 18px;
+            z-index: 1001;
+            width: 48px;
+            height: 48px;
+            border: none;
+            border-radius: 10px;
+            background: var(--primary-color);
+            color: #fff;
+            font-size: 25px;
+            line-height: 1;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .question-menu-btn:hover {
+            transform: scale(1.06);
+            background: #0056b3;
+        }
+
+        .question-menu-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 999;
+            background: rgba(0,0,0,0.25);
+        }
+
+        .question-menu-overlay.show {
+            display: block;
+        }
+
+        .question-menu {
+            position: fixed;
+            top: 0;
+            right: -360px;
+            z-index: 1000;
+            width: 330px;
+            max-width: 88vw;
+            height: 100vh;
+            box-sizing: border-box;
+            background: #fff;
+            box-shadow: -5px 0 20px rgba(0,0,0,0.18);
+            padding: 22px 18px;
+            overflow-y: auto;
+            transition: right 0.25s ease;
+        }
+
+        .question-menu.show {
+            right: 0;
+        }
+
+        .question-menu-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .question-menu-header h3 {
+            margin: 0;
+            color: var(--primary-color);
+            font-size: 1.15rem;
+        }
+
+        .question-menu-close {
+            border: none;
+            background: #f1f1f1;
+            width: 34px;
+            height: 34px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .question-list {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .question-number-btn {
+            border: 1px solid #d9d9d9;
+            background: #f8f9fa;
+            color: #333;
+            border-radius: 7px;
+            padding: 9px 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.15s;
+        }
+
+        .question-number-btn:hover {
+            background: #e7f1ff;
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .question-number-btn.current {
+            background: var(--primary-color);
+            color: #fff;
+            border-color: var(--primary-color);
+        }
+
+        .question-menu-info {
+            margin: 0 0 14px;
+            color: #666;
+            font-size: 0.88rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .container { padding: 15px; }
+            .question-text { font-size: 1.1rem; }
+            .header { flex-direction: column; align-items: flex-start; gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Nút 3 gạch mở danh sách câu hỏi -->
+<button class="question-menu-btn" id="question-menu-btn" onclick="toggleQuestionMenu()" aria-label="Mở danh sách câu hỏi">☰</button>
+
+<!-- Lớp nền khi mở danh sách -->
+<div class="question-menu-overlay" id="question-menu-overlay" onclick="closeQuestionMenu()"></div>
+
+<!-- Danh sách câu hỏi -->
+<aside class="question-menu" id="question-menu">
+    <div class="question-menu-header">
+        <h3>📚 Danh sách câu hỏi</h3>
+        <button class="question-menu-close" onclick="closeQuestionMenu()" aria-label="Đóng">×</button>
+    </div>
+    <p class="question-menu-info" id="question-menu-info">Chọn số câu để làm.</p>
+    <div class="question-list" id="question-list"></div>
+</aside>
+
+<div class="container">
+    <div class="header">
+        <h1 class="title">Ôn Thi KTCT Mác – Lênin</h1>
+        <div class="stats">
+            <span class="stat-item stat-correct">Đúng: <span id="score">0</span></span>
+            <span class="stat-item stat-wrong">Sai: <span id="wrongCount">0</span></span>
+        </div>
+    </div>
+
+    <!-- Khu vực hiển thị thông báo chế độ ôn lại -->
+    <div id="review-alert" style="display:none; background: #cce5ff; color: #004085; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
+        Đang trong chế độ ôn lại các câu đã làm sai.
+    </div>
+
+    <div class="question-box">
+        <div class="question-text" id="q-text">Đang tải câu hỏi...</div>
+        
+        <div class="options-grid" id="options-container">
+            <!-- Options will be generated here -->
+        </div>
+
+        <!-- Nút hành động chính (Chỉ còn chức năng Next) -->
+        <button class="btn btn-success action-btn" id="btn-action" onclick="changeQuestion(1)">Câu tiếp theo ❯</button>
+
+        <div class="explanation" id="explanation-area">
+            <h4>💡 Giải thích chi tiết:</h4>
+            <div id="explanation-text"></div>
+        </div>
+    </div>
+
+    <div class="footer-controls">
+        <button class="btn btn-secondary" id="btn-prev" onclick="changeQuestion(-1)">❮ Câu trước</button>
+        <button class="btn btn-warning" onclick="toggleReviewMode()" id="btn-review">Ôn câu sai (0)</button>
+        <button class="btn btn-secondary" onclick="shuffleQuestions()">🔀 Trộn câu hỏi</button>
+    </div>
+</div>
+
+<script>
+    // DỮ LIỆU CÂU HỎI KINH TẾ CHÍNH TRỊ MÁC – LÊNIN (Chương 1–6: 240 câu)
+    const originalQuestions = [
+    {
+        "id": 1,
+        "question": "Câu 1 (Chương 1): Thuật ngữ khoa học Kinh tế chính trị lần đầu tiên xuất hiện ở Châu Âu vào năm nào?",
+        "options": [
+            "A. 1817",
+            "B. 1776",
+            "C. 1615",
+            "D. 1662"
+        ],
+        "answer": 2,
+        "explanation": "Năm 1615, Antoine de Montchrétien (Pháp) công bố tác phẩm “Chuyên luận về kinh tế chính trị”, lần đầu đưa thuật ngữ này vào khoa học. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 2,
+        "question": "Câu 2 (Chương 1): Kinh tế chính trị Mác-Lênin kế thừa và phát triển trực tiếp những thành tựu của lý luận kinh tế nào?",
+        "options": [
+            "A. Kinh tế chính trị tư sản cổ điển Anh",
+            "B. Chủ nghĩa trọng thương",
+            "C. Chủ nghĩa trọng nông",
+            "D. Lý thuyết kinh tế về hành vi của người sản xuất, người tiêu dùng"
+        ],
+        "answer": 0,
+        "explanation": "C. Mác kế thừa trực tiếp những thành tựu của kinh tế chính trị cổ điển Anh (A. Smith, D. Ricardo), nhất là lý luận giá trị – lao động. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 3,
+        "question": "Câu 3 (Chương 1): Theo Lênin, đối tượng nghiên cứu của Kinh tế chính trị Mác – Lênin là gì?",
+        "options": [
+            "A. Quan hệ giữa người với người",
+            "B. Sản xuất của cải vật chất",
+            "C. Quan hệ xã hội giữa người với người trong sản xuất, chế độ xã hội của sản xuất",
+            "D. Quá trình sản xuất, phân phối, trao đổi, tiêu dùng"
+        ],
+        "answer": 2,
+        "explanation": "Đối tượng nghiên cứu là các quan hệ xã hội của sản xuất và trao đổi, đặt trong mối liên hệ biện chứng với lực lượng sản xuất và kiến trúc thượng tầng. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 4,
+        "question": "Câu 4 (Chương 1): Theo kinh tế chính trị Mác – Lênin, chính sách kinh tế và quy luật kinh tế có mối tương quan như thế nào?",
+        "options": [
+            "A. Chính sách kinh tế là sự vận dụng quy luật kinh tế",
+            "B. Chính sách kinh tế không phụ thuộc vào quy luật kinh tế.",
+            "C. Chính sách kinh tế không tác động đến quan hệ lợi ích.",
+            "D. Chính sách kinh tế không cần phù hợp với quy luật kinh tế."
+        ],
+        "answer": 0,
+        "explanation": "Quy luật kinh tế là khách quan; chính sách kinh tế là sản phẩm chủ quan của Nhà nước, là sự vận dụng quy luật kinh tế và phải phù hợp với quy luật. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 5,
+        "question": "Câu 5 (Chương 1): Ai là người đầu tiên đề xuất môn “Kinh tế chính trị”?",
+        "options": [
+            "A. Thomas Mun",
+            "B. Antoine de Montchrétien",
+            "C. Adam Smith",
+            "D. David Ricardo"
+        ],
+        "answer": 1,
+        "explanation": "Antoine de Montchrétien (1615) là người đầu tiên đề xuất thuật ngữ và môn “Kinh tế chính trị”. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 6,
+        "question": "Câu 6 (Chương 1): Đến thế kỷ XVIII, với sự xuất hiện hệ thống lý luận của nhà kinh tế học nào, kinh tế chính trị chính thức trở thành môn học với các phạm trù, khái niệm chuyên ngành?",
+        "options": [
+            "A. William Petty",
+            "B. Adam Smith",
+            "C. Karl Marx",
+            "D. David Ricardo"
+        ],
+        "answer": 1,
+        "explanation": "Adam Smith với tác phẩm “Của cải của các dân tộc” (1776) xây dựng hệ thống lý luận hoàn chỉnh đầu tiên, đưa kinh tế chính trị thành một môn học thực thụ. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 7,
+        "question": "Câu 7 (Chương 1): Theo Chủ nghĩa trọng thương, nguồn gốc của lợi nhuận xuất phát từ lĩnh vực nào?",
+        "options": [
+            "A. Sản xuất công nghiệp tạo ra giá trị thặng dư",
+            "B. Thương nghiệp, thông qua việc mua bán ngang giá.",
+            "C. Sản xuất nông nghiệp tạo ra giá trị thặng dư",
+            "D. Thương nghiệp, thông qua việc mua rẻ, bán đắt."
+        ],
+        "answer": 3,
+        "explanation": "Trọng thương cho rằng lợi nhuận sinh ra trong lưu thông, từ ngoại thương, do mua rẻ – bán đắt (không phải mua bán ngang giá). <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 8,
+        "question": "Câu 8 (Chương 1): Bước tiến về mặt lý luận của Chủ nghĩa trọng nông so với Chủ nghĩa trọng thương là gì?",
+        "options": [
+            "A. Hướng việc nghiên cứu vào sản xuất nông nghiệp",
+            "B. Hướng việc nghiên cứu vào sản xuất công nghiệp",
+            "C. Hướng việc nghiên cứu vào lưu thông hàng hóa",
+            "D. Hướng việc nghiên cứu vào hành vi kinh tế của con người"
+        ],
+        "answer": 0,
+        "explanation": "Trọng nông chuyển đối tượng nghiên cứu từ lĩnh vực lưu thông sang lĩnh vực sản xuất (cụ thể là nông nghiệp). <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 9,
+        "question": "Câu 9 (Chương 1): Sự phát triển vượt bậc của lý luận Kinh tế chính trị cổ điển Anh so với Chủ nghĩa trọng nông là gì?",
+        "options": [
+            "A. Đã rút ra được giá trị là do công dụng của sản phẩm tạo ra",
+            "B. Đã rút ra được giá trị là do tính khan hiếm của sản phẩm tạo ra",
+            "C. Đã rút ra được giá trị là do hao phí lao động tạo ra",
+            "D. Đã rút ra được giá trị là do cung – cầu hàng hóa tạo ra"
+        ],
+        "answer": 2,
+        "explanation": "Kinh tế chính trị cổ điển Anh xác định giá trị hàng hóa do hao phí lao động tạo ra – nền tảng của lý thuyết giá trị – lao động. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 10,
+        "question": "Câu 10 (Chương 1): Nhận định nào là hạn chế về mặt lý luận của Chủ nghĩa trọng nông?",
+        "options": [
+            "A. Giá trị thặng dư là do máy móc tạo ra",
+            "B. Nguồn gốc của lợi nhuận là từ mua rẻ, bán đắt",
+            "C. Giá trị là do hao phí lao động tạo ra",
+            "D. Chỉ có sản xuất trong nông nghiệp mới làm tăng giá trị của cải"
+        ],
+        "answer": 3,
+        "explanation": "Hạn chế của trọng nông: cho rằng chỉ nông nghiệp mới là sản xuất, công nghiệp và thương nghiệp là “không sinh lợi”. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 11,
+        "question": "Câu 11 (Chương 1): Chủ nghĩa trọng nông lý giải lợi nhuận xuất phát từ đâu?",
+        "options": [
+            "A. Thương nghiệp",
+            "B. Sản xuất nông nghiệp",
+            "C. Lưu thông",
+            "D. Mua bán giá rẻ"
+        ],
+        "answer": 1,
+        "explanation": "Trọng nông cho rằng “sản phẩm ròng” (lợi nhuận) chỉ được tạo ra trong sản xuất nông nghiệp. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 12,
+        "question": "Câu 12 (Chương 1): Mục đích nghiên cứu ở cấp độ cao nhất của kinh tế chính trị Mác - Lênin là gì?",
+        "options": [
+            "A. Phát hiện ra sự thay đổi của GDP, tỉ lệ thất nghiệp, chỉ số giá cả trong nền kinh tế",
+            "B. Phát hiện ra quy luật chi phối quan hệ giữa người với người trong sản xuất và trao đổi",
+            "C. Phát hiện ra động cơ hành vi của các chủ thể kinh tế đơn lẻ như công ty và người tiêu dùng",
+            "D. Phát hiện ra các tiêu chí để lựa chọn chiến lược phát triển kinh tế ở các nước đang phát triển"
+        ],
+        "answer": 1,
+        "explanation": "Mục đích cao nhất là phát hiện các quy luật kinh tế chi phối quan hệ giữa người với người trong sản xuất và trao đổi. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 13,
+        "question": "Câu 13 (Chương 1): Theo kinh tế chính trị cổ điển Anh, giá trị được hình thành từ đâu?",
+        "options": [
+            "A. Sản xuất nông nghiệp",
+            "B. Sản xuất công nghiệp",
+            "C. Từ hao phí lao động",
+            "D. Từ mua bán hàng hóa"
+        ],
+        "answer": 2,
+        "explanation": "Smith và Ricardo cho rằng giá trị do lao động hao phí tạo ra. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 14,
+        "question": "Câu 14 (Chương 1): Theo quan điểm của kinh tế chính trị Mác – Lênin, các hiện tượng kinh tế đều bị chi phối bởi điều gì?",
+        "options": [
+            "A. Lựa chọn cá nhân.",
+            "B. Quy luật kinh tế.",
+            "C. Chính sách kinh tế.",
+            "D. Sự tác động của kiến trúc thượng tầng."
+        ],
+        "answer": 1,
+        "explanation": "Các hiện tượng kinh tế vận động theo quy luật kinh tế khách quan, không phụ thuộc ý chí con người. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 15,
+        "question": "Câu 15 (Chương 1): Kết quả của việc áp dụng đúng các quy luật kinh tế khách quan thông qua điều chỉnh hành vi cá nhân hoặc các chính sách kinh tế là gì?",
+        "options": [
+            "A. Gây ra sự chậm trễ trong sự phát triển kinh tế",
+            "B. Góp phần thúc đẩy sự phát triển xã hội và kinh tế",
+            "C. Tạo ra sự bất ổn trong hệ thống tài chính",
+            "D. Làm giảm hiệu suất sản xuất"
+        ],
+        "answer": 1,
+        "explanation": "Vận dụng đúng quy luật khách quan sẽ thúc đẩy phát triển kinh tế – xã hội; vận dụng sai sẽ kìm hãm. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 16,
+        "question": "Câu 16 (Chương 2): Quan hệ tỷ lệ về lượng mà giá trị sử dụng này đổi lấy giá trị sử dụng khác được gọi là gì?",
+        "options": [
+            "A. Giá trị xã hội",
+            "B. Giá trị cá biệt",
+            "C. Giá trị thặng dư",
+            "D. Giá trị trao đổi"
+        ],
+        "answer": 3,
+        "explanation": "Giá trị trao đổi là quan hệ tỷ lệ về lượng giữa các giá trị sử dụng khi trao đổi với nhau. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 17,
+        "question": "Câu 17 (Chương 2): Đặc điểm nào giúp hai hàng hóa khác nhau có thể trao đổi được với nhau?",
+        "options": [
+            "A. Đều là sản phẩm của lao động, đều có hao phí sức lao động kết tinh trong đó.",
+            "B. Đều là sản phẩm của tự nhiên, do tự nhiên đem lại.",
+            "C. Đều thỏa mãn nhu cầu nhất định của con người.",
+            "D. Đều là sản phẩm của đối tượng lao động, đều có lao động kết tinh trong đó."
+        ],
+        "answer": 0,
+        "explanation": "Cơ sở chung để so sánh, trao đổi các hàng hóa khác nhau là chúng đều là sản phẩm của lao động, đều kết tinh hao phí lao động. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 18,
+        "question": "Câu 18 (Chương 2): Mâu thuẫn nào tạo ra nguy cơ khủng hoảng tiềm ẩn của nền sản xuất hàng hóa?",
+        "options": [
+            "A. Mâu thuẫn giữa lao động trừu tượng với lao động xã hội",
+            "B. Mâu thuẫn giữa lao động tư nhân với lao động xã hội",
+            "C. Mâu thuẫn giữa lao động tư nhân với lao động phức tạp",
+            "D. Mâu thuẫn giữa lao động cụ thể với lao động phức tạp"
+        ],
+        "answer": 1,
+        "explanation": "Mâu thuẫn giữa lao động tư nhân và lao động xã hội là mầm mống của khủng hoảng “sản xuất thừa” trong sản xuất hàng hóa. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 19,
+        "question": "Câu 19 (Chương 2): Điểm giống nhau khi tăng năng suất lao động và tăng cường độ lao động là gì?",
+        "options": [
+            "A. Đều làm cho chất lượng sản phẩm tăng lên trong cùng một thời gian lao động.",
+            "B. Đều làm cho giá cả sản phẩm tăng lên trong cùng một đơn vị thời gian",
+            "C. Đều làm cho số lượng sản phẩm tăng lên trong cùng một thời gian lao động.",
+            "D. Đều làm cho số lượng sản phẩm giảm đi trong cùng một thời gian lao động."
+        ],
+        "answer": 2,
+        "explanation": "Cả hai đều làm tăng số lượng sản phẩm trong cùng một khoảng thời gian lao động. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 20,
+        "question": "Câu 20 (Chương 2): Kết quả của việc tăng năng suất lao động là gì?",
+        "options": [
+            "A. Giá trị sử dụng một đơn vị hàng hóa giảm.",
+            "B. Giá trị một đơn vị hàng hóa không đổi.",
+            "C. Giá trị một đơn vị hàng hóa tăng.",
+            "D. Giá trị một đơn vị hàng hóa giảm."
+        ],
+        "answer": 3,
+        "explanation": "Năng suất tăng → số sản phẩm tăng, tổng giá trị không đổi → giá trị 1 đơn vị hàng hóa giảm. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 21,
+        "question": "Câu 21 (Chương 2): Để thỏa mãn nhu cầu đa dạng với năng lực sản xuất khác biệt và có giới hạn, những người sản xuất phải làm gì?",
+        "options": [
+            "A. Sản xuất tất cả các loại sản phẩm.",
+            "B. Tập trung vào một loại sản phẩm duy nhất.",
+            "C. Trao đổi sản phẩm với nhau.",
+            "D. Làm việc độc lập và không trao đổi."
+        ],
+        "answer": 2,
+        "explanation": "Do phân công lao động, mỗi người chỉ làm một vài sản phẩm nên phải trao đổi sản phẩm với nhau. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 22,
+        "question": "Câu 22 (Chương 2): Cơ sở nào là thước đo lượng giá trị hàng hoá?",
+        "options": [
+            "A. Lượng nhiên liệu, năng lượng đã tiêu hao",
+            "B. Lượng thời gian lao động của đơn vị sản xuất cá biệt",
+            "C. Lượng thời gian lao động xã hội cần thiết",
+            "D. Lượng vật tư kỹ thuật đã sử dụng"
+        ],
+        "answer": 2,
+        "explanation": "Lượng giá trị hàng hóa được đo bằng thời gian lao động xã hội cần thiết. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 23,
+        "question": "Câu 23 (Chương 2): Khi năng suất và cường độ lao động thay đổi, lượng giá trị của một đơn vị hàng hoá thay đổi như thế nào?",
+        "options": [
+            "A. Tỷ lệ nghịch với năng suất lao động và cường độ lao động",
+            "B. Tỷ lệ nghịch với năng suất lao động, không phụ thuộc vào cường độ lao động",
+            "C. Tỷ lệ thuận với năng suất lao động và cường độ lao động",
+            "D. Tỷ lệ thuận với cường độ lao động, không phụ thuộc vào năng suất lao động"
+        ],
+        "answer": 1,
+        "explanation": "Giá trị 1 đơn vị hàng hóa tỷ lệ nghịch với năng suất lao động; cường độ lao động tăng thì số sản phẩm tăng nhưng giá trị 1 đơn vị không đổi. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 24,
+        "question": "Câu 24 (Chương 2): Yếu tố nào giúp con người phát hiện thêm các giá trị sử dụng của hàng hóa?",
+        "options": [
+            "A. Giá trị của hàng hóa",
+            "B. Sự hao phí sức lao động của con người",
+            "C. Trình độ khoa học công nghệ",
+            "D. Cường độ lao động"
+        ],
+        "answer": 2,
+        "explanation": "Khoa học – công nghệ phát triển giúp con người khám phá thêm công dụng (giá trị sử dụng) mới của vật. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 25,
+        "question": "Câu 25 (Chương 2): Thị trường giúp phân bổ nguồn lực như thế nào trong nền kinh tế?",
+        "options": [
+            "A. Phân bổ nguồn lực dựa trên sự ưu tiên của chính phủ",
+            "B. Phân bổ nguồn lực dựa trên hệ thống công việc cố định",
+            "C. Phân bổ nguồn lực theo cách tối ưu hóa hiệu suất",
+            "D. Phân bổ nguồn lực dựa trên sự tùy ý của các doanh nghiệp"
+        ],
+        "answer": 2,
+        "explanation": "Thị trường (qua tín hiệu giá, cung – cầu, cạnh tranh) dẫn dắt nguồn lực đến nơi sử dụng hiệu quả nhất. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 26,
+        "question": "Câu 26 (Chương 2): Chọn phương án SAI về mối quan hệ giữa giá cả và giá trị.",
+        "options": [
+            "A. Giá trị là cơ sở của giá cả, là yếu tố quyết định giá cả",
+            "B. Giá cả là hình thức biểu hiện bằng tiền của giá trị",
+            "C. Giá cả có thể tách rời giá trị và lên xuống xoay quanh giá trị",
+            "D. Những nhân tố tác động đến giá cả cũng tác động đến giá trị"
+        ],
+        "answer": 3,
+        "explanation": "Sai ở D: cung – cầu, cạnh tranh, sức mua của tiền… làm giá cả lên xuống nhưng không làm thay đổi giá trị hàng hóa. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 27,
+        "question": "Câu 27 (Chương 2): Thực chất của việc mua bán đất đai là gì?",
+        "options": [
+            "A. Mua bán quyền sử dụng đất",
+            "B. Mua bán giá trị của đất",
+            "C. Mua bán hao phí sức lao động cho việc cải tạo đất",
+            "D. Mua bán tính hữu ích của đất"
+        ],
+        "answer": 0,
+        "explanation": "Đất đai không do lao động tạo ra nên không có giá trị; thực chất là mua bán quyền sử dụng đất. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 28,
+        "question": "Câu 28 (Chương 2): Chức năng nào của tiền gắn liền với tín dụng thương mại?",
+        "options": [
+            "A. Phương tiện lưu thông",
+            "B. Phương tiện cất trữ",
+            "C. Phương tiện thanh toán",
+            "D. Thước đo giá trị"
+        ],
+        "answer": 2,
+        "explanation": "Mua bán chịu (tín dụng thương mại) dùng tiền để trả nợ, nộp thuế… tức chức năng phương tiện thanh toán. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 29,
+        "question": "Câu 29 (Chương 2): Thời gian đòi hỏi để sản xuất ra một giá trị sử dụng nào đó trong những điều kiện bình thường của xã hội với trình độ thành thạo trung bình, cường độ lao động trung bình, được gọi là gì?",
+        "options": [
+            "A. Thời gian lao động xã hội cần thiết",
+            "B. Thời gian lao động cá biệt",
+            "C. Thời gian lao động thặng dư",
+            "D. Thời gian lưu thông hàng hóa"
+        ],
+        "answer": 0,
+        "explanation": "Đây là định nghĩa thời gian lao động xã hội cần thiết. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 30,
+        "question": "Câu 30 (Chương 2): Theo yêu cầu của quy luật giá trị, những người sản xuất và trao đổi hàng hóa phải tuân theo “mệnh lệnh” của yếu tố nào?",
+        "options": [
+            "A. Giá cả thị trường",
+            "B. Giá cả cá biệt",
+            "C. Giá trị cá biệt",
+            "D. Giá trị sử dụng"
+        ],
+        "answer": 0,
+        "explanation": "Quy luật giá trị tác động thông qua sự lên xuống của giá cả thị trường – “mệnh lệnh” mà người sản xuất phải theo. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 31,
+        "question": "Câu 31 (Chương 2): Ai là người đầu tiên phát hiện ra tính hai mặt của lao động sản xuất hàng hóa?",
+        "options": [
+            "A. Ricardo.",
+            "B. Adam Smith.",
+            "C. Karl Marx.",
+            "D. John Stuart Mill."
+        ],
+        "answer": 2,
+        "explanation": "C. Mác là người đầu tiên phát hiện tính hai mặt của lao động sản xuất hàng hóa: lao động cụ thể và lao động trừu tượng. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 32,
+        "question": "Câu 32 (Chương 2): Khi khối lượng tiền giấy phát hành vượt quá khối lượng tiền cần thiết cho lưu thông thì sẽ xảy ra hiện tượng gì?",
+        "options": [
+            "A. Lạm phát",
+            "B. Giảm pháp",
+            "C. Giá cả hàng hóa giảm xuống",
+            "D. Tiền công danh nghĩa tăng"
+        ],
+        "answer": 0,
+        "explanation": "Tiền giấy phát hành vượt mức cần thiết làm đồng tiền mất giá, giá cả tăng → lạm phát. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 33,
+        "question": "Câu 33 (Chương 2): Chọn phương án đúng trong các nhận định sau.",
+        "options": [
+            "A. Giá trị của hàng hóa được tạo ra thông qua trao đổi",
+            "B. Thị trường thông tin, định hướng cho mọi nhu cầu sản xuất kinh doanh",
+            "C. Vai trò của thị trường tách rời với cơ chế thị trường",
+            "D. Nền kinh tế thị trường cản trở động lực cho sự sáng tạo của các chủ thể kinh tế"
+        ],
+        "answer": 1,
+        "explanation": "Thị trường cung cấp thông tin và định hướng cho sản xuất kinh doanh. Giá trị do lao động tạo ra (không phải do trao đổi); thị trường gắn liền với cơ chế thị trường; kinh tế thị trường tạo động lực sáng tạo. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 34,
+        "question": "Câu 34 (Chương 2): Theo quy luật lưu thông tiền tệ, việc đưa số lượng tiền cần thiết cho lưu thông trong mỗi thời kỳ nhất định phải thống nhất với yếu tố nào?",
+        "options": [
+            "A. Lưu thông hàng hóa",
+            "B. Tỷ suất lợi nhuận",
+            "C. Tỷ suất giá trị thặng dư",
+            "D. Tỷ suất lợi nhuận bình quân"
+        ],
+        "answer": 0,
+        "explanation": "Số lượng tiền cần cho lưu thông phải thống nhất với lưu thông hàng hóa (tổng giá cả hàng hóa và tốc độ lưu thông tiền tệ). <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 35,
+        "question": "Câu 35 (Chương 2): Quy luật kinh tế nào có tác dụng điều tiết quan hệ giữa sản xuất và lưu thông hàng hoá; làm thay đổi cơ cấu và quy mô thị trường, ảnh hưởng tới giá cả của hàng hóa?",
+        "options": [
+            "A. Lưu thông tiền tệ",
+            "B. Cạnh tranh",
+            "C. Tiết kiệm chi phí sản xuất",
+            "D. Cung - Cầu"
+        ],
+        "answer": 3,
+        "explanation": "Quy luật cung – cầu điều tiết quan hệ sản xuất – lưu thông, làm thay đổi cơ cấu, quy mô thị trường và giá cả. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 36,
+        "question": "Câu 36 (Chương 2): Thuật ngữ nào đề cập đến tổng thể các mối quan hệ kinh tế gồm cung, cầu, giá cả; quan hệ hàng - tiền; quan hệ giá trị, giá trị sử dụng; quan hệ hợp tác, cạnh tranh?",
+        "options": [
+            "A. Sản xuất",
+            "B. Lưu thông",
+            "C. Thị trường",
+            "D. Tư bản"
+        ],
+        "answer": 2,
+        "explanation": "Đây là khái niệm thị trường theo nghĩa rộng. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 37,
+        "question": "Câu 37 (Chương 2): Sự phát triển đa dạng về nhu cầu của chủ thể nào là động lực quan trọng, ảnh hưởng trực tiếp đến sản xuất?",
+        "options": [
+            "A. Thương nhân, trung gian môi giới",
+            "B. Người sản xuất",
+            "C. Người tiêu dùng",
+            "D. Nhà nước"
+        ],
+        "answer": 2,
+        "explanation": "Nhu cầu của người tiêu dùng ngày càng đa dạng là động lực định hướng và thúc đẩy sản xuất. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 38,
+        "question": "Câu 38 (Chương 2): Hoạt động của mỗi chủ thể trong thị trường chịu sự tuân thủ, sự điều tiết, định hướng của chủ thể nào thông qua hệ thống pháp luật và chính sách kinh tế?",
+        "options": [
+            "A. Tổ chức chính trị - xã hội – nghề nghiệp",
+            "B. Tổ chức phi chính phủ",
+            "C. Nhà nước",
+            "D. Tập đoàn kinh tế đa quốc gia"
+        ],
+        "answer": 2,
+        "explanation": "Nhà nước quản lý, điều tiết thị trường bằng pháp luật và chính sách kinh tế. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 39,
+        "question": "Câu 39 (Chương 2): Hệ thống các quan hệ mang tính tự điều chỉnh, tuân theo các quy luật kinh tế mang tính khách quan trong nền sản xuất hàng hóa được gọi là gì?",
+        "options": [
+            "A. Quan hệ thị trường",
+            "B. Quy tắc thị trường",
+            "C. Thể chế thị trường",
+            "D. Cơ chế thị trường"
+        ],
+        "answer": 3,
+        "explanation": "Đây là định nghĩa cơ chế thị trường. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 40,
+        "question": "Câu 40 (Chương 2): Tổng giá cả hàng hóa ở trong lưu thông là 120 tỷ đồng, tổng số giá cả hàng hóa bán chịu là 10 tỷ, tổng số tiền đã phải thanh toán để khấu trừ cho nhau là 20 tỷ, tổng số tiền đến kì thanh toán là 70 tỷ, số lần luân chuyển trung bình trong năm của đơn vị tiền tệ là 20 vòng. Tính số lượng tiền cần thiết cho lưu thông hàng hóa?",
+        "options": [
+            "A. 11 tỷ",
+            "B. 10 tỷ",
+            "C. 9 tỷ",
+            "D. 8 tỷ"
+        ],
+        "answer": 3,
+        "explanation": "M = (P·Q − bán chịu − khấu trừ + đến kỳ thanh toán) / V = (120 − 10 − 20 + 70) / 20 = 160 / 20 = <b>8 tỷ</b>. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 41,
+        "question": "Câu 41 (Chương 2): Chính phủ thường can thiệp vào thị trường nhằm mục đích gì?",
+        "options": [
+            "A. Làm tăng lợi nhuận cho người tiêu dùng",
+            "B. Tạo ra các rào cản cho hoạt động kinh doanh",
+            "C. Khắc phục các khuyết tật của thị trường và đảm bảo hoạt động hiệu quả",
+            "D. Loại trừ người tiêu dùng khỏi thị trường"
+        ],
+        "answer": 2,
+        "explanation": "Chính phủ can thiệp để khắc phục thất bại/khuyết tật của thị trường và bảo đảm thị trường vận hành hiệu quả, công bằng. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 42,
+        "question": "Câu 42 (Chương 2): Vai trò của chủ thể trung gian trong nền kinh tế thị trường là gì?",
+        "options": [
+            "A. Tạo ra lợi nhuận tối đa cho họ",
+            "B. Tạo ra giá trị xã hội",
+            "C. Kết nối, trao đổi thông tin giữa người sản xuất và người tiêu dùng",
+            "D. Loại trừ các đối thủ cạnh tranh"
+        ],
+        "answer": 2,
+        "explanation": "Chủ thể trung gian là cầu nối, kết nối và truyền thông tin giữa người sản xuất và người tiêu dùng. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 43,
+        "question": "Câu 43 (Chương 2): Sức mua của người tiêu dùng là yếu tố quyết định sự phát triển bền vững của người sản xuất. Điều này được hiểu như thế nào?",
+        "options": [
+            "A. Người tiêu dùng luôn mua hàng hóa và dịch vụ mà họ không cần",
+            "B. Sức mua của người tiêu dùng không ảnh hưởng đến người sản xuất",
+            "C. Sự phát triển đa dạng về nhu cầu của người tiêu dùng quan trọng cho sự phát triển sản xuất",
+            "D. Người sản xuất không quan tâm đến người tiêu dùng"
+        ],
+        "answer": 2,
+        "explanation": "Nhu cầu và sức mua của người tiêu dùng quyết định quy mô, cơ cấu sản xuất. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 44,
+        "question": "Câu 44 (Chương 2): Khái niệm nào đề cập đến sự cam kết của người sản xuất đóng góp cho sự phát triển bền vững theo cách có lợi cho các doanh nghiệp cũng như vì sự phát triển chung của xã hội?",
+        "options": [
+            "A. Trách nhiệm xã hội",
+            "B. Trách nhiệm tài chính",
+            "C. Trách nhiệm môi trường",
+            "D. Trách nhiệm pháp lý"
+        ],
+        "answer": 0,
+        "explanation": "Đây là khái niệm trách nhiệm xã hội của doanh nghiệp. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 45,
+        "question": "Câu 45 (Chương 2): Cạnh tranh có thể thúc đẩy năng lực thỏa mãn nhu cầu của xã hội như thế nào?",
+        "options": [
+            "A. Tạo ra hàng hóa và dịch vụ đa dạng",
+            "B. Tạo ra giá trị xã hội",
+            "C. Làm giảm chi phí sử dụng nguồn lực",
+            "D. Tạo ra sự đồng thuận"
+        ],
+        "answer": 0,
+        "explanation": "Cạnh tranh buộc doanh nghiệp đổi mới, tạo ra hàng hóa, dịch vụ đa dạng, chất lượng tốt hơn, nhờ đó nâng cao năng lực thỏa mãn nhu cầu xã hội. (Đáp án chọn theo ý chính của giáo trình.) <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 46,
+        "question": "Câu 46 (Chương 2): Tại sao cạnh tranh trong nền kinh tế thị trường thường xuyên và quyết liệt hơn khi kinh tế phát triển?",
+        "options": [
+            "A. Vì người tiêu dùng yêu cầu sự cạnh tranh",
+            "B. Vì quy luật giá trị không còn áp dụng",
+            "C. Vì nguồn lực trở nên khan hiếm",
+            "D. Vì có nhiều chủ thể tham gia thị trường"
+        ],
+        "answer": 3,
+        "explanation": "Kinh tế càng phát triển, càng có nhiều chủ thể tham gia thị trường nên cạnh tranh càng thường xuyên, quyết liệt. (Đáp án chọn theo ý chính của giáo trình.) <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 47,
+        "question": "Câu 47 (Chương 2): Cạnh tranh thúc đẩy sự phát triển lực lượng sản xuất bằng cách nào?",
+        "options": [
+            "A. Tạo ra giá trị xã hội cao hơn",
+            "B. Hạn chế sự đổi mới",
+            "C. Làm tăng giá trị hàng hóa",
+            "D. Cải tiến kỹ thuật và công nghệ"
+        ],
+        "answer": 3,
+        "explanation": "Để thắng trong cạnh tranh, doanh nghiệp phải cải tiến kỹ thuật, công nghệ, nâng cao năng suất lao động. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 48,
+        "question": "Câu 48 (Chương 2): Quy luật cạnh tranh yêu cầu các chủ thể kinh tế phải hành động như thế nào?",
+        "options": [
+            "A. Tránh hợp tác",
+            "B. Không đối đầu với nhau",
+            "C. Hợp tác và chấp nhận cạnh tranh",
+            "D. Tạo ra các thỏa thuận độc quyền"
+        ],
+        "answer": 2,
+        "explanation": "Các chủ thể vừa hợp tác vừa chấp nhận cạnh tranh để tồn tại và phát triển. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 49,
+        "question": "Câu 49 (Chương 2): Cung - cầu có mối quan hệ như thế nào với giá cả hàng hóa?",
+        "options": [
+            "A. Không ảnh hưởng đến giá cả hàng hóa",
+            "B. Chỉ làm giảm giá cả hàng hóa",
+            "C. Chỉ làm tăng giá cả hàng hóa",
+            "D. Ảnh hưởng trực tiếp đến giá cả hàng hóa"
+        ],
+        "answer": 3,
+        "explanation": "Cung – cầu tác động trực tiếp đến giá cả (cầu > cung giá tăng; cầu < cung giá giảm), và ngược lại giá cả tác động đến cung – cầu. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 50,
+        "question": "Câu 50 (Chương 2): Theo quy luật giá trị, người sản xuất muốn bán được hàng hóa trên thị trường cần phải làm gì?",
+        "options": [
+            "A. Tìm cách tăng giá trị cá biệt hàng hóa",
+            "B. Giảm giá trị xã hội của hàng hóa",
+            "C. Làm cho giá trị cá biệt phù hợp với thời gian lao động xã hội cần thiết",
+            "D. Sản xuất hàng hóa độc quyền"
+        ],
+        "answer": 2,
+        "explanation": "Quy luật giá trị yêu cầu hao phí lao động cá biệt phải phù hợp (≤) thời gian lao động xã hội cần thiết. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 51,
+        "question": "Câu 51 (Chương 2): Khuyết tật của nền kinh tế thị trường có thể gây ra hiện tượng gì đối với xã hội?",
+        "options": [
+            "A. Sáng tạo và phát triển đa dạng",
+            "B. Tập trung nguồn lực",
+            "C. Phân hóa xã hội về thu nhập và cơ hội",
+            "D. Ổn định và bình đẳng"
+        ],
+        "answer": 2,
+        "explanation": "Khuyết tật của kinh tế thị trường gây phân hóa giàu nghèo, bất bình đẳng về thu nhập và cơ hội. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 52,
+        "question": "Câu 52 (Chương 2): Điều gì góp phần gây ra khuyết tật trong nền kinh tế thị trường?",
+        "options": [
+            "A. Tương tác tích cực giữa chính phủ và doanh nghiệp",
+            "B. Sự tạo điều kiện thuận lợi cho hoạt động tự do",
+            "C. Động cơ lợi nhuận và áp lực tìm kiếm lợi nhuận tối đa",
+            "D. Khả năng tự khắc phục của cơ chế thị trường"
+        ],
+        "answer": 2,
+        "explanation": "Chạy theo lợi nhuận tối đa dẫn đến độc quyền, ô nhiễm môi trường, gian lận, bất bình đẳng… <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 53,
+        "question": "Câu 53 (Chương 2): Nền kinh tế thị trường có thể đóng góp vào sự tiến bộ và văn minh của xã hội bằng cách nào?",
+        "options": [
+            "A. Bằng cách tạo ra sự tập trung nguồn lực xã hội",
+            "B. Bằng cách hạn chế sự sáng tạo cá nhân",
+            "C. Bằng cách quản lý tài chính một cách nghiêm ngặt",
+            "D. Bằng cách thúc đẩy sự thỏa mãn nhu cầu và đáp ứng đầy đủ mọi chủng loại hàng hóa, dịch vụ"
+        ],
+        "answer": 3,
+        "explanation": "Kinh tế thị trường thỏa mãn ngày càng đa dạng nhu cầu của xã hội, góp phần tiến bộ, văn minh. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 54,
+        "question": "Câu 54 (Chương 2): Chọn phương án đúng về ưu điểm của nền kinh tế thị trường.",
+        "options": [
+            "A. Sự tùy ý của chính phủ trong quản lý kinh tế",
+            "B. Sự giới hạn đối với sự phát triển kinh tế",
+            "C. Sự hạn chế đối với quyền tự do của cá nhân",
+            "D. Phát huy tốt nhất tiềm năng và lợi thế của các chủ thể"
+        ],
+        "answer": 3,
+        "explanation": "Ưu điểm: phát huy tốt nhất tiềm năng, lợi thế của mọi chủ thể, vùng miền, quốc gia. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 55,
+        "question": "Câu 55 (Chương 2): Đặc trưng nào của nền kinh tế thị trường có thể tạo ra tính đặc thù và mô hình kinh tế thị trường khác nhau cho mỗi quốc gia?",
+        "options": [
+            "A. Sự đa dạng của các chủ thể",
+            "B. Tự động hoá công việc sản xuất",
+            "C. Điều kiện tự nhiên",
+            "D. Chế độ chính trị - xã hội"
+        ],
+        "answer": 3,
+        "explanation": "Chế độ chính trị – xã hội quyết định tính đặc thù và mô hình kinh tế thị trường riêng của mỗi quốc gia. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 56,
+        "question": "Câu 56 (Chương 2): Động lực chính của các chủ thể sản xuất kinh doanh trong kinh tế thị trường là gì?",
+        "options": [
+            "A. Quyết định của chính phủ",
+            "B. Lợi nhuận và lợi ích kinh tế - xã hội",
+            "C. Sự đồng thuận của người lao động",
+            "D. Sự phân bổ nguồn lực của các công ty lớn"
+        ],
+        "answer": 1,
+        "explanation": "Lợi nhuận và lợi ích kinh tế – xã hội là động lực chủ yếu của các chủ thể. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 57,
+        "question": "Câu 57 (Chương 2): Cơ chế thị trường là hệ thống các quan hệ kinh tế tự điều chỉnh theo yếu tố nào?",
+        "options": [
+            "A. Chính phủ",
+            "B. Các doanh nghiệp lớn",
+            "C. Cộng đồng xã hội",
+            "D. Các quy luật kinh tế"
+        ],
+        "answer": 3,
+        "explanation": "Cơ chế thị trường là hệ thống quan hệ kinh tế tự điều chỉnh theo yêu cầu của các quy luật kinh tế khách quan. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 58,
+        "question": "Câu 58 (Chương 2): Cơ chế thị trường là phương thức cơ bản để phân phối và sử dụng các nguồn tài nguyên thông qua yếu tố nào?",
+        "options": [
+            "A. sự tùy ý của người dân",
+            "B. sự quyết định của chính phủ",
+            "C. sự ưu tiên các doanh nghiệp",
+            "D. hệ thống quan hệ kinh tế"
+        ],
+        "answer": 3,
+        "explanation": "Thông qua hệ thống quan hệ kinh tế (cung – cầu, giá cả, cạnh tranh…) nguồn lực được phân phối và sử dụng. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 59,
+        "question": "Câu 59 (Chương 2): Nhận định nào là đúng về cơ chế thị trường?",
+        "options": [
+            "A. Cơ chế thị trường là một bản thể vật lý quản lý tất cả các giao dịch thị trường",
+            "B. Cơ chế thị trường là hệ thống các quy tắc kỹ thuật quản lý thị trường",
+            "C. Cơ chế thị trường là hệ thống các quan hệ mang tính tự điều chỉnh theo yêu cầu của các quy luật kinh tế",
+            "D. Cơ chế thị trường là một hệ thống các quy tắc quy định bởi chính phủ"
+        ],
+        "answer": 2,
+        "explanation": "Cơ chế thị trường là hệ thống các quan hệ mang tính tự điều chỉnh theo yêu cầu của các quy luật kinh tế. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 60,
+        "question": "Câu 60 (Chương 2): Theo nghĩa rộng, thị trường được hiểu là gì?",
+        "options": [
+            "A. Các trung tâm mua bán",
+            "B. Các mối quan hệ kinh tế và xã hội",
+            "C. Các sân vận động và sự kiện thể thao",
+            "D. Các công viên và khu du lịch"
+        ],
+        "answer": 1,
+        "explanation": "Theo nghĩa rộng, thị trường là tổng thể các quan hệ kinh tế – xã hội liên quan đến trao đổi, mua bán. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 61,
+        "question": "Câu 61 (Chương 2): Giá trị của dịch vụ được tạo ra bởi yếu tố nào?",
+        "options": [
+            "A. Sự cất trữ của dịch vụ",
+            "B. Số lượng người tiêu dùng",
+            "C. Sức lao động xã hội",
+            "D. Giá trị của tiền"
+        ],
+        "answer": 2,
+        "explanation": "Dịch vụ là hàng hóa vô hình; giá trị của nó do lao động xã hội hao phí tạo ra. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 62,
+        "question": "Câu 62 (Chương 2): Trong quá trình trao đổi, mua bán hàng hóa, tiền phản ánh điều gì?",
+        "options": [
+            "A. Lượng lao động cá nhân",
+            "B. Giá trị của hàng hóa",
+            "C. Khối lượng của hàng hóa",
+            "D. Độ phổ biến của hàng hóa"
+        ],
+        "answer": 1,
+        "explanation": "Tiền là hình thái biểu hiện giá trị của hàng hóa. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 63,
+        "question": "Câu 63 (Chương 2): Chọn ý đúng về mối quan hệ giữa tăng cường độ lao động và tổng lượng giá trị hàng hóa.",
+        "options": [
+            "A. Tăng cường độ lao động giảm tổng lượng giá trị hàng hóa",
+            "B. Tăng cường độ lao động tăng tổng lượng giá trị hàng hóa",
+            "C. Tăng cường độ lao động không ảnh hưởng đến tổng lượng giá trị hàng hóa",
+            "D. Tăng cường độ lao động không có mối quan hệ với tổng lượng giá trị hàng hóa"
+        ],
+        "answer": 1,
+        "explanation": "Tăng cường độ = lao động khẩn trương hơn, hao phí nhiều lao động hơn trong cùng thời gian → tổng giá trị tăng (giá trị 1 đơn vị hàng hóa không đổi). Khác với tăng năng suất: tổng giá trị không đổi. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 64,
+        "question": "Câu 64 (Chương 2): Mâu thuẫn giữa lao động tư nhân và lao động xã hội xuất hiện khi nào?",
+        "options": [
+            "A. Khi sản phẩm phù hợp với nhu cầu xã hội.",
+            "B. Khi mức hao phí lao động cá biệt thấp hơn mức hao phí xã hội có thể chấp nhận.",
+            "C. Khi có sự thống nhất giữa lợi ích của người sản xuất và người tiêu dùng.",
+            "D. Khi có sự không phù hợp giữa sản phẩm cá nhân và yêu cầu xã hội hoặc khi hao phí cá biệt cao hơn mức hao phí xã hội có thể chấp nhận."
+        ],
+        "answer": 3,
+        "explanation": "Mâu thuẫn xuất hiện khi sản phẩm không phù hợp nhu cầu xã hội hoặc hao phí cá biệt cao hơn mức xã hội chấp nhận. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 65,
+        "question": "Câu 65 (Chương 2): Điểm chung giữa các hàng hóa trong quan hệ trao đổi là gì?",
+        "options": [
+            "A. Giá trị sử dụng.",
+            "B. Số lượng sản phẩm.",
+            "C. Công dụng của sản phẩm.",
+            "D. Lao động xã hội đã hao phí để sản xuất."
+        ],
+        "answer": 3,
+        "explanation": "Điểm chung (cơ sở của trao đổi) là lao động xã hội hao phí kết tinh trong hàng hóa – tức giá trị. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 66,
+        "question": "Câu 66 (Chương 2): Giá trị của hàng hóa được thực hiện bằng phương thức nào?",
+        "options": [
+            "A. Đa dạng hóa mẫu mã hàng hóa.",
+            "B. Thực hiện giá trị sử dụng của hàng hóa.",
+            "C. Trao đổi với hàng hóa khác.",
+            "D. Sử dụng hàng hóa để sản xuất ra hàng hóa khác."
+        ],
+        "answer": 2,
+        "explanation": "Giá trị chỉ biểu hiện và thực hiện thông qua trao đổi với hàng hóa khác (thông qua giá trị trao đổi). <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 67,
+        "question": "Câu 67 (Chương 2): Hao phí lao động sản xuất trong một đơn vị sản phẩm do kết quả của việc áp dụng máy móc hiện đại đã giảm từ 12 giờ xuống 6 giờ trong khi thời gian lao động xã hội cần thiết là 12 giờ. Vậy doanh thu của người sản xuất hàng hóa trên một đơn vị sản phẩm sẽ thay đổi như thế nào?",
+        "options": [
+            "A. Tăng lên 2.5 lần",
+            "B. Tăng lên 2 lần",
+            "C. Giảm xuống 2 lần",
+            "D. Giảm xuống 2.5 lần"
+        ],
+        "answer": 1,
+        "explanation": "Hàng hóa vẫn bán theo giá trị xã hội (12 giờ) nhưng hao phí cá biệt chỉ còn 6 giờ, nên doanh thu so với hao phí tăng 12 / 6 = <b>2 lần</b>. (Đáp án B theo cách hiểu của đề.) <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 68,
+        "question": "Câu 68 (Chương 2): Trong 8 giờ sản xuất được 16 sản phẩm có tổng giá trị là 80 USD. Hỏi giá trị tổng sản phẩm làm ra trong ngày và giá trị của 1 sản phẩm là bao nhiêu USD, nếu năng suất lao động tăng lên 2 lần?",
+        "options": [
+            "A. Tổng giá trị sản phẩm là 80 USD và giá trị 1 sản phẩm là 5 USD",
+            "B. Tổng giá trị sản phẩm là 160 USD và giá trị 1 sản phẩm là 2.5 USD",
+            "C. Tổng giá trị sản phẩm là 80 USD và giá trị 1 sản phẩm là 2.5 USD",
+            "D. Tổng giá trị sản phẩm là 160 USD và giá trị 1 sản phẩm là 5 USD"
+        ],
+        "answer": 2,
+        "explanation": "Năng suất tăng 2 lần → 32 sản phẩm, nhưng tổng giá trị vẫn là 80 USD (cùng 8 giờ). Giá trị 1 sản phẩm = 80 / 32 = <b>2,5 USD</b>. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 69,
+        "question": "Câu 69 (Chương 2): Có 3 doanh nghiệp sản xuất cùng làm ra một bộ bàn ghế. Doanh nghiệp A hao phí cá biệt cho 1 bộ là 4 giờ và làm được 3 bộ. Doanh nghiệp B hao phí cá biệt cho 1 bộ là 3 giờ và làm được 5 bộ. Doanh nghiệp C hao phí cá biệt cho 1 bộ là 5 giờ và làm được 5 bộ. Hãy xác định thời gian lao động xã hội cần thiết để sản xuất ra 1 bộ bàn ghế.",
+        "options": [
+            "A. 5 giờ",
+            "B. 6 giờ",
+            "C. 4 giờ",
+            "D. 7 giờ"
+        ],
+        "answer": 2,
+        "explanation": "Trung bình gia quyền: (4×3 + 3×5 + 5×5) / (3 + 5 + 5) = (12 + 15 + 25) / 13 = 52 / 13 = <b>4 giờ</b>. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 70,
+        "question": "Câu 70 (Chương 2): Khi năng suất lao động tăng lên thì phần giá trị cũ (c) trong một hàng hóa thay đổi như thế nào?",
+        "options": [
+            "A. Chỉ có thể giảm xuống",
+            "B. Chỉ có thể tăng lên",
+            "C. Có thể giảm xuống và tăng lên",
+            "D. Có thể giảm xuống, tăng lên hoặc không đổi"
+        ],
+        "answer": 3,
+        "explanation": "Năng suất lao động tăng làm giá trị mới (v + m) trong 1 đơn vị hàng hóa giảm, còn phần giá trị cũ (c) có thể giảm, tăng hoặc không đổi tùy điều kiện (máy móc, nguyên liệu…). (Đáp án chọn theo ý chính của giáo trình.) <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 71,
+        "question": "Câu 71 (Chương 3): Chọn phương án đúng về mối quan hệ giữa p và m khi hàng hóa được bán với giá cả bằng giá trị.",
+        "options": [
+            "A. p > m",
+            "B. p = m",
+            "C. p = 0",
+            "D. p < m"
+        ],
+        "answer": 1,
+        "explanation": "Khi giá cả = giá trị, toàn bộ giá trị thặng dư chuyển thành lợi nhuận nên p = m. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 72,
+        "question": "Câu 72 (Chương 3): Quy luật giá cả sản xuất là sự chuyển hóa qui luật nào trong thời kỳ tự do cạnh tranh của CNTB?",
+        "options": [
+            "A. Qui luật cạnh tranh",
+            "B. Qui luật giá trị thặng dư",
+            "C. Qui luật giá trị",
+            "D. Qui luật cung-cầu"
+        ],
+        "answer": 2,
+        "explanation": "Trong thời kỳ tự do cạnh tranh, quy luật giá trị biểu hiện thành quy luật giá cả sản xuất. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 73,
+        "question": "Câu 73 (Chương 3): Chọn phương án đúng về những hình thức là biểu hiện của giá trị thặng dư.",
+        "options": [
+            "A. Địa tô, lợi nhuận, tiền lương",
+            "B. Tiền lương, lợi tức, địa tô",
+            "C. Tiền lương, lợi tức, lợi nhuận",
+            "D. Lợi nhuận, lợi tức, địa tô"
+        ],
+        "answer": 3,
+        "explanation": "Giá trị thặng dư biểu hiện thành lợi nhuận, lợi tức và địa tô (tiền lương là biểu hiện của giá trị sức lao động). <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 74,
+        "question": "Câu 74 (Chương 3): Bộ phận tư bản trực tiếp tạo ra giá trị thặng dư, được gọi là gì?",
+        "options": [
+            "A. Tư bản khả biến",
+            "B. Tư bản bất biến",
+            "C. Tư bản cố định",
+            "D. Tư bản lưu động"
+        ],
+        "answer": 0,
+        "explanation": "Tư bản khả biến (v) dùng mua sức lao động, là bộ phận tạo ra giá trị thặng dư. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 75,
+        "question": "Câu 75 (Chương 3): Cấu tạo hữu cơ của tư bản là mối tương quan giữa hai loại tư bản nào?",
+        "options": [
+            "A. Tư bản sử dụng và tư bản tiêu dùng",
+            "B. Tư bản bất biến và tư bản khả biến",
+            "C. Tư bản cố định và tư bản lưu động",
+            "D. Tư bản sản xuất và tư bản tiền tệ"
+        ],
+        "answer": 1,
+        "explanation": "Cấu tạo hữu cơ (c/v) là tương quan giữa tư bản bất biến và tư bản khả biến. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 76,
+        "question": "Câu 76 (Chương 3): Chọn phương án đúng trong các nhận định sau.",
+        "options": [
+            "A. Địa tô chênh lệch gắn với độc quyền tư hữu ruộng đất",
+            "B. Địa tô tuyệt đối gắn với độc quyền kinh doanh trong nông nghiệp",
+            "C. Địa tô chênh lệch gắn với độc quyền kinh doanh trong nông nghiệp",
+            "D. Địa tô độc quyền là địa tô thu được trên ruộng đất xấu nhất"
+        ],
+        "answer": 2,
+        "explanation": "Địa tô chênh lệch gắn với độc quyền kinh doanh ruộng đất; địa tô tuyệt đối gắn với độc quyền tư hữu ruộng đất. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 77,
+        "question": "Câu 77 (Chương 3): Chọn phương án đúng trong các nhận định sau.",
+        "options": [
+            "A. Hao mòn hữu hình do sự phá hủy của tự nhiên gây ra làm cho tư bản cố định mất giá trị và giá trị sử dụng",
+            "B. Tư bản lưu động khi tham gia vào quá trình sản xuất sẽ chuyển một phần giá trị sang hàng hóa",
+            "C. Hao mòn vô hình do ảnh hưởng của tự nhiên làm giảm giá trị tư bản cố định ngay khi giá trị sử dụng của nó vẫn còn nguyên vẹn",
+            "D. Tư bản cố định được sử dụng trong toàn bộ quá trình sản xuất và giá trị của nó chuyển hết một lần vào hàng hóa"
+        ],
+        "answer": 0,
+        "explanation": "B sai (tư bản lưu động chuyển toàn bộ giá trị trong một chu kỳ); C sai (hao mòn vô hình do tiến bộ khoa học – kỹ thuật); D sai (tư bản cố định chuyển dần từng phần). <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 78,
+        "question": "Câu 78 (Chương 3): Chọn phương án đúng về mối quan hệ giữa p và m khi hàng hóa bán với giá cả thấp hơn giá trị nhưng lớn hơn chi phí sản xuất.",
+        "options": [
+            "A. p > m",
+            "B. p = 0",
+            "C. p < m",
+            "D. p = m"
+        ],
+        "answer": 2,
+        "explanation": "Giá cả < giá trị nhưng > k thì vẫn có lợi nhuận, song p < m. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 79,
+        "question": "Câu 79 (Chương 3): Chọn phương án SAI về đặc điểm của phương pháp sản xuất giá trị thặng dư tương đối.",
+        "options": [
+            "A. Tỷ lệ giữa thời gian lao động thặng dư và thời gian lao động tất yếu ngày càng giảm",
+            "B. Thời gian lao động tất yếu và giá trị sức lao động giảm",
+            "C. Hạ thấp giá trị sức lao động",
+            "D. Ngày lao động không đổi"
+        ],
+        "answer": 0,
+        "explanation": "Ở phương pháp tương đối, thời gian lao động tất yếu giảm nên tỷ lệ thời gian thặng dư / tất yếu ngày càng TĂNG, không phải giảm. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 80,
+        "question": "Câu 80 (Chương 3): Tư bản sử dụng và tư bản tiêu dùng thuộc phạm trù tư bản nào?",
+        "options": [
+            "A. Tư bản cho vay",
+            "B. Tư bản lưu động",
+            "C. Tư bản cố định",
+            "D. Tư bản tiền tệ"
+        ],
+        "answer": 2,
+        "explanation": "Tư bản sử dụng và tư bản tiêu dùng là cách xem xét tư bản cố định. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 81,
+        "question": "Câu 81 (Chương 3): Theo quan điểm của C. Mác: thiên nhiên không chế tạo ra máy móc, tất cả những cái đó đều là sản phẩm của lao động con người, đều là sức mạnh được vật hóa của yếu tố nào?",
+        "options": [
+            "A. Đạo đức",
+            "B. Thể lực",
+            "C. Cơ bắp",
+            "D. Tri thức"
+        ],
+        "answer": 3,
+        "explanation": "Theo Mác, máy móc là “sức mạnh tri thức được vật hóa”. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 82,
+        "question": "Câu 82 (Chương 3): Yếu tố nào vừa bù đắp tư bản về giá trị và hiện vật, vừa là căn cứ quan trọng cho cạnh tranh về giá bán giữa các nhà tư bản?",
+        "options": [
+            "A. Lợi nhuận",
+            "B. Chi phí sản xuất",
+            "C. Giá cả sản xuất",
+            "D. Tư bản bất biến"
+        ],
+        "answer": 1,
+        "explanation": "Chi phí sản xuất TBCN (k = c + v) bù đắp tư bản đã ứng và là giới hạn thấp nhất của giá bán trong cạnh tranh. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 83,
+        "question": "Câu 83 (Chương 3): Chọn phương án đúng về mối quan hệ giữa tiền công thực tế với tiền công danh nghĩa và giá cả hàng hóa.",
+        "options": [
+            "A. Tiền công thực tế tỷ lệ thuận với giá cả hàng hóa tư liệu tiêu dùng và dịch vụ.",
+            "B. Tiền công thực tế tỷ lệ nghịch với tiền công danh nghĩa và tỷ lệ thuận với giá cả hàng hóa tư liệu tiêu dùng và dịch vụ.",
+            "C. Tiền công thực tế tỷ lệ nghịch với tiền công danh nghĩa.",
+            "D. Tiền công thực tế tỷ lệ thuận với tiền công danh nghĩa và tỷ lệ nghịch với giá cả hàng hóa tư liệu tiêu dùng và dịch vụ."
+        ],
+        "answer": 3,
+        "explanation": "Tiền công thực tế tỷ lệ thuận với tiền công danh nghĩa và tỷ lệ nghịch với giá cả tư liệu tiêu dùng, dịch vụ. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 84,
+        "question": "Câu 84 (Chương 3): Tiền thông thường vận động theo công thức nào?",
+        "options": [
+            "A. T-H-T'",
+            "B. T-T'",
+            "C. H-T-H'",
+            "D. T-T"
+        ],
+        "answer": 2,
+        "explanation": "Tiền thông thường (tiền làm phương tiện lưu thông) vận động theo H–T–H'; còn tiền tư bản theo T–H–T'. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 85,
+        "question": "Câu 85 (Chương 3): Khi xuất hiện phạm trù chi phí sản xuất thì công thức giá trị hàng hóa G = c + (v+m) sẽ chuyển hóa thành phương án nào?",
+        "options": [
+            "A. G = c + m",
+            "B. G = k + m",
+            "C. G = k + p",
+            "D. G = v + m"
+        ],
+        "answer": 1,
+        "explanation": "Vì k = c + v nên G = k + m. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 86,
+        "question": "Câu 86 (Chương 3): Nguyên nhân hình thành giá trị thặng dư siêu ngạch là gì?",
+        "options": [
+            "A. Sự tăng lên của cấu tạo hữu cơ",
+            "B. Chi phí thực tế cao hơn chi phí sản xuất TBCN",
+            "C. Lợi nhuận và giá trị thặng dư chênh lệch nhau",
+            "D. Năng suất lao động cá biệt lớn hơn năng suất lao động xã hội"
+        ],
+        "answer": 3,
+        "explanation": "Giá trị thặng dư siêu ngạch là phần dôi ra ngoài m thông thường do năng suất lao động cá biệt cao hơn năng suất xã hội. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 87,
+        "question": "Câu 87 (Chương 3): Chọn phương án đúng về giá trị hàng hóa.",
+        "options": [
+            "A. Giá trị mới của hàng hóa có được là nhờ giá trị của tư liệu sản xuất được bảo tồn và di chuyển vào",
+            "B. Giá trị cũ của hàng hóa có được là nhờ hao phí sức lao động của người sản xuất tạo ra",
+            "C. Giá trị của hàng hóa gồm giá trị cũ và giá trị mới",
+            "D. Giá trị của hàng hóa bao gồm giá trị cũ và giá trị mới bởi hàng hóa có hai thuộc tính"
+        ],
+        "answer": 2,
+        "explanation": "G = c (giá trị cũ) + (v + m) (giá trị mới). Giá trị cũ do tư liệu sản xuất chuyển vào; giá trị mới do lao động sống tạo ra. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 88,
+        "question": "Câu 88 (Chương 3): Chọn phương án SAI trong các nhận định sau.",
+        "options": [
+            "A. Trong cùng một đơn vị thời gian lao động, lao động phức tạp tạo ra nhiều giá trị hơn so với lao động giản đơn",
+            "B. Trong cùng một đơn vị thời gian lao động, lao động phức tạp tạo ra ít giá trị hơn so với lao động giản đơn",
+            "C. Đại lượng giá trị của một hàng hóa thay đổi tỷ lệ thuận với lượng lao động thể hiện trong hàng hóa đó và tỷ lệ nghịch với sức sản xuất của lao động đó",
+            "D. Cường độ lao động là mức độ khẩn trương, tích cực của hoạt động lao động trong sản xuất"
+        ],
+        "answer": 1,
+        "explanation": "Lao động phức tạp là lao động giản đơn nhân bội lên nên tạo ra NHIỀU giá trị hơn; B sai. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 89,
+        "question": "Câu 89 (Chương 3): Khi tham gia vào quá trình sản xuất, giá trị của tư bản khả biến sẽ thay đổi như thế nào?",
+        "options": [
+            "A. Tăng lên sau quá trình sản xuất.",
+            "B. Giảm đi sau quá trình sản xuất.",
+            "C. Có thể tăng hoặc giảm sau quá trình sản xuất.",
+            "D. Không đổi sau quá trình sản xuất."
+        ],
+        "answer": 0,
+        "explanation": "Tư bản khả biến sau sản xuất tăng lên: v → v + m. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 90,
+        "question": "Câu 90 (Chương 3): Tích lũy tư bản làm cho cấu tạo hữu cơ của tư bản không ngừng nâng cao. Theo C. Mác, đây là nguyên nhân chủ yếu gây ra vấn nạn nào?",
+        "options": [
+            "A. Lạm phát",
+            "B. Tỷ suất lợi nhuận ngày càng tăng",
+            "C. Năng suất lao động có xu hướng giảm",
+            "D. Nhân khẩu thừa tương đối (thất nghiệp)"
+        ],
+        "answer": 3,
+        "explanation": "c/v tăng làm cầu về sức lao động tăng chậm hơn quy mô tư bản, sinh ra nhân khẩu thừa tương đối (thất nghiệp). <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 91,
+        "question": "Câu 91 (Chương 3): Khi xem xét tuần hoàn tư bản, tư bản bất biến (c) và tư bản khả biến (v) thuộc phạm trù tư bản nào?",
+        "options": [
+            "A. Tư bản tiền tệ",
+            "B. Tư bản hàng hoá",
+            "C. Tư bản sản xuất",
+            "D. Tư bản lưu thông"
+        ],
+        "answer": 2,
+        "explanation": "Trong tuần hoàn tư bản, c và v là các yếu tố của tư bản sản xuất (TLSX và sức lao động). <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 92,
+        "question": "Câu 92 (Chương 3): Điều kiện quyết định để tiền tệ biến thành tư bản là gì?",
+        "options": [
+            "A. Tiền được đầu tư vào sản xuất kinh doanh",
+            "B. Sức lao động trở thành hàng hoá",
+            "C. Có một lượng tiền tệ đủ lớn",
+            "D. Tiền được dùng để mua rẻ, bán đắt."
+        ],
+        "answer": 1,
+        "explanation": "Điều kiện quyết định là sức lao động trở thành hàng hóa. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 93,
+        "question": "Câu 93 (Chương 3): Chọn phương án đúng trong các nhận định sau.",
+        "options": [
+            "A. Máy móc là tiền đề vật chất cho việc tạo ra giá trị thặng dư",
+            "B. Máy móc là nguồn gốc của giá trị thặng dư",
+            "C. Máy móc và sức lao động đều tạo ra giá trị thặng dư",
+            "D. Máy móc là yếu tố quyết định để tạo ra giá trị thặng dư"
+        ],
+        "answer": 0,
+        "explanation": "Máy móc chỉ là tiền đề vật chất; nguồn gốc duy nhất của giá trị thặng dư là lao động của công nhân. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 94,
+        "question": "Câu 94 (Chương 3): Giá trị cá biệt của hàng hoá được quyết định bởi yếu tố gì?",
+        "options": [
+            "A. Hao phí lao động của ngành",
+            "B. Hao phí lao động cá biệt của người sản xuất",
+            "C. Hao phí lao động giản đơn trung bình",
+            "D. Hao phí lao động xã hội cần thiết"
+        ],
+        "answer": 1,
+        "explanation": "Giá trị cá biệt do hao phí lao động cá biệt của từng người sản xuất quyết định. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 95,
+        "question": "Câu 95 (Chương 3): Ở giai đoạn tự do cạnh tranh của chủ nghĩa tư bản, vì sao tỷ suất lợi nhuận có xu hướng giảm?",
+        "options": [
+            "A. Vì m’ có xu hướng giảm",
+            "B. Vì M có xu hướng giảm",
+            "C. Vì cấu tạo hữu cơ có xu hướng tăng",
+            "D. Vì tư bản bất biến có xu hướng giảm"
+        ],
+        "answer": 2,
+        "explanation": "p' = m' / (c/v + 1): c/v tăng thì p' có xu hướng giảm. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 96,
+        "question": "Câu 96 (Chương 3): Yếu tố nào được coi là tín hiệu của cơ chế thị trường?",
+        "options": [
+            "A. Giá cả thị trường",
+            "B. Cung - cầu hàng hoá",
+            "C. Sức mua của tiền",
+            "D. Thông tin thị trường"
+        ],
+        "answer": 0,
+        "explanation": "Giá cả thị trường là tín hiệu quan trọng nhất, phát đi thông tin để các chủ thể điều chỉnh hành vi. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 97,
+        "question": "Câu 97 (Chương 3): Ý nghĩa của việc phân chia tư bản thành tư bản bất biến (c) và tư bản khả biến (v) là gì?",
+        "options": [
+            "A. Chỉ ra phương thức chu chuyển giá trị của từng bộ phận tư bản vào giá trị hàng hóa",
+            "B. Chỉ ra tư bản bất biến là điều kiện quyết định trong việc tạo ra giá trị thặng dư",
+            "C. Chỉ ra tư bản khả biến là nguồn gốc tạo ra giá trị thặng dư",
+            "D. Chỉ ra tư bản khả biến là tư bản bị biến đổi về giá trị sử dụng trong quá trình sản xuất"
+        ],
+        "answer": 2,
+        "explanation": "Phân chia c và v chỉ rõ vai trò của từng bộ phận, trong đó tư bản khả biến là nguồn gốc của giá trị thặng dư. (A là ý nghĩa của việc chia tư bản cố định / lưu động.) <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 98,
+        "question": "Câu 98 (Chương 3): Cùng với đà tăng trưởng LLSX, phần sản phẩm phân phối cho người lao động làm thuê tuy có tăng tuyệt đối nhưng lại giảm tương đối so với phần dành cho nhà TB. Đó là biểu hiện của vấn nạn nào trong chủ nghĩa tư bản?",
+        "options": [
+            "A. Bần cùng hóa tuyệt đối",
+            "B. Bần cùng hóa tương đối",
+            "C. Khủng hoảng sản xuất thừa",
+            "D. Lạm phát phi mã"
+        ],
+        "answer": 1,
+        "explanation": "Thu nhập công nhân tăng tuyệt đối nhưng giảm tương đối so với nhà tư bản là bần cùng hóa tương đối. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 99,
+        "question": "Câu 99 (Chương 3): Khái niệm nào đề cập đến sự tăng thêm quy mô của tư bản cá biệt bằng cách hợp nhất nhiều tư bản cá biệt lại trên cơ sở tự nguyện hoặc cưỡng bức?",
+        "options": [
+            "A. Tích tụ tư bản",
+            "B. Sự chênh lệch ngày càng lớn giữa tư bản sử dụng và tư bản tiêu dùng",
+            "C. Tập trung tư bản",
+            "D. Tăng cấu tạo hữu cơ của tư bản"
+        ],
+        "answer": 2,
+        "explanation": "Tập trung tư bản là hợp nhất các tư bản cá biệt (tự nguyện hoặc cưỡng bức: sáp nhập, thôn tính). Tích tụ tư bản là tăng quy mô bằng tư bản hóa giá trị thặng dư. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 100,
+        "question": "Câu 100 (Chương 3): Bộ phận tư bản nào mà giá trị của nó không thay đổi về lượng và được chuyển nguyên vẹn sang hàng hóa sau quá trình sản xuất?",
+        "options": [
+            "A. Tư bản khả biến",
+            "B. Tư bản cố định",
+            "C. Tư bản lưu động",
+            "D. Tư bản bất biến"
+        ],
+        "answer": 3,
+        "explanation": "Tư bản bất biến (c) chỉ bảo tồn và chuyển giá trị sang sản phẩm, không thay đổi về lượng. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 101,
+        "question": "Câu 101 (Chương 3): Địa tô tuyệt đối là địa tô thu được ở loại ruộng đất nào?",
+        "options": [
+            "A. Chỉ thu được ở ruộng đất tốt nhưng xa thị trường tiêu thụ",
+            "B. Chỉ thu được ở ruộng đất xấu nhưng gần thị trường tiêu thụ",
+            "C. Chỉ thu được ở ruộng đất trung bình nhưng được thâm canh",
+            "D. Thu được ở tất cả các loại đất"
+        ],
+        "answer": 3,
+        "explanation": "Do độc quyền tư hữu ruộng đất, địa tô tuyệt đối thu được ở mọi loại đất. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 102,
+        "question": "Câu 102 (Chương 3): Địa tô chênh lệch là địa tô thu được ở loại ruộng đất nào?",
+        "options": [
+            "A. Ruộng đất tốt và trung bình",
+            "B. Ruộng đất xấu",
+            "C. Ruộng đất xa thị trường tiêu thụ",
+            "D. Ruộng đất xấu và chưa được thâm canh"
+        ],
+        "answer": 0,
+        "explanation": "Địa tô chênh lệch thu được ở ruộng đất có điều kiện thuận lợi hơn (tốt và trung bình). <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 103,
+        "question": "Câu 103 (Chương 3): Giá trị mới của hàng hóa được xác định bằng công thức nào?",
+        "options": [
+            "A. c + v",
+            "B. v + m",
+            "C. m",
+            "D. c + v + m"
+        ],
+        "answer": 1,
+        "explanation": "Giá trị mới do lao động sống tạo ra = v + m. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 104,
+        "question": "Câu 104 (Chương 3): Chọn phương án SAI về mối quan hệ giữa các phạm trù tư bản.",
+        "options": [
+            "A. Tư bản lưu động rộng hơn tư bản khả biến",
+            "B. Tư bản bất biến rộng hơn tư bản cố định",
+            "C. Tư bản cố định rộng hơn tư bản bất biến",
+            "D. Tư bản khả biến hẹp hơn tư bản lưu động"
+        ],
+        "answer": 2,
+        "explanation": "Tư bản bất biến = tư bản cố định + nguyên nhiên vật liệu (một phần lưu động) nên rộng hơn tư bản cố định; C sai. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 105,
+        "question": "Câu 105 (Chương 3): Tiền công danh nghĩa phụ thuộc vào yếu tố nào?",
+        "options": [
+            "A. Tình hình cung – cầu hàng hóa trên thị trường",
+            "B. Quy mô sản xuất hàng hóa",
+            "C. Quan hệ cung cầu về hàng hóa sức lao động",
+            "D. Khối lượng tiền cần thiết cho lưu thông hàng hóa"
+        ],
+        "answer": 2,
+        "explanation": "Tiền công danh nghĩa là giá cả của sức lao động nên phụ thuộc quan hệ cung – cầu hàng hóa sức lao động. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 106,
+        "question": "Câu 106 (Chương 3): Giá cả đất đai phụ thuộc vào yếu tố nào?",
+        "options": [
+            "A. Địa tô hàng năm và tỷ suất lợi tức tiền gửi của ngân hàng",
+            "B. Sự đầu tư thêm trên cùng một mảnh ruộng",
+            "C. Loại đất và vị trí của nó",
+            "D. Giá cả sản phẩm nông nghiệp"
+        ],
+        "answer": 0,
+        "explanation": "Giá cả đất đai = địa tô / tỷ suất lợi tức tiền gửi ngân hàng. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 107,
+        "question": "Câu 107 (Chương 3): Địa tô tuyệt đối phụ thuộc vào yếu tố nào?",
+        "options": [
+            "A. Độ màu mỡ của đất",
+            "B. Vị trí của đất",
+            "C. Độc quyền tư hữu về đất đai",
+            "D. Tổng sản lượng của nông sản"
+        ],
+        "answer": 2,
+        "explanation": "Địa tô tuyệt đối gắn với độc quyền tư hữu về đất đai. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 108,
+        "question": "Câu 108 (Chương 3): Địa tô chênh lệch II liên quan đến yếu tố nào?",
+        "options": [
+            "A. Độ màu mỡ của đất",
+            "B. Vị trí của đất",
+            "C. Sự đầu tư thêm trên cùng một mảnh ruộng",
+            "D. Chi phí vận tải"
+        ],
+        "answer": 2,
+        "explanation": "Địa tô chênh lệch II hình thành do thâm canh, đầu tư thêm trên cùng một mảnh đất. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 109,
+        "question": "Câu 109 (Chương 3): Địa tô chênh lệch I liên quan đến yếu tố nào?",
+        "options": [
+            "A. Độ màu mỡ của đất",
+            "B. Vị trí của đất",
+            "C. Chi phí vận tải",
+            "D. Điều kiện trên ruộng đất xấu"
+        ],
+        "answer": 0,
+        "explanation": "Địa tô chênh lệch I thu được nhờ điều kiện tự nhiên thuận lợi (màu mỡ, vị trí). Trong các đáp án, A là ý chính của giáo trình. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 110,
+        "question": "Câu 110 (Chương 3): Địa tô TBCN thể hiện mối quan hệ giữa những giai cấp nào?",
+        "options": [
+            "A. Chủ ruộng đất và công nhân làm thuê",
+            "B. Nhà TB kinh doanh nông nghiệp và công nhân tự do",
+            "C. Chủ ruộng đất, nhà TB kinh doanh nông nghiệp và công nhân nông nghiệp",
+            "D. Chủ ruộng đất và nhà TB kinh doanh nông nghiệp"
+        ],
+        "answer": 2,
+        "explanation": "Địa tô TBCN phản ánh quan hệ ba giai cấp: chủ đất, nhà tư bản kinh doanh nông nghiệp, công nhân nông nghiệp. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 111,
+        "question": "Câu 111 (Chương 3): Địa tô TBCN là gì?",
+        "options": [
+            "A. Lợi nhuận của người làm nông",
+            "B. Phần thu được từ sản xuất nông nghiệp",
+            "C. Sự chênh lệch giữa giá trị sản phẩm trên đất đai và giá cả sản xuất chung",
+            "D. Giá trị sản phẩm trên đất đai"
+        ],
+        "answer": 2,
+        "explanation": "Địa tô TBCN là phần giá trị thặng dư dôi ra ngoài lợi nhuận bình quân mà nhà tư bản kinh doanh nông nghiệp phải nộp cho chủ đất. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 112,
+        "question": "Câu 112 (Chương 3): Lợi tức cho vay phụ thuộc vào yếu tố nào?",
+        "options": [
+            "A. Quan hệ giữa ngân hàng và người tiêu dùng",
+            "B. Quan hệ giữa ngân hàng và chính phủ",
+            "C. Quan hệ cung cầu về TB cho vay",
+            "D. Quan hệ cung cầu về lợi tức cho vay"
+        ],
+        "answer": 2,
+        "explanation": "Lợi tức (giá cả của tư bản cho vay) phụ thuộc quan hệ cung – cầu về tư bản cho vay. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 113,
+        "question": "Câu 113 (Chương 3): Cơ chế vận động của TB cho vay là gì?",
+        "options": [
+            "A. T – T'",
+            "B. T – T’ – lợi tức",
+            "C. Lợi tức – lợi tức cho vay",
+            "D. Lợi nhuận – lợi tức"
+        ],
+        "answer": 0,
+        "explanation": "Tư bản cho vay vận động theo công thức T – T' (với T' = T + z). <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 114,
+        "question": "Câu 114 (Chương 3): Với điều kiện giả định giá cả bằng giá trị, nếu tổng TB công nghiệp ứng trước trong 1 năm là 900 USD, trong đó có c = 720 và v = 180, m’=100% và có sự tham gia của TB thương nghiệp ứng ra 100 USD, thì p’ bình quân sẽ bằng bao nhiêu?",
+        "options": [
+            "A. 15%",
+            "B. 16%",
+            "C. 18%",
+            "D. 19%"
+        ],
+        "answer": 2,
+        "explanation": "m = v × m' = 180. p' bình quân = 180 / (900 + 100) = 18%. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 115,
+        "question": "Câu 115 (Chương 3): Nếu tổng TB công nghiệp ứng trước trong 1 năm là 900 USD, trong đó có c = 720 và v = 180, m’=100%, thì p’ bằng bao nhiêu với điều kiện giả định giá cả bằng giá trị?",
+        "options": [
+            "A. 10%",
+            "B. 15%",
+            "C. 20%",
+            "D. 25%"
+        ],
+        "answer": 2,
+        "explanation": "m = 180; p' = 180 / 900 = 20%. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 116,
+        "question": "Câu 116 (Chương 3): TB thương nghiệp không sản xuất hàng hóa nhưng tham gia vào hoạt động nào để bình quân hóa lợi nhuận?",
+        "options": [
+            "A. Tham gia vào quá trình sản xuất giá trị thặng dư",
+            "B. Tham gia vào quá trình phân phối giá trị thặng dư",
+            "C. Tham gia vào quá trình thực hiện và phân phối giá trị thặng dư",
+            "D. Tham gia vào quá trình sản xuất và phân phối giá trị thặng dư"
+        ],
+        "answer": 2,
+        "explanation": "Tư bản thương nghiệp không tạo ra m nhưng giúp thực hiện (bán hàng) và tham gia phân phối giá trị thặng dư. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 117,
+        "question": "Câu 117 (Chương 3): Chọn phương án KHÔNG ĐÚNG về mục đích mà nhà TB công nghiệp nhường một phần lợi nhuận cho nhà TB thương nghiệp.",
+        "options": [
+            "A. Để tập trung vào sản xuất công nghiệp",
+            "B. Để tiết kiệm chi phí lưu thông",
+            "C. Để tăng nhanh tốc độ chu chuyển của TB",
+            "D. Để giúp đỡ TB thương nghiệp hoàn thành nhiệm vụ của mình"
+        ],
+        "answer": 3,
+        "explanation": "Nhà tư bản công nghiệp nhường lợi nhuận vì lợi ích của chính mình (tập trung sản xuất, tiết kiệm chi phí lưu thông, quay vòng vốn nhanh), không phải để “giúp đỡ”. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 118,
+        "question": "Câu 118 (Chương 3): Lợi nhuận thương nghiệp là gì?",
+        "options": [
+            "A. Lợi nhuận mà nhà TB thương nghiệp tạo ra từ sản xuất",
+            "B. Lợi nhuận mà nhà TB công nghiệp \"nhường\" cho nhà TB thương nghiệp",
+            "C. Lợi nhuận mà nhà TB công nghiệp giữ lại",
+            "D. Lợi nhuận mà nhà TB thương nghiệp \"nhường\" cho người tiêu dùng"
+        ],
+        "answer": 1,
+        "explanation": "Lợi nhuận thương nghiệp là một phần giá trị thặng dư do nhà tư bản công nghiệp “nhường” cho nhà tư bản thương nghiệp. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 119,
+        "question": "Câu 119 (Chương 3): Giá cả sản xuất được xác định bằng công thức nào?",
+        "options": [
+            "A. Giá cả sản xuất = lợi nhuận + tỷ suất lợi nhuận",
+            "B. Giá cả sản xuất = tỷ lệ giữa giá trị thặng dư và chi phí sản xuất TBCN",
+            "C. Giá cả sản xuất = tỷ lệ giữa giá trị hàng hóa và giá trị thặng dư",
+            "D. Giá cả sản xuất = chi phí sản xuất TBCN + lợi nhuận bình quân"
+        ],
+        "answer": 3,
+        "explanation": "Giá cả sản xuất = k + p̄ (lợi nhuận bình quân). <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 120,
+        "question": "Câu 120 (Chương 3): Lợi nhuận bình quân được xác định bằng công thức nào?",
+        "options": [
+            "A. p' bình quân = (lợi nhuận / tổng số doanh nghiệp) x 100%",
+            "B. p' bình quân = (lợi nhuận / tổng giá trị TB ứng trước) x 100%",
+            "C. p' bình quân = (tỷ suất lợi nhuận / tổng số doanh nghiệp)",
+            "D. p' bình quân = (lợi nhuận / tổng số doanh nghiệp)"
+        ],
+        "answer": 1,
+        "explanation": "Tỷ suất lợi nhuận bình quân = tổng giá trị thặng dư (lợi nhuận) / tổng tư bản ứng trước của toàn xã hội × 100%. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 121,
+        "question": "Câu 121 (Chương 3): Tỷ suất lợi nhuận tăng lên trong trường hợp nào?",
+        "options": [
+            "A. Khi tốc độ chu chuyển của TB thay đổi",
+            "B. Khi cấu tạo hữu cơ TB thay đổi",
+            "C. Khi tỷ suất giá trị thặng dư tăng",
+            "D. Khi tiết kiệm TB bất biến giảm"
+        ],
+        "answer": 2,
+        "explanation": "p' = m' / (c/v + 1) nên khi m' tăng thì p' tăng. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 122,
+        "question": "Câu 122 (Chương 3): Chọn phương án KHÔNG ĐÚNG về vai trò của tỷ suất lợi nhuận trong hoạt động cạnh tranh TBCN.",
+        "options": [
+            "A. Tăng cơ hội tạo ra lợi nhuận",
+            "B. Tạo cơ sở cho tái đầu tư",
+            "C. Đảm bảo hiệu quả kinh doanh",
+            "D. Đẩy mạnh tự cung tự cấp hàng hóa"
+        ],
+        "answer": 3,
+        "explanation": "Tỷ suất lợi nhuận thúc đẩy sản xuất hàng hóa cho thị trường, không đẩy mạnh tự cung tự cấp. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 123,
+        "question": "Câu 123 (Chương 3): Tỷ suất lợi nhuận (p') được xác định bằng công thức nào?",
+        "options": [
+            "A. p' = (lợi nhuận / tổng giá trị TB ứng trước) x 100%",
+            "B. p' = lợi nhuận - tổng giá trị TB ứng trước",
+            "C. p' = (giá trị hàng hóa / tổng giá trị TB ứng trước) x 100%",
+            "D. p' = tỷ lệ giữa giá trị thặng dư và chi phí sản xuất TBCN"
+        ],
+        "answer": 0,
+        "explanation": "p' = p / (c + v) × 100%. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 124,
+        "question": "Câu 124 (Chương 3): Trong thực tế kinh doanh, khi hàng hóa được bán với giá cao hơn chi phí sản xuất (k), điều gì xảy ra?",
+        "options": [
+            "A. Không có lợi nhuận",
+            "B. Có lợi nhuận",
+            "C. Bị lỗ",
+            "D. Giá trị hàng hóa không liên quan đến lợi nhuận"
+        ],
+        "answer": 1,
+        "explanation": "Phần chênh lệch giữa giá bán và chi phí sản xuất là lợi nhuận. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 125,
+        "question": "Câu 125 (Chương 3): Chi phí sản xuất TBCN (k) được xác định bằng công thức nào?",
+        "options": [
+            "A. k = c + v + m",
+            "B. k = c + v",
+            "C. k = m - v",
+            "D. k = v - c"
+        ],
+        "answer": 1,
+        "explanation": "k = c + v. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 126,
+        "question": "Câu 126 (Chương 3): Theo C.Mác, chi phí sản xuất TBCN (k) bao gồm những yếu tố nào?",
+        "options": [
+            "A. Giá trị tư liệu sản xuất và giá trị sức lao động",
+            "B. Giá trị thặng dư và lợi nhuận",
+            "C. Giá trị hàng hóa và lợi nhuận",
+            "D. Giá trị thặng dư và giá trị hàng hóa"
+        ],
+        "answer": 0,
+        "explanation": "k gồm c (giá trị tư liệu sản xuất) và v (giá trị sức lao động). <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 127,
+        "question": "Câu 127 (Chương 3): Trong quá trình tích lũy tư bản, sự chênh lệch ngày càng tăng giữa tư bản sử dụng và tư bản tiêu dùng phản ánh điều gì?",
+        "options": [
+            "A. Sự gia tăng thu nhập của công nhân làm thuê",
+            "B. Sự tăng cường đào tạo cho công nhân làm thuê",
+            "C. Trình độ hiện đại của máy móc thiết bị",
+            "D. Đồng nhất giá trị tư liệu sản xuất và giá trị sức lao động"
+        ],
+        "answer": 2,
+        "explanation": "Tư bản sử dụng lớn dần so với tư bản tiêu dùng phản ánh trình độ hiện đại, quy mô của máy móc, thiết bị ngày càng cao. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 128,
+        "question": "Câu 128 (Chương 3): Tích lũy tư bản dẫn đến tăng bất bình đẳng xã hội như thế nào?",
+        "options": [
+            "A. Gia tăng thu nhập của người lao động làm thuê",
+            "B. Gia tăng thu nhập của nhà tư bản",
+            "C. Gia tăng chênh lệch giữa thu nhập của nhà tư bản và người lao động làm thuê",
+            "D. Giảm chênh lệch giữa thu nhập của nhà tư bản và người lao động làm thuê"
+        ],
+        "answer": 2,
+        "explanation": "Tích lũy làm khoảng cách giàu – nghèo giữa nhà tư bản và người lao động làm thuê ngày càng lớn. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 129,
+        "question": "Câu 129 (Chương 3): Tích lũy tư bản dẫn đến sự tăng cấu tạo hữu cơ của tư bản, điều này biểu hiện ở khía cạnh nào?",
+        "options": [
+            "A. Giá trị sức lao động tăng nhanh hơn so với giá trị tư liệu sản xuất",
+            "B. Giá trị tư liệu sản xuất tăng nhanh hơn so với giá trị sức lao động",
+            "C. Cả giá trị tư liệu sản xuất và giá trị sức lao động đều giảm",
+            "D. Giá trị tư liệu sản xuất và giá trị sức lao động đều tăng mạnh"
+        ],
+        "answer": 1,
+        "explanation": "Cấu tạo hữu cơ c/v tăng nghĩa là c tăng nhanh hơn v. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 130,
+        "question": "Câu 130 (Chương 3): Tích tụ và tập trung tư bản là kết quả của hiện tượng nào?",
+        "options": [
+            "A. Tích lũy tư bản",
+            "B. Tích lũy lợi nhuận",
+            "C. Gia tăng cấu tạo hữu cơ của tư bản",
+            "D. Gia tăng giá trị hàng hóa"
+        ],
+        "answer": 0,
+        "explanation": "Tích tụ và tập trung tư bản đều là kết quả của quá trình tích lũy tư bản. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 131,
+        "question": "Câu 131 (Chương 3): Chọn phương án KHÔNG ĐÚNG về ý nghĩa trong quản lý sản xuất khi phân chia tư bản cố định và tư bản lưu động.",
+        "options": [
+            "A. Nâng cao hiệu quả sử dụng tư bản",
+            "B. Tạo điều kiện tăng tốc độ chu chuyển của tư bản cố định",
+            "C. Tăng tốc độ chu chuyển của tư bản lưu động",
+            "D. Tăng giá cả sản xuất của hàng hóa"
+        ],
+        "answer": 3,
+        "explanation": "Mục đích là nâng cao hiệu quả sử dụng và tăng tốc độ chu chuyển tư bản, chứ không phải tăng giá cả sản xuất. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 132,
+        "question": "Câu 132 (Chương 3): Tư bản ứng trước 500.000 USD, trong đó bỏ vào nhà xưởng là 200.000 USD, máy móc thiết bị là 100.000 USD. Nguyên liệu, nhiên liệu và vật liệu phụ gấp 3 lần sức lao động. Hãy xác định tư bản bất biến và tư bản khả biến?",
+        "options": [
+            "A. Tư bản bất biến là 450.000 và Tư bản khả biến là 50.000",
+            "B. Tư bản bất biến là 400.000 và Tư bản khả biến là 100.000",
+            "C. Tư bản bất biến là 350.000 và Tư bản khả biến là 150.000",
+            "D. Tư bản bất biến là 300.000 và Tư bản khả biến là 200.000"
+        ],
+        "answer": 0,
+        "explanation": "Còn lại 500 − 300 = 200 nghìn = nguyên liệu + v = 3v + v nên v = 50.000, nguyên liệu = 150.000. c = 200 + 100 + 150 = 450.000. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 133,
+        "question": "Câu 133 (Chương 3): Tư bản ứng trước 500.000 USD, trong đó bỏ vào nhà xưởng là 200.000 USD, máy móc thiết bị là 100.000 USD. Nguyên liệu, nhiên liệu và vật liệu phụ gấp 3 lần sức lao động. Hãy xác định tư bản cố định và tư bản lưu động?",
+        "options": [
+            "A. Tư bản cố định là 200.000 và Tư bản lưu động là 150.000",
+            "B. Tư bản cố định là 300.000 và Tư bản lưu động là 200.000",
+            "C. Tư bản cố định là 300.000 và Tư bản lưu động là 150.000",
+            "D. Tư bản cố định là 200.000 và Tư bản lưu động là 200.000"
+        ],
+        "answer": 1,
+        "explanation": "Tư bản cố định = nhà xưởng + máy móc = 300.000. Tư bản lưu động = nguyên liệu (150.000) + sức lao động (50.000) = 200.000. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 134,
+        "question": "Câu 134 (Chương 3): Tư bản ứng trước là 100.000 USD, cấu tạo hữu cơ tư bản là 4/1, m’ = 100%, 50% giá trị thặng dư được tư bản hóa. Hãy xác định lượng giá trị thặng dư được tư bản hóa thay đổi như thế nào nếu cấu tạo hữu cơ là 7/3?",
+        "options": [
+            "A. Tăng lên 10000 USD",
+            "B. Tăng lên 5000 USD",
+            "C. Giảm xuống 5000 USD",
+            "D. Giảm xuống 10000 USD"
+        ],
+        "answer": 1,
+        "explanation": "Trường hợp 4/1: v = 20.000, m = 20.000, tư bản hóa 10.000. Trường hợp 7/3: v = 30.000, m = 30.000, tư bản hóa 15.000. Tăng 5.000 USD. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 135,
+        "question": "Câu 135 (Chương 3): Khi tổ chức sản xuất, nhà tư bản ứng trước 50 triệu USD với c/v là 9/1. Khi m’ = 300% và mỗi năm có 2.25 triệu USD được tích lũy thì tỷ suất tích lũy hàng năm là bao nhiêu?",
+        "options": [
+            "A. 25%",
+            "B. 20%",
+            "C. 10%",
+            "D. 15%"
+        ],
+        "answer": 3,
+        "explanation": "v = 5 triệu, m = 5 × 300% = 15 triệu. Tỷ suất tích lũy = 2,25 / 15 = 15%. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 136,
+        "question": "Câu 136 (Chương 4): Sự ra đời của tư bản tài chính là kết quả của quá trình nào?",
+        "options": [
+            "A. Phát triển độc quyền ngân hàng",
+            "B. Hợp nhất độc quyền ngân hàng với độc quyền công nghiệp",
+            "C. Mở rộng độc quyền công nghiệp",
+            "D. Cơ cấu lại thị trường tài chính"
+        ],
+        "answer": 1,
+        "explanation": "Tư bản tài chính là sự hợp nhất (dung hợp) giữa tư bản độc quyền ngân hàng và tư bản độc quyền công nghiệp. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 137,
+        "question": "Câu 137 (Chương 4): Bản chất của độc quyền Nhà nước trong chủ nghĩa tư bản là gì ?",
+        "options": [
+            "A. Một hình thức vận động mới của quan hệ sản xuất TBCN",
+            "B. Một phương thức sản xuất mới",
+            "C. Một hình thái kinh tế - xã hội mới",
+            "D. Một chế độ chính trị mới của chủ nghĩa tư bản"
+        ],
+        "answer": 0,
+        "explanation": "Độc quyền nhà nước chỉ là một giai đoạn phát triển, hình thức vận động mới của quan hệ sản xuất TBCN, không phải phương thức sản xuất hay hình thái kinh tế – xã hội mới. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 138,
+        "question": "Câu 138 (Chương 4): Chọn phương án đúng về nguyên nhân hình thành các công ty đa quốc gia.",
+        "options": [
+            "A. Sự điều tiết của các nước TBCN",
+            "B. Lực lượng sản xuất phát triển cao làm xuất hiện quá trình quốc tế hoá kinh tế",
+            "C. Cạnh tranh quốc tế",
+            "D. Sự phân chia lãnh thổ thế giới giữa các đế quốc"
+        ],
+        "answer": 1,
+        "explanation": "LLSX phát triển cao thúc đẩy quốc tế hóa kinh tế, hình thành các công ty đa quốc gia. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 139,
+        "question": "Câu 139 (Chương 4): Quy luật nào là biểu hiện mới của quy luật giá trị trong giai đoạn độc quyền của chủ nghĩa tư bản?",
+        "options": [
+            "A. Quy luật lợi nhuận bình quân",
+            "B. Quy luật lợi nhuận độc quyền",
+            "C. Quy luật giá cả sản xuất",
+            "D. Quy luật giá cả độc quyền"
+        ],
+        "answer": 3,
+        "explanation": "Ở giai đoạn độc quyền, quy luật giá trị biểu hiện thành quy luật giá cả độc quyền. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 140,
+        "question": "Câu 140 (Chương 4): Cơ chế kinh tế của độc quyền nhà nước trong CNTB là gì?",
+        "options": [
+            "A. Độc quyền tư nhân và sự điều tiết của nhà nước",
+            "B. Cơ chế thị trường, độc quyền tư nhân và sự điều tiết của nhà nước",
+            "C. Cơ chế thị trường và độc quyền tư nhân",
+            "D. Cơ chế thị trường và sự điều tiết của nhà nước"
+        ],
+        "answer": 1,
+        "explanation": "Cơ chế kinh tế gồm: cơ chế thị trường + độc quyền tư nhân + điều tiết của nhà nước. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 141,
+        "question": "Câu 141 (Chương 4): Nguyên nhân cơ bản nào thúc đẩy CNTB chuyển từ giai đoạn tự do cạnh tranh sang giai đoạn độc quyền?",
+        "options": [
+            "A. Cuộc đấu tranh của giai cấp công nhân và nhân dân lao động",
+            "B. Sự can thiệp của nhà nước tư sản",
+            "C. Sự tập trung sản xuất dưới tác động của cách mạng khoa học-công nghệ",
+            "D. Cạnh tranh quốc tế"
+        ],
+        "answer": 2,
+        "explanation": "Tập trung sản xuất và tư bản dưới tác động của tiến bộ khoa học – công nghệ dẫn tới độc quyền. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 142,
+        "question": "Câu 142 (Chương 4): Các quy luật kinh tế sẽ biến đổi như thế nào khi CNTB chuyển sang giai đoạn độc quyền?",
+        "options": [
+            "A. Các quy luật kinh tế trong giai đoạn tự do cạnh tranh của CNTB bị phủ định",
+            "B. Các quy luật kinh tế của sản xuất hàng hóa bị phủ định",
+            "C. Các quy luật kinh tế của sản xuất hàng hóa và của CNTB có hình thức biểu hiện mới",
+            "D. Các quy luật kinh tế không thay đổi"
+        ],
+        "answer": 2,
+        "explanation": "Các quy luật không bị phủ định mà có hình thức biểu hiện mới (giá cả độc quyền, lợi nhuận độc quyền…). <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 143,
+        "question": "Câu 143 (Chương 4): Nguồn vốn nào mà quốc gia thu nhận có nghĩa vụ phải trả nợ?",
+        "options": [
+            "A. Cả FDI và ODA",
+            "B. ODA",
+            "C. FDI",
+            "D. Vốn liên doanh của nước ngoài"
+        ],
+        "answer": 1,
+        "explanation": "ODA (vốn vay) phải hoàn trả; FDI là đầu tư trực tiếp, nhà đầu tư nhận lợi nhuận chứ nước nhận không có nghĩa vụ trả nợ. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 144,
+        "question": "Câu 144 (Chương 4): Xuất khẩu tư bản trở thành phổ biến là đặc điểm của CNTB giai đoạn nào?",
+        "options": [
+            "A. Giai đoạn độc quyền",
+            "B. Giai đoạn tích lũy nguyên thủy",
+            "C. Giai đoạn tự do cạnh tranh",
+            "D. Giai đoạn phát triển hiệp tác lao động giản đơn"
+        ],
+        "answer": 0,
+        "explanation": "Xuất khẩu tư bản là một trong năm đặc điểm kinh tế của CNTB độc quyền. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 145,
+        "question": "Câu 145 (Chương 4): Chọn phương án thích hợp với dấu […]: Khi giá trị hàng hóa chuyển thành [...] thì […] của hàng hóa sẽ lên xuống xung quanh giá cả sản xuất",
+        "options": [
+            "A. Giá cả thị trường/ giá cả sản xuất",
+            "B. Giá cả thị trường/giá cả độc quyền",
+            "C. Giá cả sản xuất/ giá trị cá biệt",
+            "D. Giá cả sản xuất/giá cả thị trường"
+        ],
+        "answer": 3,
+        "explanation": "Giá trị chuyển thành giá cả sản xuất thì giá cả thị trường lên xuống xoay quanh giá cả sản xuất. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 146,
+        "question": "Câu 146 (Chương 4): Chọn phương án đúng về mối quan hệ giữa cạnh tranh và độc quyền.",
+        "options": [
+            "A. Cạnh tranh sinh ra độc quyền, chúng không đối lập nhau",
+            "B. Độc quyền là con đẻ của cạnh tranh, đối lập với cạnh tranh nhưng không thủ tiêu cạnh tranh",
+            "C. Độc quyền là con đẻ của cạnh tranh, đối lập với cạnh tranh và thủ tiêu cạnh tranh",
+            "D. Độc quyền là con đẻ của cạnh tranh, không đối lập với cạnh tranh nhưng thủ tiêu cạnh tranh"
+        ],
+        "answer": 1,
+        "explanation": "Độc quyền sinh ra từ cạnh tranh, đối lập với cạnh tranh nhưng không thủ tiêu được cạnh tranh – cạnh tranh còn gay gắt hơn. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 147,
+        "question": "Câu 147 (Chương 4): Đòn bẩy mạnh mẽ thúc đẩy tập trung sản xuất là sự phát triển của hệ thống nào?",
+        "options": [
+            "A. Thương mại",
+            "B. Tín dụng",
+            "C. Thuộc địa",
+            "D. Doanh nghiệp vừa và nhỏ"
+        ],
+        "answer": 1,
+        "explanation": "Hệ thống tín dụng là đòn bẩy mạnh mẽ thúc đẩy tập trung sản xuất và tư bản. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 148,
+        "question": "Câu 148 (Chương 4): Loại hình cạnh tranh nào thường kết thúc bằng một sự thỏa hiệp hoặc bằng sự phá sản của một bên cạnh tranh?",
+        "options": [
+            "A. Cạnh tranh với các công ty ngoài độc quyền",
+            "B. Cạnh tranh giữa các tổ chức độc quyền trong cùng một ngành",
+            "C. Cạnh tranh giữa các xí nghiệp trong nội bộ tổ chức độc quyền",
+            "D. Cạnh tranh giữa các tổ chức độc quyền khác ngành"
+        ],
+        "answer": 1,
+        "explanation": "Cạnh tranh giữa các tổ chức độc quyền trong cùng ngành rất quyết liệt, kết thúc bằng thỏa hiệp hoặc phá sản. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 149,
+        "question": "Câu 149 (Chương 4): Các tổ chức độc quyền áp đặt giá cả độc quyền thấp khi nào?",
+        "options": [
+            "A. Khi bán hàng hóa",
+            "B. Khi mua hàng hóa",
+            "C. Khi sản xuất hàng hóa",
+            "D. Khi cạnh tranh trong thị trường"
+        ],
+        "answer": 1,
+        "explanation": "Độc quyền áp đặt giá thấp khi mua (nguyên liệu, hàng của người sản xuất nhỏ) và giá cao khi bán. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 150,
+        "question": "Câu 150 (Chương 4): Độc quyền trong kinh tế thường áp đặt giá cả như thế nào?",
+        "options": [
+            "A. Giá cả thấp khi bán và cao khi mua",
+            "B. Giá cả cao khi bán và thấp khi mua",
+            "C. Giá cả thấp khi bán và mua",
+            "D. Giá cả cao khi bán và mua"
+        ],
+        "answer": 1,
+        "explanation": "Giá cả độc quyền: cao khi bán, thấp khi mua để thu lợi nhuận độc quyền. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 151,
+        "question": "Câu 151 (Chương 4): Tại sao các tập đoàn tư bản độc quyền thường không giảm giá cả hàng hóa sản xuất ra và áp đặt giá bán cao?",
+        "options": [
+            "A. Để tăng năng suất lao động",
+            "B. Vì lợi ích của quần chúng",
+            "C. Vì lợi ích của tất cả người lao động",
+            "D. Vì mục đích lợi nhuận độc quyền cao"
+        ],
+        "answer": 3,
+        "explanation": "Mục đích là thu lợi nhuận độc quyền cao. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 152,
+        "question": "Câu 152 (Chương 4): Trong vai trò của công cụ điều tiết kinh tế, nước cung cấp viện trợ thường đặt điều kiện gì?",
+        "options": [
+            "A. Tất cả các dự án đều phải góp tiền mặt",
+            "B. Phải làm việc theo cảm xúc",
+            "C. Phải làm việc theo các tiêu chuẩn quốc tế",
+            "D. Đảm bảo không có sự cạnh tranh trong ngành"
+        ],
+        "answer": 2,
+        "explanation": "Trong các đáp án, C là điều kiện hợp lý nhất mà nước viện trợ thường đặt ra (theo các tiêu chuẩn, quy định quốc tế). <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 153,
+        "question": "Câu 153 (Chương 4): Bằng nguồn lực của sở hữu nhà nước, trong giai đoạn độc quyền nhà nước, vai trò của đầu tư nhà nước là gì?",
+        "options": [
+            "A. Tạo cơ sở vật chất cho các tập đoàn độc quyền",
+            "B. Tăng cường doanh nghiệp tư nhân",
+            "C. Phát triển môi trường xanh và sạch",
+            "D. Đáp ứng nhu cầu xã hội"
+        ],
+        "answer": 0,
+        "explanation": "Nhà nước tư sản dùng nguồn lực công đầu tư vào kết cấu hạ tầng, các ngành vốn lớn, thu hồi chậm để tạo điều kiện cho các tập đoàn độc quyền tư nhân. (Chọn theo ý chính giáo trình.) <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 154,
+        "question": "Câu 154 (Chương 4): Dự trữ quốc gia trong chi tiêu ngân sách nhà nước được sử dụng trong trường hợp nào?",
+        "options": [
+            "A. Đầu tư vào nghiên cứu khoa học cơ bản",
+            "B. Đáp ứng nhu cầu xã hội",
+            "C. Các tình huống đặc biệt",
+            "D. Tăng cường chuyên quyền tư bản"
+        ],
+        "answer": 2,
+        "explanation": "Dự trữ quốc gia dùng cho các tình huống đặc biệt (thiên tai, chiến tranh, khủng hoảng…). <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 155,
+        "question": "Câu 155 (Chương 4): Trong các nước tư bản phát triển nhất, cơ chế quan hệ nhân sự được biểu hiện ra sao?",
+        "options": [
+            "A. Sự độc tôn của một thế lực tư bản duy nhất",
+            "B. Sự thay đổi liên tục về quyền lực nhà nước",
+            "C. Cân bằng quyền lực giữa các thế lực tư bản",
+            "D. Tăng cường quản lý quyền lực trung dung"
+        ],
+        "answer": 2,
+        "explanation": "Biểu hiện là sự cân bằng quyền lực giữa các thế lực tư bản trong bộ máy nhà nước. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 156,
+        "question": "Câu 156 (Chương 4): Biểu hiện nào thể hiện sự thay đổi trong cơ chế quan hệ nhân sự trong bộ máy chính quyền nhà nước?",
+        "options": [
+            "A. Tăng cường chuyên quyền của các thế lực tư bản",
+            "B. Xuất hiện cơ chế thỏa hiệp và cân bằng quyền lực",
+            "C. Sự độc tôn của một thế lực tư bản duy nhất",
+            "D. Sự gia tăng cực đoan trong quản lý quyền lực"
+        ],
+        "answer": 1,
+        "explanation": "Xuất hiện cơ chế thỏa hiệp, cân bằng quyền lực giữa các nhóm tư bản. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 157,
+        "question": "Câu 157 (Chương 4): Sự phân chia lãnh thổ thế giới đã thay thế bằng những cuộc đụng độ khác nhau. Điều gì đang ảnh hưởng đến sự phân chia lãnh thổ này?",
+        "options": [
+            "A. Các cường quốc tư bản đang tiến hành cuộc xâm lược",
+            "B. Cuộc chiến tranh thương mại và cuộc chiến tranh sắc tộc",
+            "C. Sự gia tăng trong việc giới thiệu các biên giới địa lý mới",
+            "D. Sự thay đổi trong cơ cấu sản xuất toàn cầu"
+        ],
+        "answer": 1,
+        "explanation": "Hiện nay phân chia lãnh thổ thể hiện qua chiến tranh thương mại, xung đột sắc tộc, tôn giáo. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 158,
+        "question": "Câu 158 (Chương 4): Hiện nay, mặc dù có sự suy yếu của chủ nghĩa thực dân mới, nhưng các cường quốc tư bản vẫn tranh giành phạm vi ảnh hưởng bằng hình thức nào?",
+        "options": [
+            "A. Cuộc xâm lược quân sự",
+            "B. Chiến lược hòa bình để mở rộng biên giới kinh tế",
+            "C. Chi phối chính trị để kiểm soát các nước kém phát triển",
+            "D. Loại bỏ hoàn toàn các biên giới địa lý"
+        ],
+        "answer": 2,
+        "explanation": "Các cường quốc vẫn chi phối về kinh tế, chính trị để kiểm soát các nước kém phát triển. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 159,
+        "question": "Câu 159 (Chương 4): Sự phân chia lãnh thổ thế giới dưới sự chi phối của các tập đoàn độc quyền hiện nay đang được thực hiện bởi cách thức nào?",
+        "options": [
+            "A. Các cuộc xung đột quân sự",
+            "B. Thực hiện \"chiến lược biên giới mềm\"",
+            "C. Các cuộc chiến tranh thế giới",
+            "D. Giới thiệu các biên giới địa lý mới"
+        ],
+        "answer": 1,
+        "explanation": "Hiện nay là “chiến lược biên giới mềm” (chi phối bằng kinh tế, tài chính, công nghệ). <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 160,
+        "question": "Câu 160 (Chương 4): Tổ chức các nước xuất khẩu dầu mỏ (OPEC) và Liên minh Mậu dịch tự do Bắc Mỹ (NAFTA) là ví dụ cho đặc điểm gì trong sự phân chia thế giới về kinh tế?",
+        "options": [
+            "A. Sự tham gia của các cường quốc tư bản",
+            "B. Sự thay đổi trong nguyên tắc của xuất khẩu tư bản",
+            "C. Sự tăng cường của các tổ chức kinh tế quốc tế",
+            "D. Sự phân chia thế giới về kinh tế bằng các liên minh kinh tế khu vực"
+        ],
+        "answer": 3,
+        "explanation": "OPEC, NAFTA là các liên minh kinh tế khu vực/ngành tham gia phân chia thị trường thế giới. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 161,
+        "question": "Câu 161 (Chương 4): Xu hướng toàn cầu hóa kinh tế và khu vực hóa kinh tế đang diễn ra cùng lúc đã dẫn đến hệ quả gì?",
+        "options": [
+            "A. Đẩy mạnh sự hợp tác quốc tế",
+            "B. Góp phần vào việc giảm bớt phân chia thị trường thế giới",
+            "C. Tạo điều kiện thuận lợi cho sự phát triển của các cường quốc tư bản",
+            "D. Gây ra sự xung đột giữa các quốc gia"
+        ],
+        "answer": 0,
+        "explanation": "Hai xu hướng đồng thời thúc đẩy hợp tác và liên kết kinh tế quốc tế. (Đáp án chọn theo ý chính giáo trình.) <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 162,
+        "question": "Câu 162 (Chương 4): Sức mạnh và phạm vi bành trướng của công ty xuyên quốc gia (TNCs) đã ảnh hưởng đến việc nào?",
+        "options": [
+            "A. Xu hướng tập trung tư bản độc quyền",
+            "B. Sự giảm bớt sự tập trung trong kinh doanh quốc tế",
+            "C. Sự tăng cường tập trung tư bản ở mức quốc gia",
+            "D. Sự thay đổi trong cơ cấu sản xuất"
+        ],
+        "answer": 0,
+        "explanation": "TNCs làm tăng xu hướng tập trung tư bản độc quyền trên phạm vi toàn cầu. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 163,
+        "question": "Câu 163 (Chương 4): Biểu hiện mới của sự phân chia thị trường thế giới liên quan đến tác động của hiện tượng gì?",
+        "options": [
+            "A. Sự phát triển của các tổ chức phi lợi nhuận",
+            "B. Sự gia tăng của sự hợp tác quốc tế",
+            "C. Xu hướng quốc tế hóa và toàn cầu hóa kinh tế",
+            "D. Xu hướng tập trung tư bản"
+        ],
+        "answer": 2,
+        "explanation": "Biểu hiện mới của phân chia thị trường thế giới chịu tác động của quốc tế hóa và toàn cầu hóa kinh tế. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 164,
+        "question": "Câu 164 (Chương 4): Tại sao các công ty tư bản đầu tư vào các nước đang phát triển gặp khó khăn trong việc thu lợi nhuận?",
+        "options": [
+            "A. Do kết cấu hạ tầng lạc hậu ở các nước đang phát triển",
+            "B. Do tỷ suất lợi nhuận thấp hơn so với các nước tư bản phát triển",
+            "C. Do sự phát triển của các ngành khoa học - kỹ thuật cao",
+            "D. Do sự gia tăng của tình hình chính trị bất ổn định"
+        ],
+        "answer": 0,
+        "explanation": "Kết cấu hạ tầng lạc hậu làm tăng chi phí, khó thu lợi nhuận (B vô lý vì tỷ suất lợi nhuận ở đó thường cao hơn). Đáp án chọn theo ý chính giáo trình. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 165,
+        "question": "Câu 165 (Chương 4): Xuất khẩu tư bản hiện nay có xu hướng nào liên quan đến các nguyên tắc cùng có lợi trong đầu tư?",
+        "options": [
+            "A. Xu hướng ngày càng áp đặt các điều kiện thời đại",
+            "B. Giữ nguyên nguyên tắc thực dân trong xuất khẩu tư bản",
+            "C. Gỡ bỏ dần sự áp đặt mang tính chất thực dân",
+            "D. Không có sự thay đổi trong nguyên tắc của xuất khẩu tư bản"
+        ],
+        "answer": 2,
+        "explanation": "Xuất khẩu tư bản hiện nay dần gỡ bỏ sự áp đặt mang tính thực dân, hướng tới cùng có lợi. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 166,
+        "question": "Câu 166 (Chương 4): Hình thức xuất khẩu tư bản ngày càng đa dạng là kết quả của hiện tượng gì?",
+        "options": [
+            "A. Sự giảm cung cấp tư bản từ các nước tư bản phát triển",
+            "B. Sự thay đổi trong cơ cấu sản xuất",
+            "C. Sự kết hợp giữa xuất khẩu tư bản và xuất khẩu hàng hóa",
+            "D. Sự tăng cường của các công ty xuyên quốc gia"
+        ],
+        "answer": 2,
+        "explanation": "Xuất khẩu tư bản kết hợp chặt chẽ với xuất khẩu hàng hóa, dịch vụ nên hình thức rất đa dạng. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 167,
+        "question": "Câu 167 (Chương 4): Vai trò của các công ty xuyên quốc gia (TNCs) trong xuất khẩu tư bản đang có sự biến đổi như thế nào?",
+        "options": [
+            "A. Đang giảm dần vì sự tăng cường của tư bản đầu tư trong nước",
+            "B. Đang tăng lên, đặc biệt trong lĩnh vực tư bản trực tiếp nước ngoài (FDI)",
+            "C. Đang giảm dần vì sự cạnh tranh từ các công ty địa phương",
+            "D. Chưa có thay đổi đáng kể"
+        ],
+        "answer": 1,
+        "explanation": "TNCs ngày càng đóng vai trò chủ yếu trong xuất khẩu tư bản, nhất là FDI. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 168,
+        "question": "Câu 168 (Chương 4): Xu hướng mới về luồng tư bản xuất khẩu chủ yếu xuất phát từ yếu tố nào?",
+        "options": [
+            "A. Sự gia tăng của nguồn cung cấp tư bản ở các nước đang phát triển",
+            "B. Sự thay đổi trong cơ cấu sản xuất ở các nước tư bản phát triển",
+            "C. Sự phát triển của các ngành sản xuất ở các nước đang phát triển",
+            "D. Sự gia tăng tình hình chính trị ổn định ở các nước đang phát triển"
+        ],
+        "answer": 0,
+        "explanation": "Ngày càng nhiều nước đang phát triển cũng có tư bản dư thừa để xuất khẩu. (Đáp án chọn theo ý chính giáo trình.) <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 169,
+        "question": "Câu 169 (Chương 4): Sự ra đời của các trung tâm tài chính thế giới được thúc đẩy bởi hiện tượng nào?",
+        "options": [
+            "A. Sự gia tăng của các ngân hàng đa quốc gia",
+            "B. Sự phát triển của các tập đoàn tài chính quốc tế",
+            "C. Sự suy giảm của tư bản tài chính",
+            "D. Sự suy giảm của tập đoàn tài chính quốc tế"
+        ],
+        "answer": 1,
+        "explanation": "Các trung tâm tài chính thế giới hình thành nhờ sự phát triển của các tập đoàn tài chính quốc tế. (Đáp án chọn theo ý chính giáo trình.) <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 170,
+        "question": "Câu 170 (Chương 4): Quá trình quốc tế hóa đời sống kinh tế đã dẫn đến hiện tượng gì đối với các tập đoàn tư bản tài chính?",
+        "options": [
+            "A. Sự giảm bớt vai trò quan trọng của tư bản tài chính",
+            "B. Sự giảm thiểu hoạt động của các ngân hàng đa quốc gia",
+            "C. Sự tăng cường sự ảnh hưởng của tập đoàn tài chính quốc tế",
+            "D. Sự giảm sự liên kết giữa các concern và conglomerate"
+        ],
+        "answer": 2,
+        "explanation": "Quốc tế hóa làm tăng ảnh hưởng của các tập đoàn tài chính quốc tế. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 171,
+        "question": "Câu 171 (Chương 5): Chọn phương án thích hợp với dấu […]: Kinh tế thị trường định hướng xã hội chủ nghĩa là nền kinh tế vận hành theo các quy luật của thị trường; có sự điều tiết của [...] do Đảng Cộng sản Việt Nam lãnh đạo.",
+        "options": [
+            "A. Xã hội",
+            "B. Thị trường",
+            "C. Nhà nước",
+            "D. Cung – Cầu"
+        ],
+        "answer": 2,
+        "explanation": "Có sự điều tiết của Nhà nước pháp quyền xã hội chủ nghĩa do Đảng Cộng sản Việt Nam lãnh đạo. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 172,
+        "question": "Câu 172 (Chương 5): Chọn phương án thích hợp với dấu […]: Kinh tế thị trường định hướng xã hội chủ nghĩa là nền kinh tế hướng tới từng bước xác lập một xã hội mà ở đó dân giàu, nước mạnh, [...], công bằng, văn minh.",
+        "options": [
+            "A. Dân quyền",
+            "B. Dân túy",
+            "C. Dân sự",
+            "D. Dân chủ"
+        ],
+        "answer": 3,
+        "explanation": "Mục tiêu: dân giàu, nước mạnh, dân chủ, công bằng, văn minh. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 173,
+        "question": "Câu 173 (Chương 5): Về phát triển lực lượng sản xuất, kinh tế thị trường định hướng xã hội chủ nghĩa hướng đến mục tiêu nào?",
+        "options": [
+            "A. Xây dựng cơ sở vật chất – kỹ thuật cho chế độ tư hữu",
+            "B. Xây dựng cơ sở vật chất - kỹ thuật cho chủ nghĩa tư bản",
+            "C. Xây dựng cơ sở vật chất - kỹ thuật cho chủ nghĩa xã hội",
+            "D. Xây dựng cơ sở vật chất – kỹ thuật cho Nhà nước quân chủ"
+        ],
+        "answer": 2,
+        "explanation": "Phát triển LLSX hiện đại, xây dựng cơ sở vật chất – kỹ thuật của chủ nghĩa xã hội. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 174,
+        "question": "Câu 174 (Chương 5): Về xây dựng quan hệ sản xuất, kinh tế thị trường định hướng xã hội chủ nghĩa hướng đến mục tiêu nào?",
+        "options": [
+            "A. Xây dựng quan hệ sản xuất tiến bộ, phù hợp để hoàn thiện cơ sở kinh tế - xã hội cho chủ nghĩa tư bản",
+            "B. Xây dựng quan hệ sản xuất tiến bộ, phù hợp để hoàn thiện cơ sở kinh tế - xã hội của chủ nghĩa xã hội",
+            "C. Xây dựng quan hệ sản xuất tiến bộ, phù hợp để hoàn thiện cơ sở kinh tế - xã hội cho chế độ tư hữu",
+            "D. Xây dựng quan hệ sản xuất tiến bộ, phù hợp để hoàn thiện cơ sở kinh tế - xã hội cho Nhà nước quân chủ"
+        ],
+        "answer": 1,
+        "explanation": "Xây dựng quan hệ sản xuất tiến bộ, phù hợp, hoàn thiện cơ sở kinh tế – xã hội của chủ nghĩa xã hội. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 175,
+        "question": "Câu 175 (Chương 5): Sự hình thành và phát triển kinh tế thị trường ở Việt Nam là tất yếu khách quan bởi nguyên nhân nào?",
+        "options": [
+            "A. Kinh tế thị trường là phương thức duy nhất để phân bổ nguồn lực",
+            "B. Các điều kiện cho sự hình thành và phát triển kinh tế thị trường đang tồn tại khách quan",
+            "C. Chỉ cần phát triển kinh tế thị trường là sẽ xây dựng chủ nghĩa xã hội thành công",
+            "D. Kinh tế thị trường là nền kinh tế không có hạn chế, khuyết tật"
+        ],
+        "answer": 1,
+        "explanation": "Phân công lao động xã hội, nhiều hình thức sở hữu… vẫn tồn tại khách quan ở Việt Nam. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 176,
+        "question": "Câu 176 (Chương 5): Quan hệ sở hữu chịu sự quy định trực tiếp của yếu tố nào?",
+        "options": [
+            "A. Phương thức phân phối hàng hóa",
+            "B. Trình độ tổ chức quản lý sản xuất",
+            "C. Trình độ lực lượng sản xuất",
+            "D. Phương thức lưu thông hàng hóa"
+        ],
+        "answer": 2,
+        "explanation": "Quan hệ sản xuất (trong đó có sở hữu) do trình độ phát triển của lực lượng sản xuất quyết định. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 177,
+        "question": "Câu 177 (Chương 5): Về nội dung kinh tế, sở hữu là cơ sở và điều kiện cho hoạt động nào?",
+        "options": [
+            "A. Phân phối",
+            "B. Lưu thông",
+            "C. Sản xuất",
+            "D. Tiêu dùng"
+        ],
+        "answer": 2,
+        "explanation": "Sở hữu là cơ sở, điều kiện cho hoạt động sản xuất. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 178,
+        "question": "Câu 178 (Chương 5): Về nội dung pháp lý, sở hữu thể hiện những quy định về quyền hạn, nghĩa vụ của chủ thể sở hữu. Vì vậy, sở hữu giả định và đòi hỏi sự thừa nhận về phương diện nào?",
+        "options": [
+            "A. Văn hóa",
+            "B. Luật pháp",
+            "C. Tâm lý, tập quán",
+            "D. Thói quen"
+        ],
+        "answer": 1,
+        "explanation": "Nội dung pháp lý của sở hữu đòi hỏi sự thừa nhận về mặt luật pháp. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 179,
+        "question": "Câu 179 (Chương 5): Trong nền kinh tế thị trường định hướng xã hội chủ nghĩa Việt Nam, chủ thể nào đóng vai trò quyết định trong xác định giá cả hàng hóa, dịch vụ; tạo động lực huy động, phân bổ hiệu quả các nguồn lực?",
+        "options": [
+            "A. Các tổ chức xã hội",
+            "B. Nhà nước",
+            "C. Thị trường",
+            "D. Người tiêu dùng"
+        ],
+        "answer": 2,
+        "explanation": "Thị trường đóng vai trò quyết định trong xác định giá cả, huy động và phân bổ các nguồn lực. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 180,
+        "question": "Câu 180 (Chương 5): Nội dung kinh tế của phạm trù sở hữu biểu hiện tập trung ở yếu tố nào?",
+        "options": [
+            "A. Lợi ích xã hội",
+            "B. Lợi ích kinh tế",
+            "C. Lợi ích cá nhân",
+            "D. Lợi ích tập thể"
+        ],
+        "answer": 1,
+        "explanation": "Nội dung kinh tế của sở hữu tập trung ở lợi ích kinh tế. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 181,
+        "question": "Câu 181 (Chương 5): Chọn phương án thích hợp với dấu […]: Kinh tế thị trường định hướng XHCN ở Việt Nam là nền kinh tế thị trường có nhiều hình thức sở hữu, nhiều thành phần kinh tế, trong đó kinh tế nhà nước giữ vai trò [...]",
+        "options": [
+            "A. Then chốt",
+            "B. Động lực",
+            "C. Chủ đạo",
+            "D. Nền tảng"
+        ],
+        "answer": 2,
+        "explanation": "Kinh tế nhà nước giữ vai trò chủ đạo; kinh tế tư nhân là một động lực quan trọng. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 182,
+        "question": "Câu 182 (Chương 5): Yếu tố tiên quyết bảo đảm tính định hướng xã hội chủ nghĩa của nền kinh tế thị trường ở Việt Nam là gì?",
+        "options": [
+            "A. Sự quản lý của Nhà nước pháp quyền xã hội chủ nghĩa",
+            "B. Sự lãnh đạo của Đảng Cộng sản Việt Nam",
+            "C. Sự hội nhập kinh tế quốc tế",
+            "D. Sự phát triển khoa học công nghệ"
+        ],
+        "answer": 1,
+        "explanation": "Sự lãnh đạo của Đảng Cộng sản Việt Nam là yếu tố tiên quyết. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 183,
+        "question": "Câu 183 (Chương 5): Đảng lãnh đạo nền kinh tế thị trường định hướng xã hội chủ nghĩa thông qua những công cụ nào?",
+        "options": [
+            "A. Hệ thống công cụ kinh tế",
+            "B. Hệ thống pháp luật, chính sách kinh tế",
+            "C. Cương lĩnh, đường lối, chủ trương, quyết sách lớn",
+            "D. Thói quen, phong tục, tập quán, văn hóa kinh tế"
+        ],
+        "answer": 2,
+        "explanation": "Đảng lãnh đạo bằng cương lĩnh, đường lối, chủ trương, quyết sách lớn; Nhà nước dùng pháp luật, chính sách để quản lý. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 184,
+        "question": "Câu 184 (Chương 5): Trong quan hệ sản xuất xã hội, khía cạnh nào có vai trò quyết định đến phân phối sản phẩm xã hội?",
+        "options": [
+            "A. Quan hệ huyết thống, dòng tộc",
+            "B. Quan hệ xã hội, đạo đức",
+            "C. Quan hệ tổ chức quản lý",
+            "D. Quan hệ sở hữu"
+        ],
+        "answer": 3,
+        "explanation": "Quan hệ sở hữu quyết định quan hệ phân phối sản phẩm xã hội. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 185,
+        "question": "Câu 185 (Chương 5): Chọn phương án thích hợp với dấu […]: Các doanh nghiệp nhà nước chỉ đầu tư vào những ngành kinh tế then chốt, vừa chi phối được nền kinh tế, vừa đảm bảo an ninh, quốc phòng và phục vụ [...]",
+        "options": [
+            "A. Lợi ích tư nhân",
+            "B. Lợi ích công cộng",
+            "C. Lợi ích nhóm",
+            "D. Lợi ích của doanh nghiệp nhà nước"
+        ],
+        "answer": 1,
+        "explanation": "Doanh nghiệp nhà nước phục vụ lợi ích công cộng. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 186,
+        "question": "Câu 186 (Chương 5): Trong công tác phòng, chống tham nhũng, điều gì được coi là điều kiện tiên quyết để kiểm soát quyền lực và đảm bảo quyền lực được vận hành đúng đắn?",
+        "options": [
+            "A. Tạo \"nhóm lợi ích\" mạnh mẽ",
+            "B. Cải cách hành chính",
+            "C. Công khai, minh bạch, trách nhiệm giải trình",
+            "D. \"Nhốt\" quyền lực vào trong \"lồng\" cơ chế"
+        ],
+        "answer": 2,
+        "explanation": "Công khai, minh bạch, trách nhiệm giải trình là điều kiện tiên quyết để kiểm soát quyền lực. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 187,
+        "question": "Câu 187 (Chương 5): Phương pháp nào được đề xuất để nâng cao hiệu quả thu hồi tài sản tham nhũng?",
+        "options": [
+            "A. Bảo vệ người tích cực đấu tranh phòng, chống tham nhũng",
+            "B. Tạo \"khoảng trống\", \"kẽ hở\" để kiểm soát",
+            "C. Khuyến khích người phạm tội tự nguyện bồi thường",
+            "D. Dựa vào \"tự diễn biến\", \"tự chuyển hóa\""
+        ],
+        "answer": 2,
+        "explanation": "Khuyến khích người phạm tội tự nguyện bồi thường, khắc phục hậu quả nhằm nâng cao hiệu quả thu hồi tài sản. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 188,
+        "question": "Câu 188 (Chương 5): Theo Tổng Bí thư Nguyễn Phú Trọng, trong phòng, chống tham nhũng, nên thực hiện công tác kiểm tra, giám sát, thanh tra, kiểm toán như thế nào?",
+        "options": [
+            "A. Thụ động, chờ đợi phản ánh từ dân",
+            "B. Thận trọng và chặt chẽ, toàn diện, thường xuyên",
+            "C. Tăng cường \"khoảng trống\", \"kẽ hở\" để tăng cường kiểm soát",
+            "D. Dựa vào \"tự diễn biến\", \"tự chuyển hóa\""
+        ],
+        "answer": 1,
+        "explanation": "Phải chủ động, chặt chẽ, toàn diện, thường xuyên (các đáp án còn lại đều sai tinh thần). <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 189,
+        "question": "Câu 189 (Chương 5): Phương pháp nào được đẩy mạnh để nâng cao hiệu quả công tác kiểm tra, giám sát, thanh tra, kiểm toán và phòng, chống tham nhũng?",
+        "options": [
+            "A. Tăng cường ưu tiên cho lợi ích nhóm",
+            "B. Tổ chức kiểm tra thường xuyên và toàn diện",
+            "C. Tạo ra \"khoảng trống\", \"kẽ hở\" để kiểm soát",
+            "D. Kích động \"tư duy nhiệm kỳ\""
+        ],
+        "answer": 1,
+        "explanation": "Chỉ B là giải pháp đúng; các đáp án khác là nguyên nhân/biểu hiện tiêu cực. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 190,
+        "question": "Câu 190 (Chương 5): Điều gì được đề xuất để khắc phục “khoảng trống”, “kẽ hở” trong thể chế, nhằm nâng cao hiệu quả tổ chức thực hiện thể chế phòng, chống tham nhũng, tiêu cực?",
+        "options": [
+            "A. Tăng cường ưu tiên cho lợi ích nhóm",
+            "B. Tăng cường chuẩn mực đạo đức",
+            "C. Tạo ra “nhóm lợi ích” mạnh mẽ",
+            "D. Kích động “tư duy nhiệm kỳ”"
+        ],
+        "answer": 1,
+        "explanation": "Chỉ có B là giải pháp tích cực; các đáp án còn lại làm tham nhũng trầm trọng hơn. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 191,
+        "question": "Câu 191 (Chương 5): Cách nào được đẩy mạnh để ngăn chặn nguy cơ nảy sinh tham nhũng, tiêu cực khi xây dựng chính sách, pháp luật?",
+        "options": [
+            "A. Tạo “nhóm lợi ích” mạnh mẽ",
+            "B. Thúc đẩy tác động của các doanh nghiệp “sân sau”",
+            "C. Cơ chế kiểm soát chặt chẽ",
+            "D. “Tư duy nhiệm kỳ”"
+        ],
+        "answer": 2,
+        "explanation": "Cần cơ chế kiểm soát chặt chẽ để ngăn “lợi ích nhóm”, “tư duy nhiệm kỳ” trong xây dựng chính sách, pháp luật. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 192,
+        "question": "Câu 192 (Chương 5): Trách nhiệm chủ động trong phòng, chống tham nhũng thuộc về đối tượng nào?",
+        "options": [
+            "A. Cán bộ, đảng viên",
+            "B. Người dân",
+            "C. “Nhóm lợi ích”",
+            "D. Cơ quan kiểm tra"
+        ],
+        "answer": 0,
+        "explanation": "Cán bộ, đảng viên phải gương mẫu, chủ động trong phòng, chống tham nhũng. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 193,
+        "question": "Câu 193 (Chương 5): Trong các vụ án kinh tế, yếu tố nào cần được khẩn trương rà soát, sửa đổi, bổ sung và hoàn thiện để ngăn chặn tham nhũng, tiêu cực?",
+        "options": [
+            "A. Nguyên tắc và chuẩn mực đạo đức",
+            "B. Pháp luật liên quan đến đấu thầu, đấu giá",
+            "C. Các quy chế quản lý nội bộ của Đảng",
+            "D. Cơ chế kiểm soát quyền lực"
+        ],
+        "answer": 1,
+        "explanation": "Các vụ án kinh tế lớn thường liên quan đấu thầu, đấu giá nên cần hoàn thiện pháp luật về lĩnh vực này. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 194,
+        "question": "Câu 194 (Chương 5): Tại sao công tác chống tham nhũng gặp nhiều khó khăn trong bối cảnh phát triển kinh tế thị trường?",
+        "options": [
+            "A. Vì cơ chế, chính sách, pháp luật lỏng lẻo",
+            "B. Vì cán bộ không muốn thực hiện",
+            "C. Vì sự móc nối, liên kết của các đối tượng trong và ngoài nhà nước",
+            "D. Vì dư luận không quan tâm đến tham nhũng"
+        ],
+        "answer": 2,
+        "explanation": "Tham nhũng ngày càng tinh vi, có sự móc nối, liên kết giữa các đối tượng trong và ngoài nhà nước. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 195,
+        "question": "Câu 195 (Chương 5): Giải pháp phòng, chống tham nhũng, tiêu cực phải phù hợp với điều gì ở Việt Nam?",
+        "options": [
+            "A. Địa lý",
+            "B. Bối cảnh và yêu cầu phát triển nền kinh tế thị trường định hướng xã hội chủ nghĩa",
+            "C. Nền văn hóa",
+            "D. Các yêu cầu của quốc tế"
+        ],
+        "answer": 1,
+        "explanation": "Giải pháp phải phù hợp bối cảnh và yêu cầu phát triển kinh tế thị trường định hướng XHCN. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 196,
+        "question": "Câu 196 (Chương 5): Các vụ án tham nhũng xảy ra ở Công ty Việt Á, AIC, Tập đoàn FLC, Tân Hoàng Minh, Vạn Thịnh Phát là ví dụ về điều gì?",
+        "options": [
+            "A. Hiệu quả của phòng, chống tham nhũng",
+            "B. Tình trạng tham nhũng và tiêu cực trong khu vực nhà nước",
+            "C. Sự đấu tranh phòng, chống tham nhũng ở khu vực ngoài nhà nước",
+            "D. Tình trạng tham nhũng chỉ xảy ra ở các doanh nghiệp nhà nước"
+        ],
+        "answer": 2,
+        "explanation": "Đây là các vụ án ở khu vực ngoài nhà nước (doanh nghiệp tư nhân), cho thấy cuộc đấu tranh phòng, chống tham nhũng đã mở rộng sang khu vực này. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 197,
+        "question": "Câu 197 (Chương 5): Luật phòng, chống tham nhũng năm 2018 của Việt Nam có điều gì đặc biệt?",
+        "options": [
+            "A. Chỉ nói về phòng, chống tham nhũng ở khu vực nhà nước",
+            "B. Chỉ nói về phòng, chống tham nhũng ở khu vực ngoài nhà nước",
+            "C. Có chương riêng về hoạt động phòng, chống tham nhũng ở khu vực ngoài nhà nước",
+            "D. Có chương riêng về hoạt động phòng, chống tham nhũng ở khu vực nhà nước"
+        ],
+        "answer": 2,
+        "explanation": "Luật năm 2018 lần đầu có chương riêng về phòng, chống tham nhũng ở khu vực ngoài nhà nước. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 198,
+        "question": "Câu 198 (Chương 5): Cách Việt Nam tham gia các sáng kiến, diễn đàn quốc tế trong phòng, chống tham nhũng là như thế nào?",
+        "options": [
+            "A. Chủ động tham gia và đóng góp tích cực",
+            "B. Không tham gia vì không cần thiết",
+            "C. Tham gia để đạt lợi ích cá nhân",
+            "D. Tham gia chỉ khi bị áp đặt"
+        ],
+        "answer": 0,
+        "explanation": "Việt Nam chủ động tham gia và đóng góp tích cực. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 199,
+        "question": "Câu 199 (Chương 5): Để đối phó với tội phạm tham nhũng quốc tế, Việt Nam cần thực hiện hoạt động nào?",
+        "options": [
+            "A. Đàm phán, ký kết hiệp định tương trợ tư pháp",
+            "B. Chỉ tập trung vào việc đấu tranh nội bộ",
+            "C. Không cần hợp tác với cơ quan tư pháp quốc tế",
+            "D. Tự xử lý tất cả các vấn đề nội bộ"
+        ],
+        "answer": 0,
+        "explanation": "Cần đàm phán, ký kết các hiệp định tương trợ tư pháp, dẫn độ, hợp tác quốc tế. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 200,
+        "question": "Câu 200 (Chương 5): Tội phạm tham nhũng thường có tính chất gì đòi hỏi công tác phòng, chống tham nhũng cần mở rộng ra ngoài khu vực nhà nước?",
+        "options": [
+            "A. Tính quốc tế",
+            "B. Tính tự nhiên",
+            "C. Tính địa phương",
+            "D. Tính dân sự"
+        ],
+        "answer": 0,
+        "explanation": "Tội phạm tham nhũng có tính quốc tế, xuyên biên giới nên phải hợp tác và mở rộng phạm vi phòng, chống. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 201,
+        "question": "Câu 201 (Chương 5): Biện pháp nào đã được thực hiện để tăng cường việc kiểm soát tài sản, thu nhập của cán bộ, công chức nhằm hạn chế hành vi tham nhũng?",
+        "options": [
+            "A. Sửa đổi chế độ, định mức, tiêu chuẩn",
+            "B. Thanh toán không dùng tiền mặt",
+            "C. Nâng cao đời sống của cán bộ, công chức",
+            "D. Tất cả các đáp án trên"
+        ],
+        "answer": 3,
+        "explanation": "Cả ba biện pháp đều được thực hiện. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 202,
+        "question": "Câu 202 (Chương 5): Những vụ án tham nhũng, kinh tế lớn, đặc biệt nghiêm trọng thường xảy ra với những đối tượng nào?",
+        "options": [
+            "A. Các công dân bình thường.",
+            "B. Người nghèo.",
+            "C. Các cán bộ cấp cao.",
+            "D. Các thanh niên."
+        ],
+        "answer": 2,
+        "explanation": "Nhiều vụ án đặc biệt nghiêm trọng liên quan đến cán bộ cấp cao, kể cả cán bộ cấp cao thuộc diện Trung ương quản lý. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 203,
+        "question": "Câu 203 (Chương 5): Trong giai đoạn 2012 – 2022, công tác điều tra, truy tố, xét xử các vụ án tham nhũng, kinh tế đã được tiến hành như thế nào?",
+        "options": [
+            "A. Một cách nghiêm minh và nhân văn.",
+            "B. Không đủ quyết tâm.",
+            "C. Không chú trọng công tác thu hồi tài sản tham nhũng.",
+            "D. Thường xuyên làm oan, sai."
+        ],
+        "answer": 0,
+        "explanation": "Điều tra, truy tố, xét xử nghiêm minh, đúng người, đúng tội, đúng pháp luật và nhân văn. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 204,
+        "question": "Câu 204 (Chương 5): Biện pháp nào được áp dụng để khuyến khích người phạm tội tham nhũng tự nguyện bồi thường và khắc phục hậu quả?",
+        "options": [
+            "A. Xử lý kỷ luật.",
+            "B. Kê biên tài sản.",
+            "C. Phong tỏa tài khoản.",
+            "D. Nhắc nhở."
+        ],
+        "answer": 1,
+        "explanation": "Trong các đáp án, biện pháp kê biên tài sản được áp dụng (cùng chính sách khoan hồng nếu tự nguyện khắc phục hậu quả). (Đáp án chọn theo ý chính giáo trình.) <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 205,
+        "question": "Câu 205 (Chương 5): Môi trường văn hóa thuận lợi cho các hoạt động kinh tế là gì?",
+        "options": [
+            "A. Môi trường ấm cúng.",
+            "B. Môi trường tôn trọng giới tính.",
+            "C. Môi trường tôn trọng kỷ cương, pháp luật; giữ chữ tín...",
+            "D. Môi trường đặc trưng cho một tôn giáo cụ thể."
+        ],
+        "answer": 2,
+        "explanation": "Môi trường tôn trọng kỷ cương, pháp luật, giữ chữ tín, cạnh tranh lành mạnh… <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 206,
+        "question": "Câu 206 (Chương 6): Cách mạng công nghiệp lần I khởi phát từ nước nào?",
+        "options": [
+            "A. Đức",
+            "B. Pháp",
+            "C. Anh",
+            "D. Mỹ"
+        ],
+        "answer": 2,
+        "explanation": "Cách mạng công nghiệp lần thứ nhất bắt đầu từ nước Anh (cuối thế kỷ XVIII). <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 207,
+        "question": "Câu 207 (Chương 6): Chọn phương án thích hợp với dấu […]: Đặc trưng của hội nhập kinh tế quốc tế là sự hình thành các [...] quốc tế và khu vực để tạo ra sân chơi chung cho các nước",
+        "options": [
+            "A. Liên hiệp quân sự",
+            "B. Liên minh chính trị",
+            "C. Liên kết kinh tế",
+            "D. Liên minh quốc phòng"
+        ],
+        "answer": 2,
+        "explanation": "Đặc trưng của hội nhập kinh tế quốc tế là hình thành các liên kết kinh tế quốc tế và khu vực. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 208,
+        "question": "Câu 208 (Chương 6): Trong điều kiện ngày nay, hội nhập kinh tế quốc tế là phương thức phát triển mang tính chất gì?",
+        "options": [
+            "A. Đặc thù của các nước đang và kém phát triển",
+            "B. Phổ biến của các nước, nhất là các nước đang và kém phát triển",
+            "C. Riêng có của các nước phát triển",
+            "D. Phổ biến của các nước, nhất là những nước phát triển"
+        ],
+        "answer": 1,
+        "explanation": "Hội nhập là phương thức phát triển phổ biến của các nước, nhất là các nước đang và kém phát triển. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 209,
+        "question": "Câu 209 (Chương 6): Chọn phương án thích hợp với dấu […]: Khi đã có độc lập tự chủ về chính trị thì nội dung cơ bản của độc lập tự chủ của một quốc gia là xây dựng [...] độc lập tự chủ",
+        "options": [
+            "A. Nền văn hóa",
+            "B. Nền kinh tế",
+            "C. Nền quân sự",
+            "D. Nền quốc phòng"
+        ],
+        "answer": 1,
+        "explanation": "Nội dung cơ bản của độc lập, tự chủ là xây dựng nền kinh tế độc lập, tự chủ. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 210,
+        "question": "Câu 210 (Chương 6): Chọn phương án thích hợp với dấu […]: Mở rộng quan hệ quốc tế phải quán triệt và thực hiện nguyên tắc bình đẳng, cùng có lợi, tôn trọng độc lập, [...] và không can thiệp vào công việc nội bộ của nhau.",
+        "options": [
+            "A. Phát triển",
+            "B. Tự do",
+            "C. Tự nguyện",
+            "D. Chủ quyền"
+        ],
+        "answer": 3,
+        "explanation": "Nguyên tắc: bình đẳng, cùng có lợi, tôn trọng độc lập, chủ quyền và không can thiệp vào công việc nội bộ của nhau. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 211,
+        "question": "Câu 211 (Chương 6): Chọn phương án thích hợp với dấu […]: Trong nền kinh tế tri thức, [...] trở thành lực lượng sản xuất trực tiếp, là vốn quý nhất, là nguồn lực quan trọng hàng đầu, quyết định sự tăng trưởng và phát triển kinh tế",
+        "options": [
+            "A. Tiền tệ",
+            "B. Lao động",
+            "C. Đất đai",
+            "D. Tri thức"
+        ],
+        "answer": 3,
+        "explanation": "Trong kinh tế tri thức, tri thức là lực lượng sản xuất trực tiếp, nguồn lực hàng đầu. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 212,
+        "question": "Câu 212 (Chương 6): Chọn phương án thích hợp với dấu […]: Với việc máy móc thay thế lao động thủ công đã làm gia tăng nạn [...], công nhân phải lao động với cường độ cao, mức độ bóc lột lao động tăng lên làm cho mâu thuẫn đối kháng giữa giai cấp tư sản và giai cấp vô sản ngày càng gay gắt",
+        "options": [
+            "A. Lạm phát",
+            "B. Thất nghiệp",
+            "C. Suy thoái",
+            "D. Ô nhiễm"
+        ],
+        "answer": 1,
+        "explanation": "Máy móc thay thế lao động làm gia tăng nạn thất nghiệp. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 213,
+        "question": "Câu 213 (Chương 6): Chọn phương án thích hợp với dấu […]: Theo dự báo của C.Mác, theo đà phát triển của đại công nghiệp, việc tạo ra của cải sẽ trở nên ít phụ thuộc vào thời gian lao động và [...] lao động đã chi phí mà phụ thuộc vào việc ứng dụng khoa học vào sản xuất",
+        "options": [
+            "A. Năng suất",
+            "B. Chất lượng",
+            "C. Số lượng",
+            "D. Mức độ"
+        ],
+        "answer": 2,
+        "explanation": "Câu nói của Mác: ít phụ thuộc vào thời gian lao động và số lượng lao động đã chi phí. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 214,
+        "question": "Câu 214 (Chương 6): Con đường công nghiệp hoá theo mô hình Liên Xô (cũ) ưu tiên phát triển lĩnh vực nào?",
+        "options": [
+            "A. Công nghiệp số",
+            "B. Công nghiệp nhẹ",
+            "C. Công nghiệp nặng",
+            "D. Công nghiệp không khói"
+        ],
+        "answer": 2,
+        "explanation": "Mô hình Liên Xô ưu tiên phát triển công nghiệp nặng. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 215,
+        "question": "Câu 215 (Chương 6): Công nghiệp hoá của các nước tư bản cổ điển, mà tiêu biểu là nước Anh được thực hiện gắn liền với cuộc cách mạng công nghiệp nào?",
+        "options": [
+            "A. Cuộc cách mạng công nghiệp lần thứ hai",
+            "B. Cuộc cách mạng công nghiệp lần thứ nhất",
+            "C. Cuộc cách mạng công nghiệp lần thứ ba",
+            "D. Cuộc cách mạng công nghiệp lần thứ tư"
+        ],
+        "answer": 1,
+        "explanation": "Công nghiệp hóa ở Anh gắn với cuộc cách mạng công nghiệp lần thứ nhất. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 216,
+        "question": "Câu 216 (Chương 6): Để phát triển kết cấu hạ tầng đồng bộ và hiện đại, cần ưu tiên phát triển lĩnh vực nào?",
+        "options": [
+            "A. Hạ tầng giao thông",
+            "B. Công nghiệp dệt may",
+            "C. Công nghiệp vận hành tự động",
+            "D. Luyện kim"
+        ],
+        "answer": 0,
+        "explanation": "Ưu tiên phát triển hạ tầng giao thông (cùng năng lượng, hạ tầng số…). <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 217,
+        "question": "Câu 217 (Chương 6): Chính sách tài chính và tín dụng cần được đổi mới để thúc đẩy CNH, HĐH theo hướng nào?",
+        "options": [
+            "A. Đánh thuế cao doanh nghiệp",
+            "B. Tăng thuế thu nhập cá nhân",
+            "C. Lấy đầu tư công dẫn dắt đầu tư tư nhân",
+            "D. Giảm nguồn lực tài chính nhà nước"
+        ],
+        "answer": 2,
+        "explanation": "Đổi mới theo hướng lấy đầu tư công dẫn dắt, thu hút đầu tư tư nhân. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 218,
+        "question": "Câu 218 (Chương 6): Mục tiêu chính của chương trình phát triển công nghiệp hỗ trợ đến năm 2030 là gì?",
+        "options": [
+            "A. Tạo ra bứt phá về năng suất",
+            "B. Đáp ứng quy tắc về nguồn gốc xuất xứ trong hiệp định thương mại tự do",
+            "C. Tạo ra công việc cho người dân",
+            "D. Phát triển công nghiệp thực phẩm"
+        ],
+        "answer": 1,
+        "explanation": "Phát triển công nghiệp hỗ trợ nhằm đáp ứng quy tắc xuất xứ trong các FTA. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 219,
+        "question": "Câu 219 (Chương 6): Định hướng phát triển công nghiệp quốc phòng và công nghiệp an ninh là gì?",
+        "options": [
+            "A. Tăng cường sức mạnh quân đội",
+            "B. Phát triển công nghiệp quốc phòng",
+            "C. Hiện đại hóa hệ thống vũ khí",
+            "D. Lưỡng dụng, tự lực, tự cường, liên kết chặt chẽ với CN dân sinh"
+        ],
+        "answer": 3,
+        "explanation": "Định hướng: lưỡng dụng, tự lực, tự cường, gắn kết chặt chẽ với công nghiệp dân sinh. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 220,
+        "question": "Câu 220 (Chương 6): Ngành công nghiệp nào được ưu tiên phát triển trong lĩnh vực công nghiệp nền tảng?",
+        "options": [
+            "A. Công nghiệp khai khoáng",
+            "B. Công nghiệp dệt may",
+            "C. Công nghiệp vận hành tự động",
+            "D. Công nghiệp chế biến thực phẩm"
+        ],
+        "answer": 2,
+        "explanation": "Trong các đáp án, C gần nhất với nhóm công nghiệp nền tảng, công nghệ cao. (Đáp án chọn theo ý chính giáo trình.) <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 221,
+        "question": "Câu 221 (Chương 6): Mục tiêu chính của chương trình \"Make in Vietnam 2045\" là gì?",
+        "options": [
+            "A. Phát triển công nghiệp điện tử",
+            "B. Nâng cao năng lực độc lập, tự chủ của nền sản xuất Việt Nam",
+            "C. Tạo ra bứt phá về năng suất",
+            "D. Tạo ra công việc cho người dân"
+        ],
+        "answer": 1,
+        "explanation": "Mục tiêu: nâng cao năng lực độc lập, tự chủ, tự lực, tự cường của nền sản xuất Việt Nam. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 222,
+        "question": "Câu 222 (Chương 6): Để phát triển kết cấu hạ tầng đồng bộ và hiện đại, chính phủ tập trung vào việc phát triển lĩnh vực nào?",
+        "options": [
+            "A. Công nghiệp quốc gia",
+            "B. Hạ tầng giao thông",
+            "C. Năng lượng tái tạo",
+            "D. Công trình y tế"
+        ],
+        "answer": 1,
+        "explanation": "Tập trung vào hạ tầng giao thông (đường bộ cao tốc, đường sắt, cảng, sân bay…). <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 223,
+        "question": "Câu 223 (Chương 6): Phương châm nào được đề xuất để thúc đẩy sự đổi mới trong sự nghiệp CNH, HĐH đất nước?",
+        "options": [
+            "A. Tạo ra bứt phá về năng suất",
+            "B. Xây dựng hệ thống đường bộ cao tốc",
+            "C. Đổi mới sáng tạo",
+            "D. Đánh thuế cao doanh nghiệp"
+        ],
+        "answer": 2,
+        "explanation": "Đổi mới sáng tạo là phương châm, động lực của CNH, HĐH. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 224,
+        "question": "Câu 224 (Chương 6): Mục tiêu chính của CNH, HĐH giai đoạn 2031-2045 là gì?",
+        "options": [
+            "A. Tăng cường CNH, HĐH toàn diện",
+            "B. Phát triển công nghiệp quốc gia",
+            "C. Nâng cao chất lượng đời sống xã hội",
+            "D. Tạo lập chính sách tài chính mới"
+        ],
+        "answer": 0,
+        "explanation": "Giai đoạn 2031–2045: tiếp tục đẩy mạnh CNH, HĐH toàn diện. (Đáp án chọn theo ý chính giáo trình.) <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 225,
+        "question": "Câu 225 (Chương 6): Nội dung cốt lõi của sự nghiệp CNH, HĐH đất nước giai đoạn 2021-2030 là gì?",
+        "options": [
+            "A. Tạo ra bứt phá về năng suất",
+            "B. Đổi mới sáng tạo",
+            "C. Đổi chính sách tài chính",
+            "D. Mở cửa thị trường quốc tế"
+        ],
+        "answer": 0,
+        "explanation": "Nội dung cốt lõi là tạo bứt phá về năng suất, chất lượng, hiệu quả. (Đáp án chọn theo ý chính giáo trình.) <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 226,
+        "question": "Câu 226 (Chương 6): Theo Nghị quyết số 29-NQ/TW, ngày 17/11/2022, về tiếp tục đẩy mạnh công nghiệp hóa, hiện đại hóa đất nước đến năm 2030, tầm nhìn đến năm 2045, chủ thể nào có vai trò xung kích và đi đầu trong phát triển quốc gia?",
+        "options": [
+            "A. Đội ngũ trí thức và doanh nhân Việt Nam",
+            "B. Công nhân Việt Nam",
+            "C. Nông dân Việt Nam",
+            "D. Người cao tuổi"
+        ],
+        "answer": 0,
+        "explanation": "Đội ngũ trí thức và doanh nhân giữ vai trò xung kích, đi đầu. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 227,
+        "question": "Câu 227 (Chương 6): Chọn phương án KHÔNG ĐÚNG về những giá trị cần khuyến khích để thúc đẩy phát triển công nghiệp quốc gia:",
+        "options": [
+            "A. Chủ nghĩa cá nhân",
+            "B. Tinh thần tự lực, tự cường dân tộc",
+            "C. Khởi nghiệp quốc gia và đổi mới sáng tạo",
+            "D. Giá trị tinh hoa văn hóa dân tộc"
+        ],
+        "answer": 0,
+        "explanation": "Cần khuyến khích tinh thần dân tộc, khởi nghiệp, sáng tạo, tinh hoa văn hóa; không khuyến khích chủ nghĩa cá nhân. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 228,
+        "question": "Câu 228 (Chương 6): “Make in Vietnam 2045” là tên gọi của chương trình nào?",
+        "options": [
+            "A. Chương trình quốc gia về nâng cao năng lực độc lập, tự chủ, tự lực, tự cường của nền sản xuất Việt Nam đến năm 2045",
+            "B. Chương trình quốc gia về hàng Việt Nam chất lượng cao đến năm 2045",
+            "C. Chương trình quốc gia về xuất khẩu lao động Việt Nam đến năm 2045",
+            "D. Chương trình quốc gia về nâng cao năng lực cạnh tranh nông sản Việt Nam đến năm 2045"
+        ],
+        "answer": 0,
+        "explanation": "Đây là chương trình quốc gia nâng cao năng lực độc lập, tự chủ, tự lực, tự cường của nền sản xuất Việt Nam. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 229,
+        "question": "Câu 229 (Chương 6): Theo Nghị quyết số 29-NQ/TW, ngày 17/11/2022, về tiếp tục đẩy mạnh công nghiệp hóa, hiện đại hóa đất nước đến năm 2030, tầm nhìn đến năm 2045, đối tượng nào được xem là chủ thể trong quá trình phát triển công nghiệp và hiện đại hóa?",
+        "options": [
+            "A. Chính phủ",
+            "B. Công dân cá nhân",
+            "C. Tổ chức phi chính phủ",
+            "D. Doanh nghiệp"
+        ],
+        "answer": 3,
+        "explanation": "Doanh nghiệp (cùng doanh nhân) là chủ thể, lực lượng xung kích trong phát triển công nghiệp. (Đáp án chọn theo ý chính giáo trình.) <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 230,
+        "question": "Câu 230 (Chương 6): Theo Nghị quyết số 29-NQ/TW, ngày 17/11/2022, về tiếp tục đẩy mạnh công nghiệp hóa, hiện đại hóa đất nước đến năm 2030, tầm nhìn đến năm 2045, ai được xem là trung tâm của quá trình phát triển công nghiệp và hiện đại hóa?",
+        "options": [
+            "A. Chính phủ",
+            "B. Công dân cá nhân",
+            "C. Tổ chức phi chính phủ",
+            "D. Toàn dân và hệ thống chính trị"
+        ],
+        "answer": 3,
+        "explanation": "CNH, HĐH là sự nghiệp của toàn dân và cả hệ thống chính trị. (Đáp án chọn theo ý chính giáo trình.) <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 231,
+        "question": "Câu 231 (Chương 6): Chọn phương án thích hợp với dấu […]: Theo Nghị quyết số 29-NQ/TW, ngày 17/11/2022, về tiếp tục đẩy mạnh công nghiệp hóa, hiện đại hóa đất nước đến năm 2030, tầm nhìn đến năm 2045, trong giai đoạn tới, công nghiệp Việt Nam cần chuyển dịch nhanh từ lắp ráp sang […], từ gia công sang […]",
+        "options": [
+            "A. Sản xuất/nghiên cứu",
+            "B. Sản xuất/chế tạo",
+            "C. Dịch vụ/nghiên cứu",
+            "D. Dịch vụ/chế tạo"
+        ],
+        "answer": 0,
+        "explanation": "Chuyển dịch nhanh từ lắp ráp sang sản xuất, từ gia công sang nghiên cứu, thiết kế (khớp với câu 65). (Đáp án chọn theo ý chính giáo trình.) <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 232,
+        "question": "Câu 232 (Chương 6): Theo Nghị quyết số 29-NQ/TW, ngày 17/11/2022, về tiếp tục đẩy mạnh công nghiệp hóa, hiện đại hóa đất nước đến năm 2030, tầm nhìn đến năm 2045, cần chú trọng đẩy mạnh đổi mới và phát triển dịch vụ hóa các ngành công nghiệp nào ở Việt Nam?",
+        "options": [
+            "A. Ngành công nghiệp hỗ trợ",
+            "B. Ngành công nghiệp có lợi thế",
+            "C. Ngành công nghiệp nặng",
+            "D. Ngành công nghiệp khai thác tài nguyên"
+        ],
+        "answer": 1,
+        "explanation": "Chú trọng dịch vụ hóa các ngành công nghiệp có lợi thế. (Đáp án chọn theo ý chính giáo trình.) <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 233,
+        "question": "Câu 233 (Chương 6): Trong Nghị quyết số 29-NQ/TW, ngày 17/11/2022, về tiếp tục đẩy mạnh công nghiệp hóa, hiện đại hóa đất nước đến năm 2030, tầm nhìn đến năm 2045, quan điểm về động lực trong công nghiệp hóa, hiện đại hóa đất nước đề cập đến việc gì?",
+        "options": [
+            "A. Tăng cường quản lý nhà nước",
+            "B. Khơi dậy khát vọng phát triển và tinh thần khởi nghiệp quốc gia",
+            "C. Giảm bớt vai trò của doanh nhân",
+            "D. Tăng cường giám sát xã hội"
+        ],
+        "answer": 1,
+        "explanation": "Động lực: khơi dậy khát vọng phát triển, tinh thần khởi nghiệp quốc gia. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 234,
+        "question": "Câu 234 (Chương 6): Chọn phương án đúng về lộ trình và bước đi trong công nghiệp hóa và hiện đại hóa đất nước theo Nghị quyết số 29-NQ/TW, ngày 17/11/2022, Hội nghị lần thứ 6 Ban Chấp hành Trung ương Đảng khóa XIII?",
+        "options": [
+            "A. Lộ trình và bước đi cụ thể",
+            "B. Tất cả lĩnh vực phát triển đồng thời",
+            "C. Không cần lộ trình cụ thể",
+            "D. Chỉ ưu tiên các cơ chế chính trị"
+        ],
+        "answer": 0,
+        "explanation": "Nghị quyết xác định lộ trình, bước đi cụ thể, có trọng tâm, trọng điểm. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 235,
+        "question": "Câu 235 (Chương 6): Chọn phương án đúng về cách thức tiến hành công nghiệp hóa và hiện đại hóa đất nước theo Nghị quyết số 29-NQ/TW, ngày 17/11/2022, Hội nghị lần thứ 6 Ban Chấp hành Trung ương Đảng khóa XIII?",
+        "options": [
+            "A. Sự tăng cường vận động xã hội",
+            "B. Phát triển dự án nhỏ",
+            "C. Chuyển dịch nhanh từ gia công, lắp ráp sang nghiên cứu, thiết kế và sản xuất tại Việt Nam",
+            "D. Thực hiện tất cả cùng một lúc"
+        ],
+        "answer": 2,
+        "explanation": "Cách thức: chuyển dịch nhanh từ gia công, lắp ráp sang nghiên cứu, thiết kế và sản xuất tại Việt Nam. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 236,
+        "question": "Câu 236 (Chương 6): Mục tiêu tổng quát đến năm 2045 trong Nghị quyết số 29-NQ/TW, ngày 17/11/2022 về tiếp tục đẩy mạnh công nghiệp hóa, hiện đại hóa đất nước đến năm 2030, tầm nhìn đến năm 2045 là gì?",
+        "options": [
+            "A. Tạo ra nền kinh tế mạnh mẽ",
+            "B. Xây dựng xã hội công bằng",
+            "C. Thăng hạng nền công nghiệp quốc gia trên bản đồ công nghiệp thế giới",
+            "D. Đảm bảo an ninh quốc gia"
+        ],
+        "answer": 2,
+        "explanation": "Mục tiêu đến 2045: Việt Nam trở thành nước công nghiệp hiện đại, thăng hạng nền công nghiệp quốc gia trên bản đồ công nghiệp thế giới. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 237,
+        "question": "Câu 237 (Chương 6): Tính cạnh tranh của một quốc gia trong quá trình hội nhập kinh tế quốc tế phụ thuộc vào yếu tố gì?",
+        "options": [
+            "A. Quy mô của nền kinh tế",
+            "B. Sản lượng sản phẩm nội địa",
+            "C. Năng lực sản xuất và sáng tạo",
+            "D. Sự cắt giảm chi phí"
+        ],
+        "answer": 2,
+        "explanation": "Năng lực cạnh tranh phụ thuộc vào năng lực sản xuất và sáng tạo. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 238,
+        "question": "Câu 238 (Chương 6): Hiệu quả hội nhập kinh tế quốc tế thường dựa vào yếu tố nào?",
+        "options": [
+            "A. Giảm quá trình hội nhập",
+            "B. Cắt giảm tất cả các quy định và rào cản",
+            "C. Hợp nhất tất cả các thế mạnh quốc gia",
+            "D. Tạo ra sự cân đối giữa lợi ích quốc gia và quốc tế"
+        ],
+        "answer": 3,
+        "explanation": "Hội nhập hiệu quả khi cân đối hài hòa giữa lợi ích quốc gia và lợi ích quốc tế. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 239,
+        "question": "Câu 239 (Chương 6): Chính sách thương mại quốc tế thường nhằm mục đích gì?",
+        "options": [
+            "A. Bảo vệ môi trường",
+            "B. Tạo cơ hội cho doanh nghiệp",
+            "C. Bảo vệ quyền lao động",
+            "D. Bảo vệ chủ quyền quốc gia"
+        ],
+        "answer": 1,
+        "explanation": "Chính sách thương mại quốc tế nhằm tạo cơ hội, mở rộng thị trường cho doanh nghiệp. (Đáp án chọn theo ý chính giáo trình.) <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 240,
+        "question": "Câu 240 (Chương 6): Liên kết kinh tế quốc tế có thể giúp các quốc gia thực hiện vai trò nào?",
+        "options": [
+            "A. Giảm khả năng tạo ra giá trị gia tăng",
+            "B. Tạo ra cơ hội tăng cường hợp tác và thương mại",
+            "C. Chia sẻ tài nguyên quốc tế",
+            "D. Giảm nguy cơ nhập cư"
+        ],
+        "answer": 1,
+        "explanation": "Liên kết kinh tế quốc tế tạo cơ hội tăng cường hợp tác và thương mại. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 241,
+        "question": "Câu 241: Chọn phương án SAI về giá trị hàng hóa.",
+        "options": [
+            "A. Giá trị hàng hóa = giá trị tư liệu sản xuất + giá trị sức lao động + giá trị thặng dư",
+            "B. Giá trị hàng hoá = giá trị cũ + giá trị mới",
+            "C. Giá trị hàng hóa = giá trị tư liệu sản xuất + giá trị thặng dư",
+            "D. Giá trị hàng hóa = giá trị tư liệu sản xuất + giá trị mới"
+        ],
+        "answer": 2,
+        "explanation": "Công thức tính giá trị hàng hóa là W = c + v + m (trong đó c là giá trị tư liệu sản xuất, v là giá trị sức lao động, m là giá trị thặng dư). Do đó công thức ở phương án C bị thiếu v (giá trị sức lao động). <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 242,
+        "question": "Câu 242: Ở cấp độ cao nhất, mục đích nghiên cứu của kinh tế chính trị Mác – Lênin là gì?",
+        "options": [
+            "A. Tạo điều kiện cho người dân tự tạo ra thu nhập.",
+            "B. Phát hiện ra các quy luật vận động của thị trường.",
+            "C. Phát triển khoa học kinh tế hàng hóa.",
+            "D. Giúp chủ thể xã hội thúc đẩy văn minh và phát triển xã hội."
+        ],
+        "answer": 1,
+        "explanation": "Mục đích nghiên cứu ở cấp độ cao nhất của Kinh tế chính trị Mác – Lênin là phát hiện ra các quy luật vận động của thị trường chi phối sự vận động và phát triển của phương thức sản xuất. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 243,
+        "question": "Câu 243: Chọn phương án đúng điền vào chỗ trống: “giá trị thặng dư siêu ngạch là giá trị thặng dư có được do [.........], làm cho giá trị cá biệt của hàng hóa thấp hơn [.........]”",
+        "options": [
+            "A. Tăng năng suất lao động cá biệt/giá trị cá biệt",
+            "B. Tăng năng suất lao động xã hội/giá trị xã hội",
+            "C. Tăng năng suất lao động cá biệt/giá trị xã hội",
+            "D. Tăng năng suất lao động xã hội/giá trị cá biệt"
+        ],
+        "answer": 2,
+        "explanation": "Giá trị thặng dư siêu ngạch là phần giá trị thặng dư thu được do tăng năng suất lao động cá biệt, làm cho giá trị cá biệt của hàng hóa thấp hơn giá trị xã hội của hàng hóa đó. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 244,
+        "question": "Câu 244: Đóng góp khoa học nổi bật của Lênin trong lý luận kinh tế chính trị là gì?",
+        "options": [
+            "A. Sự chuyển hóa giá trị thặng dư thành lợi nhuận bình quân ở giai đoạn tự do cạnh tranh của chủ nghĩa tư bản",
+            "B. Đặc điểm kinh tế của độc quyền và độc quyền nhà nước trong chủ nghĩa tư bản",
+            "C. Công thức chung của tư bản là T-H-T’",
+            "D. Sự chuyển hóa giá trị thành giá cả sản xuất ở giai đoạn tự do cạnh tranh của chủ nghĩa tư bản"
+        ],
+        "answer": 1,
+        "explanation": "Đóng góp khoa học nổi bật của V.I. Lênin là đã phân tích và chỉ ra các đặc điểm kinh tế của độc quyền và độc quyền nhà nước trong chủ nghĩa tư bản. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 245,
+        "question": "Câu 245: Chọn phương án SAI về tích tụ tư bản.",
+        "options": [
+            "A. Tích tụ tư bản làm cho tư bản xã hội tăng",
+            "B. Tích tụ tư bản là kết quả trực tiếp của tích luỹ tư bản",
+            "C. Tích tụ tư bản là tăng quy mô tư bản cá biệt bằng cách hợp nhất các tư bản cá biệt có sẵn",
+            "D. Tích tụ tư bản là tăng quy mô tư bản cá biệt bằng cách tư bản hoá giá trị thặng dư"
+        ],
+        "answer": 2,
+        "explanation": "Tăng quy mô tư bản cá biệt bằng cách hợp nhất các tư bản cá biệt có sẵn là bản chất của tập trung tư bản, không phải tích tụ tư bản. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 246,
+        "question": "Câu 246: Chọn phương án KHÔNG ĐÚNG về sự thay đổi giá trị một hàng hóa khi tăng năng suất lao động.",
+        "options": [
+            "A. (c + v + m) không đổi",
+            "B. c có thể giữ nguyên, có thể tăng, có thể giảm",
+            "C. (c + v + m) giảm",
+            "D. (v + m) giảm"
+        ],
+        "answer": 0,
+        "explanation": "Khi tăng năng suất lao động, tổng giá trị sản xuất trong một đơn vị thời gian không đổi nhưng giá trị tạo ra cho một đơn vị hàng hóa (c + v + m) sẽ giảm xuống. Do đó phát biểu (c + v + m) không đổi là KHÔNG ĐÚNG. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 247,
+        "question": "Câu 247: Chọn phương án sai về yêu cầu của quy luật giá trị.",
+        "options": [
+            "A. Lưu thông hàng hoá dựa trên nguyên tắc ngang giá",
+            "B. Sản xuất và lưu thông hàng hoá dựa trên hao phí lao động xã hội cần thiết",
+            "C. Trong mọi trường hợp, giá cả phải bằng giá trị của hàng hóa",
+            "D. Hao phí lao động cá biệt phù hợp với hao phí lao động xã hội cần thiết"
+        ],
+        "answer": 2,
+        "explanation": "Do tác động của cung cầu, cạnh tranh... giá cả hàng hóa thường xuyên tách rời và xoay quanh giá trị chứ không bắt buộc luôn luôn phải bằng giá trị trong mọi trường hợp. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 248,
+        "question": "Câu 248: Chọn phương án SAI trong các nhận định sau.",
+        "options": [
+            "A. Giá trị của hàng hóa được thực hiện thông qua trao đổi, mua bán trên thị trường",
+            "B. Thị trường thông tin, định hướng cho nhu cầu sản xuất kinh doanh",
+            "C. Giá trị của hàng hóa được tạo ra thông qua trao đổi, mua bán trên thị trường",
+            "D. Thị trường là cầu nối giữa sản xuất với tiêu dùng"
+        ],
+        "answer": 2,
+        "explanation": "Giá trị của hàng hóa do lao động của người sản xuất kết tinh và tạo ra trong quá trình sản xuất, không phải được tạo ra trong quá trình trao đổi mua bán trên thị trường. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 249,
+        "question": "Câu 249: Bộ phận nào là hao phí lao động sống trong quá trình sản xuất ra hàng hóa?",
+        "options": [
+            "A. Khấu hao nguyên nhiên vật liệu",
+            "B. Chi phí tiền lương",
+            "C. Hao mòn máy móc thiết bị",
+            "D. Giá trị sức lao động và giá trị thặng dư"
+        ],
+        "answer": 3,
+        "explanation": "Hao phí lao động sống tạo ra giá trị mới (v + m), trong đó v là giá trị sức lao động và m là giá trị thặng dư. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 250,
+        "question": "Câu 250: Theo nghĩa hẹp, đối tượng nghiên cứu của kinh tế chính trị là gì?",
+        "options": [
+            "A. Quan hệ sản xuất và trao đổi trong nông nghiệp.",
+            "B. Quan hệ sản xuất và trao đổi trong một phương thức sản xuất nhất định.",
+            "C. Những quy luật chi phối sự sản xuất và trao đổi vật chất.",
+            "D. Những quy luật chi phối sự sản xuất và trao đổi vật chất trong xã hội loài người."
+        ],
+        "answer": 1,
+        "explanation": "Theo nghĩa hẹp, kinh tế chính trị nghiên cứu quan hệ sản xuất và trao đổi trong một phương thức sản xuất nhất định. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 251,
+        "question": "Câu 251: Chọn phương án đúng về phương pháp nghiên cứu chủ yếu của kinh tế chính trị Mác – Lênin.",
+        "options": [
+            "A. Trừu tượng hóa khoa học",
+            "B. Phỏng vấn chuyên gia",
+            "C. Thống kê kinh tế",
+            "D. Logic – lịch sử"
+        ],
+        "answer": 0,
+        "explanation": "Phương pháp trừu tượng hóa khoa học là phương pháp nghiên cứu chủ yếu và đặc thù của Kinh tế chính trị Mác – Lênin. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 252,
+        "question": "Câu 252: Trong cùng một thời gian lao động, số lượng hàng hóa tăng lên nhưng giá trị một hàng hoá và các điều kiện khác không đổi – là kết quả của biện pháp nào?",
+        "options": [
+            "A. Tăng năng suất lao động và tăng cường độ lao động",
+            "B. Giữ nguyên độ dài ngày lao động và rút ngắn thời gian lao động tất yếu",
+            "C. Tăng năng suất lao động",
+            "D. Tăng cường độ lao động"
+        ],
+        "answer": 3,
+        "explanation": "Tăng cường độ lao động làm tăng hao phí lao động tương ứng trong cùng một khoảng thời gian, khiến tổng sản phẩm và tổng giá trị đều tăng lên, do đó giá trị của 1 đơn vị hàng hóa không đổi. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 253,
+        "question": "Câu 253: Hiện nay, với sự phát triển của công nghệ số hóa, các dây chuyền máy móc tự động được ứng dụng ngày càng rộng rãi trong sản xuất, theo đó:",
+        "options": [
+            "A. Máy móc là yêu cầu tiên quyết để tăng giá trị của hàng hóa",
+            "B. Máy móc là yếu tố trực tiếp tạo ra giá trị thặng dư",
+            "C. Máy móc giữ vai trò quan trọng trong quá trình gia tăng giá trị thặng dư siêu ngạch",
+            "D. Máy móc là điều kiện quyết định để tạo ra giá trị mới cho hàng hóa"
+        ],
+        "answer": 2,
+        "explanation": "Việc cải tiến máy móc thiết bị làm tăng năng suất lao động cá biệt, giúp giảm giá trị cá biệt xuống thấp hơn giá trị xã hội để thu được giá trị thặng dư siêu ngạch. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 254,
+        "question": "Câu 254: Hãy xác định giá trị hàng hoá với những dữ liệu sau đây: trình độ bóc lột là 200%; cấu tạo hữu cơ của tư bản là 9:1; giá trị thặng dư trong hàng hóa là 7.000 USD và tư bản cố định hao mòn hoàn toàn trong 1 chu kỳ sản xuất.",
+        "options": [
+            "A. 40.000 USD",
+            "B. 1.600.000 USD",
+            "C. 30.000 USD",
+            "D. 42.000 USD"
+        ],
+        "answer": 3,
+        "explanation": "Ta có m' = m/v = 200% ⇒ v = m / 2 = 7.000 / 2 = 3.500 USD.<br>Cấu tạo hữu cơ c/v = 9/1 ⇒ c = 9 * 3.500 = 31.500 USD.<br>Giá trị hàng hóa W = c + v + m = 31.500 + 3.500 + 7.000 = 42.000 USD. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 255,
+        "question": "Câu 255: Chọn phương án đúng về kết quả của việc đồng thời tăng năng suất lao động và cường độ lao động lên 2 lần.",
+        "options": [
+            "A. Tổng số giá trị hàng hóa tăng 2 lần, tổng số hàng hóa tăng 2 lần",
+            "B. Giá trị 1 hàng hóa giảm 2 lần, tổng số giá trị hàng hóa tăng 2 lần",
+            "C. Tổng số hàng hóa tăng lên 4 lần, tổng số giá trị hàng hoá tăng lên 4 lần",
+            "D. Tổng số hàng hóa tăng lên 2 lần, giá trị 1 hàng hóa giảm 2 lần"
+        ],
+        "answer": 1,
+        "explanation": "Tăng NSLĐ 2 lần: Tổng hàng x2, tổng giá trị không đổi, giá trị 1 sản phẩm /2.<br>Tăng CĐLĐ 2 lần: Tổng hàng x2, tổng giá trị x2, giá trị 1 sản phẩm không đổi.<br>Khi tăng cả hai lên 2 lần: Tổng hàng = 2 x 2 = 4 lần; Tổng giá trị = 1 x 2 = 2 lần; Giá trị 1 sản phẩm giảm 2 lần. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 256,
+        "question": "Câu 256: Một công ty may mặc, trong một chu kỳ sản xuất có chi phí hao mòn máy móc, nhà xưởng là 200.000 USD. Chi phí cho vải, chỉ và nguyên phụ liệu khác là 300.000 USD. Hãy xác định tổng chi phí tư bản khả biến (tiền công trả cho công nhân) trong chu kỳ đó, biết rằng tổng giá trị lô hàng sản xuất ra là 1.500.000 USD và tỷ suất giá trị thặng dư là 300%.",
+        "options": [
+            "A. 250.000 USD",
+            "B. 500.000 USD",
+            "C. 350.000 USD",
+            "D. 400.000 USD"
+        ],
+        "answer": 0,
+        "explanation": "Ta có c = 200.000 + 300.000 = 500.000 USD.<br>Tổng giá trị W = c + v + m = 1.500.000 USD ⇒ v + m = 1.500.000 - 500.000 = 1.000.000 USD.<br>Vì m' = m/v = 300% ⇒ m = 3v.<br>Thay vào ta được: v + 3v = 1.000.000 ⇒ 4v = 1.000.000 ⇒ v = 250.000 USD. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 257,
+        "question": "Câu 257: Phát hiện nào là bước tiến vượt bậc về mặt lý luận kinh tế chính trị của C. Mác so với David Ricardo?",
+        "options": [
+            "A. Quy luật kinh tế “Bàn tay vô hình”",
+            "B. Hàng hóa có hai thuộc tính",
+            "C. Nguồn gốc của giá trị là hao phí sức lao động",
+            "D. Tính hai mặt của lao động sản xuất hàng hóa"
+        ],
+        "answer": 3,
+        "explanation": "Phát hiện ra tính hai mặt của lao động sản xuất hàng hóa (lao động cụ thể và lao động trừu tượng) là phát hiện đột phá mang tính lý luận riêng của C. Mác. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 258,
+        "question": "Câu 258: Khi sử dụng phương pháp trừu tượng hóa khoa học, điều quan trọng nhất là gì?",
+        "options": [
+            "A. Xác định đúng giới hạn của sự trừu tượng hóa",
+            "B. Gạt bỏ tất cả yếu tố phản ánh trực tiếp bản chất của đối tượng nghiên cứu",
+            "C. Loại bỏ tất cả yếu tố tạm thời",
+            "D. Giữ lại tất cả yếu tố"
+        ],
+        "answer": 0,
+        "explanation": "Khi áp dụng phương pháp trừu tượng hóa khoa học, điều quan trọng nhất là phải xác định đúng giới hạn của sự trừu tượng hóa để không làm sai lệch bản chất của đối tượng nghiên cứu. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 259,
+        "question": "Câu 259: Yếu tố nào không ảnh hưởng đến quy mô tích luỹ tư bản?",
+        "options": [
+            "A. Sự chênh lệch giữa tư bản sử dụng và tư bản tiêu dùng",
+            "B. Năng suất lao động xã hội",
+            "C. Đại lượng tư bản ứng trước",
+            "D. Số lượng giá trị sử dụng của hàng hóa"
+        ],
+        "answer": 3,
+        "explanation": "Quy mô tích lũy tư bản phụ thuộc vào trình độ bóc lột sức lao động, năng suất lao động xã hội, sự chênh lệch giữa tư bản sử dụng và tư bản tiêu dùng, và đại lượng tư bản ứng trước. Số lượng giá trị sử dụng không ảnh hưởng trực tiếp đến quy mô tích lũy tư bản. <br><b>Đáp án đúng: D</b>"
+    }
+]
+
+
+    // TRẠNG THÁI ỨNG DỤNG
+    let questions = [...originalQuestions];
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let wrongAnswers = [];
+    let isReviewMode = false;
+
+    // DOM ELEMENTS
+    const qText = document.getElementById('q-text');
+    const optionsContainer = document.getElementById('options-container');
+    const btnAction = document.getElementById('btn-action'); 
+    const btnPrev = document.getElementById('btn-prev');
+    const scoreDisplay = document.getElementById('score');
+    const wrongDisplay = document.getElementById('wrongCount');
+    const explanationArea = document.getElementById('explanation-area');
+    const explanationText = document.getElementById('explanation-text');
+    const reviewBtn = document.getElementById('btn-review');
+    const reviewAlert = document.getElementById('review-alert');
+
+    // ===== MENU DANH SÁCH CÂU HỎI =====
+    const questionMenu = document.getElementById('question-menu');
+    const questionMenuOverlay = document.getElementById('question-menu-overlay');
+    const questionList = document.getElementById('question-list');
+    const questionMenuInfo = document.getElementById('question-menu-info');
+
+    function buildQuestionList() {
+        questionList.innerHTML = '';
+
+        if (questions.length === 0) {
+            questionMenuInfo.innerText = 'Không có câu hỏi.';
+            return;
+        }
+
+        questionMenuInfo.innerText =
+            `Đang có ${questions.length} câu trong danh sách hiện tại. Bấm vào số câu để làm.`;
+
+        questions.forEach((q, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'question-number-btn';
+            btn.innerText = q.id ? `Câu ${q.id}` : `Câu ${index + 1}`;
+            btn.title = q.question;
+
+            if (index === currentQuestionIndex) {
+                btn.classList.add('current');
+            }
+
+            btn.onclick = () => goToQuestion(index);
+            questionList.appendChild(btn);
+        });
+    }
+
+    function toggleQuestionMenu() {
+        const isOpen = questionMenu.classList.contains('show');
+
+        if (isOpen) {
+            closeQuestionMenu();
+        } else {
+            buildQuestionList();
+            questionMenu.classList.add('show');
+            questionMenuOverlay.classList.add('show');
+        }
+    }
+
+    function closeQuestionMenu() {
+        questionMenu.classList.remove('show');
+        questionMenuOverlay.classList.remove('show');
+    }
+
+    function goToQuestion(index) {
+        if (index < 0 || index >= questions.length) return;
+
+        currentQuestionIndex = index;
+        loadQuestion(currentQuestionIndex);
+        buildQuestionList();
+        closeQuestionMenu();
+
+        // Đưa người dùng về khu vực câu hỏi nếu đang ở vị trí khác trên trang.
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    }
+
+    // KHỞI TẠO
+    function init() {
+        loadQuestion(0);
+        updateStats();
+        buildQuestionList();
+    }
+
+    // HIỂN THỊ CÂU HỎI
+    function loadQuestion(index) {
+        if (questions.length === 0) {
+            qText.innerText = "Chúc mừng! Bạn đã hoàn thành hết các câu hỏi.";
+            optionsContainer.innerHTML = "";
+            btnAction.style.display = 'none';
+            explanationArea.style.display = 'none';
+            return;
+        }
+
+        const q = questions[index];
+        qText.innerText = q.question;
+        
+        optionsContainer.innerHTML = '';
+        q.options.forEach((opt, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt;
+            btn.onclick = () => selectOption(i, btn);
+            optionsContainer.appendChild(btn);
+        });
+
+        // Ẩn nút "Câu tiếp theo" khi mới load câu hỏi
+        btnAction.style.display = 'none';
+        
+        explanationArea.style.display = 'none';
+        
+        // Cập nhật nút điều hướng
+        btnPrev.disabled = index === 0;
+
+        // Cập nhật trạng thái câu đang chọn trong menu
+        if (typeof questionList !== 'undefined') {
+            questionList.querySelectorAll('.question-number-btn').forEach((btn, i) => {
+                btn.classList.toggle('current', i === index);
+            });
+        }
+    }
+
+    // CHỌN ĐÁP ÁN VÀ KIỂM TRA NGAY LẬP TỨC
+    function selectOption(index, btnElement) {
+        // Kiểm tra xem đã chọn chưa (dựa vào class disabled)
+        const buttons = document.querySelectorAll('.option-btn');
+        if (buttons[0].classList.contains('disabled')) return; // Đã trả lời rồi thì không cho chọn lại
+
+        const q = questions[currentQuestionIndex];
+        const correctIndex = q.answer;
+
+        // Khóa tất cả các nút lại
+        buttons.forEach(b => {
+            b.classList.add('disabled');
+            b.onclick = null;
+        });
+
+        // Logic kiểm tra đúng sai
+        if (index === correctIndex) {
+            // ĐÚNG
+            btnElement.classList.add('correct');
+            btnElement.innerText += " ✅ (Chính xác)";
+            // Chỉ cộng điểm nếu chưa từng trả lời (để tránh spam điểm khi quay lại)
+            if (!q.answered) { 
+                score++;
+                q.answered = true;
+            }
+        } else {
+            // SAI
+            btnElement.classList.add('wrong');
+            btnElement.innerText += " ❌";
+            
+            // Hiện đáp án đúng
+            buttons[correctIndex].classList.add('correct'); 
+            buttons[correctIndex].innerText += " (Đáp án đúng)";
+            
+            // Hiện giải thích
+            explanationArea.style.display = 'block';
+            explanationText.innerHTML = q.explanation;
+            
+            // Lưu vào danh sách sai
+            if (!wrongAnswers.find(item => item.id === q.id)) {
+                wrongAnswers.push(q);
+            }
+        }
+
+        updateStats();
+
+        // HIỆN NÚT "CÂU TIẾP THEO"
+        btnAction.style.display = 'block';
+        if (currentQuestionIndex === questions.length - 1) {
+             btnAction.innerText = "Hoàn thành";
+        } else {
+             btnAction.innerText = "Câu tiếp theo ❯";
+        }
+    }
+
+    // ĐIỀU HƯỚNG
+    function changeQuestion(direction) {
+        currentQuestionIndex += direction;
+        
+        // Logic biên
+        if (currentQuestionIndex < 0) currentQuestionIndex = 0;
+        if (currentQuestionIndex >= questions.length) {
+            alert("Bạn đã hoàn thành danh sách câu hỏi hiện tại!");
+            currentQuestionIndex = questions.length - 1;
+            return;
+        }
+        
+        loadQuestion(currentQuestionIndex);
+    }
+
+    // CẬP NHẬT THỐNG KÊ
+    function updateStats() {
+        scoreDisplay.innerText = score;
+        wrongDisplay.innerText = wrongAnswers.length;
+        reviewBtn.innerText = `Ôn câu sai (${wrongAnswers.length})`;
+        
+        if (wrongAnswers.length > 0) {
+            reviewBtn.classList.replace('btn-secondary', 'btn-warning');
+            reviewBtn.disabled = false;
+        } else {
+            reviewBtn.classList.replace('btn-warning', 'btn-secondary');
+            reviewBtn.disabled = true;
+        }
+    }
+
+    // CHẾ ĐỘ ÔN CÂU SAI
+    function toggleReviewMode() {
+        if (wrongAnswers.length === 0) return;
+
+        isReviewMode = !isReviewMode;
+        
+        if (isReviewMode) {
+            questions = [...wrongAnswers]; // Chuyển sang list câu sai
+            reviewAlert.style.display = 'block';
+            reviewBtn.innerText = "Quay lại tất cả câu hỏi";
+        } else {
+            questions = [...originalQuestions]; // Quay lại list gốc
+            reviewAlert.style.display = 'none';
+        }
+        
+        // Reset lại từ đầu list mới
+        currentQuestionIndex = 0;
+        loadQuestion(0);
+        updateStats();
+        buildQuestionList();
+    }
+
+    // RANDOM CÂU HỎI
+    function shuffleQuestions() {
+        if (confirm("Bạn có muốn xáo trộn thứ tự câu hỏi để thử thách bản thân không? (Điểm số sẽ được reset)")) {
+            for (let i = questions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [questions[i], questions[j]] = [questions[j], questions[i]];
+            }
+            // Reset
+            currentQuestionIndex = 0;
+            score = 0;
+            loadQuestion(0);
+            updateStats();
+            buildQuestionList();
+        }
+    }    
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeQuestionMenu();
+        }
+    });
+
+    init();
+
+</script>
+
+</body>
+</html>

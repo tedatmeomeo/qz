@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Website by ThanhDat</title>
+
+  <!-- Icon -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(180deg, #120020, #154355);
+      color: white;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      text-align: center;
+    }
+
+    .container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 30px 20px;
+    }
+
+    /* Avatar */
+    .avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      padding: 3px;
+      margin-bottom: 15px;
+      background: linear-gradient(135deg, #00e1ff, #8a2be2);
+      box-shadow: 0 0 15px rgba(0, 225, 255, 0.6);
+    }
+
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    /* Typing text */
+    h1 {
+      font-size: 32px;
+      font-family: monospace;
+      border-right: 3px solid #00e1ff;
+      white-space: nowrap;
+      overflow: hidden;
+      animation: blink 0.7s infinite;
+      min-height: 40px;
+    }
+
+    @keyframes blink {
+      50% { border-color: transparent; }
+    }
+
+    .desc {
+      font-size: 14px;
+      color: #bbb;
+      margin: 15px 0 25px;
+    }
+
+    /* Social icons container - Xếp hàng dọc */
+    .socials {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      width: 100%;
+      max-width: 320px;
+    }
+
+    /* Ô Liquid Glass chữ nhật bo tròn */
+    .socials a {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 14px 20px;
+      text-decoration: none;
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: 500;
+      border-radius: 16px;
+      
+      /* Hiệu ứng Liquid Glass (Glassmorphism) */
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(12px) saturate(180%);
+      -webkit-backdrop-filter: blur(12px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 
+                  inset 0 1px 1px 0 rgba(255, 255, 255, 0.3);
+      
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .socials a i {
+      font-size: 22px;
+      color: #00e1ff;
+      width: 30px;
+      text-align: center;
+      margin-right: 15px;
+      transition: transform 0.3s ease, color 0.3s ease;
+    }
+
+    /* Vệt sáng lướt qua khi hover */
+    .socials a::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.25),
+        transparent
+      );
+      transition: left 0.6s ease;
+    }
+
+    .socials a:hover::before {
+      left: 100%;
+    }
+
+    .socials a:hover {
+      background: rgba(255, 255, 255, 0.16);
+      border-color: rgba(0, 225, 255, 0.5);
+      box-shadow: 0 8px 25px rgba(0, 225, 255, 0.3),
+                  inset 0 1px 1px 0 rgba(255, 255, 255, 0.5);
+      transform: translateY(-3px);
+      color: #00e1ff;
+    }
+
+    .socials a:hover i {
+      transform: scale(1.15);
+      color: #00ffff;
+    }
+
+    footer {
+      font-size: 12px;
+      color: #888;
+      padding: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <!-- Avatar -->
+    <div class="avatar">
+      <img src="avt.jpg" alt="avatar">
+    </div>
+
+    <!-- Text typing -->
+    <h1 id="text"></h1>
+
+    <p class="desc">“AI làm !”</p>
+
+    <!-- Social -->
+    <div class="socials">
+      <a href="KTCT_On_Thi_240_cau.html" target="_blank">
+        <i class="fab fa-github"></i>
+        <span>Kinh Tế Chính Trị</span>
+      </a>
+      <a href="">
+        <i class="fab fa-github"></i>
+        <span>không</span>
+      </a>
+      <a href="" target="_blank">
+        <i class="fab fa-github"></i>
+        <span>không</span>
+      </a>
+      <a href="" target="_blank">
+        <i class="fab fa-github"></i>
+        <span>không</span>
+      </a>
+    </div>
+
+  </div>
+
+  <footer>
+    © Thanh Dat!
+  </footer>
+
+  <script>
+    const text = "hoc bai?";
+    let i = 0;
+
+    function typeEffect() {
+      const el = document.getElementById("text");
+
+      if (i <= text.length) {
+        el.textContent = text.slice(0, i);
+        i++;
+        setTimeout(typeEffect, 120);
+      } else {
+        setTimeout(() => {
+          i = 0;
+          typeEffect();
+        }, 1500);
+      }
+    }
+
+    typeEffect();
+  </script>
+
+</body>
+</html>
