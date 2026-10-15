@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ôn Thi Phương pháp nghiên cứu (Câu 1–31)</title>
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --bg-color: #f4f6f9;
+            --text-color: #333;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        /* Header & Stats */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .stats {
+            font-size: 0.9rem;
+            display: flex;
+            gap: 15px;
+        }
+
+        .stat-item {
+            font-weight: bold;
+        }
+        .stat-correct { color: var(--success-color); }
+        .stat-wrong { color: var(--danger-color); }
+
+        /* Question Area */
+        .question-box {
+            margin-bottom: 25px;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        /* Options */
+        .options-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .option-btn {
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: #fff;
+            text-align: left;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .option-btn:hover:not(.disabled) {
+            background-color: #f8f9fa;
+            border-color: var(--primary-color);
+        }
+
+        /* Trạng thái khi đã chọn/hiển thị kết quả */
+        .option-btn.disabled {
+            cursor: default;
+            opacity: 0.9;
+        }
+
+        .option-btn.correct {
+            background-color: #d4edda;
+            border-color: var(--success-color);
+            color: #155724;
+            font-weight: bold;
+        }
+
+        .option-btn.wrong {
+            background-color: #f8d7da;
+            border-color: var(--danger-color);
+            color: #721c24;
+            opacity: 0.7;
+        }
+
+        /* Explanation */
+        .explanation {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            border-radius: 8px;
+            color: #856404;
+            animation: fadeIn 0.5s;
+        }
+
+        .explanation h4 { margin-top: 0; }
+
+        /* Footer Controls */
+        .footer-controls {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-primary { background-color: var(--primary-color); color: white; }
+        .btn-secondary { background-color: #6c757d; color: white; }
+        .btn-warning { background-color: #ffc107; color: #333; }
+        .btn-success { background-color: var(--success-color); color: white; }
+        
+        /* Action Button (Large) */
+        .action-btn { 
+            width: 100%; 
+            margin-top: 20px; 
+            padding: 15px; 
+            font-size: 1.2rem; 
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: none; /* Mặc định ẩn, chỉ hiện khi đã chọn đáp án */
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+
+        /* ===== MENU DANH SÁCH CÂU HỎI ===== */
+        .question-menu-btn {
+            position: fixed;
+            top: 18px;
+            right: 18px;
+            z-index: 1001;
+            width: 48px;
+            height: 48px;
+            border: none;
+            border-radius: 10px;
+            background: var(--primary-color);
+            color: #fff;
+            font-size: 25px;
+            line-height: 1;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .question-menu-btn:hover {
+            transform: scale(1.06);
+            background: #0056b3;
+        }
+
+        .question-menu-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 999;
+            background: rgba(0,0,0,0.25);
+        }
+
+        .question-menu-overlay.show {
+            display: block;
+        }
+
+        .question-menu {
+            position: fixed;
+            top: 0;
+            right: -360px;
+            z-index: 1000;
+            width: 330px;
+            max-width: 88vw;
+            height: 100vh;
+            box-sizing: border-box;
+            background: #fff;
+            box-shadow: -5px 0 20px rgba(0,0,0,0.18);
+            padding: 22px 18px;
+            overflow-y: auto;
+            transition: right 0.25s ease;
+        }
+
+        .question-menu.show {
+            right: 0;
+        }
+
+        .question-menu-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .question-menu-header h3 {
+            margin: 0;
+            color: var(--primary-color);
+            font-size: 1.15rem;
+        }
+
+        .question-menu-close {
+            border: none;
+            background: #f1f1f1;
+            width: 34px;
+            height: 34px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .question-list {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .question-number-btn {
+            border: 1px solid #d9d9d9;
+            background: #f8f9fa;
+            color: #333;
+            border-radius: 7px;
+            padding: 9px 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.15s;
+        }
+
+        .question-number-btn:hover {
+            background: #e7f1ff;
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .question-number-btn.current {
+            background: var(--primary-color);
+            color: #fff;
+            border-color: var(--primary-color);
+        }
+
+        .question-menu-info {
+            margin: 0 0 14px;
+            color: #666;
+            font-size: 0.88rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .container { padding: 15px; }
+            .question-text { font-size: 1.1rem; }
+            .header { flex-direction: column; align-items: flex-start; gap: 10px; }
+        }
+
+        .option-btn.selected {
+            background-color: #e7f1ff;
+            border-color: var(--primary-color);
+            font-weight: bold;
+        }
+        .option-btn.missed {
+            background-color: #fff3cd;
+            border-color: #ffc107;
+            color: #856404;
+            font-weight: bold;
+        }
+        .multi-hint { font-size: 0.9rem; color: #6c757d; margin: -10px 0 15px; }
+    </style>
+</head>
+<body>
+
+<!-- Nút 3 gạch mở danh sách câu hỏi -->
+<button class="question-menu-btn" id="question-menu-btn" onclick="toggleQuestionMenu()" aria-label="Mở danh sách câu hỏi">☰</button>
+
+<!-- Lớp nền khi mở danh sách -->
+<div class="question-menu-overlay" id="question-menu-overlay" onclick="closeQuestionMenu()"></div>
+
+<!-- Danh sách câu hỏi -->
+<aside class="question-menu" id="question-menu">
+    <div class="question-menu-header">
+        <h3>📚 Danh sách câu hỏi</h3>
+        <button class="question-menu-close" onclick="closeQuestionMenu()" aria-label="Đóng">×</button>
+    </div>
+    <p class="question-menu-info" id="question-menu-info">Chọn số câu để làm.</p>
+    <div class="question-list" id="question-list"></div>
+</aside>
+
+<div class="container">
+    <div class="header">
+        <h1 class="title">Ôn Thi Phương pháp nghiên cứu</h1>
+        <div class="stats">
+            <span class="stat-item stat-correct">Đúng: <span id="score">0</span></span>
+            <span class="stat-item stat-wrong">Sai: <span id="wrongCount">0</span></span>
+        </div>
+    </div>
+
+    <!-- Khu vực hiển thị thông báo chế độ ôn lại -->
+    <div id="review-alert" style="display:none; background: #cce5ff; color: #004085; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
+        Đang trong chế độ ôn lại các câu đã làm sai.
+    </div>
+
+    <div class="question-box">
+        <div class="question-text" id="q-text">Đang tải câu hỏi...</div>
+        
+        <div class="options-grid" id="options-container">
+            <!-- Options will be generated here -->
+        </div>
+
+        <!-- Nút hành động chính (Chỉ còn chức năng Next) -->
+        <button class="btn btn-primary action-btn" id="btn-check" onclick="checkMulti()">Kiểm tra đáp án</button>
+        <button class="btn btn-success action-btn" id="btn-action" onclick="changeQuestion(1)">Câu tiếp theo ❯</button>
+
+        <div class="explanation" id="explanation-area">
+            <h4>💡 Giải thích chi tiết:</h4>
+            <div id="explanation-text"></div>
+        </div>
+    </div>
+
+    <div class="footer-controls">
+        <button class="btn btn-secondary" id="btn-prev" onclick="changeQuestion(-1)">❮ Câu trước</button>
+        <button class="btn btn-warning" onclick="toggleReviewMode()" id="btn-review">Ôn câu sai (0)</button>
+        <button class="btn btn-secondary" onclick="shuffleQuestions()">🔀 Trộn câu hỏi</button>
+    </div>
+</div>
+
+<script>
+    // DỮ LIỆU CÂU HỎI (Câu 1–31)
+    const originalQuestions = [
+    {
+        "id": 1,
+        "question": "Câu 1: Đặc điểm của nghiên cứu khoa học là:",
+        "options": [
+            "A. Có tính hệ thống (systematic)",
+            "B. Các lựa chọn trên đều đúng",
+            "C. Được kiểm soát (controlled)",
+            "D. Có tính nghiêm ngặt (rigorous)"
+        ],
+        "answer": 1,
+        "explanation": "Nghiên cứu khoa học có tính hệ thống, được kiểm soát và nghiêm ngặt, nên cả ba đặc điểm đều đúng. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 2,
+        "question": "Câu 2: Điều nào sau đây là đúng khi trình bày phần danh mục tài liệu tham khảo?",
+        "options": [
+            "A. Phần danh mục tài liệu tham khảo liệt kê tất cả các trích dẫn trong báo cáo nghiên cứu.",
+            "B. APA chỉ có 3 cách khác nhau để định dạng danh mục tài liệu tham khảo mà các tác giả được phép lựa chọn.",
+            "C. Tác giả chỉ chọn các tài liệu tham khảo chính mà mình trích dẫn trong phần còn lại của báo cáo và đưa chúng vào phần danh mục tài liệu tham khảo.",
+            "D. Phần danh mục tài liệu tham khảo không có hướng dẫn định dạng nghiêm ngặt."
+        ],
+        "answer": 0,
+        "explanation": "Mọi nguồn đã trích dẫn trong bài đều phải có trong danh mục tài liệu tham khảo, và định dạng phải theo chuẩn nghiêm ngặt (như APA). <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 3,
+        "question": "Câu 3: Trình tự các bước thực hiện trong lược khảo lý thuyết và các nghiên cứu trước đây:",
+        "options": [
+            "A. Phát triển khung lý thuyết → phát triển khung khái niệm → tìm các lý thuyết hiện có → lược khảo lý thuyết",
+            "B. Tìm các lý thuyết hiện có → lược khảo tài liệu → phát triển khung lý thuyết → phát triển khung khái niệm",
+            "C. Lược khảo lý thuyết → tìm các lý thuyết hiện có → phát triển khung lý thuyết → phát triển khung khái niệm",
+            "D. Phát triển khung lý thuyết → phát triển khung khái niệm → Lược khảo lý thuyết → tìm các lý thuyết hiện có"
+        ],
+        "answer": 1,
+        "explanation": "Trình tự chuẩn: tìm tài liệu/lý thuyết hiện có, lược khảo tài liệu đã chọn, phát triển khung lý thuyết, rồi phát triển khung khái niệm. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 4,
+        "question": "Câu 4: Theo quan điểm nghiên cứu, nghiên cứu khoa học được phân chia dựa trên cơ sở nào (Chọn một hoặc nhiều đáp án)",
+        "options": [
+            "A. Ứng dụng, phương thức, thành tựu nghiên cứu",
+            "B. Ứng dụng, mục tiêu, kết quả nghiên cứu",
+            "C. Ứng dụng, phương thức, mục tiêu nghiên cứu",
+            "D. Phương thức, mục tiêu, dạng nghiên cứu"
+        ],
+        "answer": [
+            2
+        ],
+        "explanation": "Nghiên cứu được phân loại theo ba quan điểm: ứng dụng, mục tiêu và phương thức nghiên cứu (mode of enquiry). <br><b>Đáp án đúng: C</b>",
+        "multi": true
+    },
+    {
+        "id": 5,
+        "question": "Câu 5: Mục tiêu nghiên cứu:",
+        "options": [
+            "A. Cả ba đáp án trên",
+            "B. Là đích đến của nghiên cứu, cần phát biểu rõ ràng, cụ thể và hoàn chỉnh",
+            "C. Chỉ cần nêu cơ bản vấn đề nghiên cứu",
+            "D. Chưa thể được xác định ngay từ đầu"
+        ],
+        "answer": 1,
+        "explanation": "Mục tiêu là đích đến của nghiên cứu và phải được xác định rõ ràng, cụ thể, hoàn chỉnh ngay từ đầu. Các phương án C, D sai nên A cũng sai. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 6,
+        "question": "Câu 6: Có bao nhiêu bước cần thực hiện khi nghiên cứu khoa học:",
+        "options": [
+            "A. 10",
+            "B. 9",
+            "C. 4",
+            "D. 8"
+        ],
+        "answer": 3,
+        "explanation": "Quy trình nghiên cứu gồm 8 bước (từ hình thành vấn đề đến viết báo cáo). <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 7,
+        "question": "Câu 7: Quy trình nghiên cứu (The Research Process) có các đặc điểm nào sau đây? (Chọn một hoặc nhiều đáp án)",
+        "options": [
+            "A. Là một chuỗi các hành động diễn ra theo trình tự và tư duy hợp lý",
+            "B. Khởi đầu từ việc xác định vấn đề và kết thúc bằng việc tìm ra câu trả lời",
+            "C. Là một quá trình ngẫu hứng không cần tuân theo quy tắc nào.",
+            "D. Vận dụng các kiến thức chuyên ngành và phương pháp nghiên cứu",
+            "E. Bao gồm 3 giai đoạn chính: Quyết định (What), Lên kế hoạch (How) và Thực hiện (Conducting)"
+        ],
+        "answer": [
+            0,
+            1,
+            3,
+            4
+        ],
+        "explanation": "Quy trình nghiên cứu có trình tự, hợp lý, có hệ thống. Phương án C sai vì nghiên cứu không phải quá trình ngẫu hứng. <br><b>Đáp án đúng: A, B, D, E</b>",
+        "multi": true
+    },
+    {
+        "id": 8,
+        "question": "Câu 8: Trích dẫn nào sau đây tuân thủ chuẩn mực APA khi trích dẫn trong bài (in-text) của tài liệu tham khảo ở câu trên: (Chọn một hoặc nhiều đáp án)",
+        "options": [
+            "A. Le, L. and Bui, S. (2020) suggested that...",
+            "B. Bui, Le (2020) suggested that...",
+            "C. Le (2020) suggested that...",
+            "D. Le and Bui (2021) suggested that..."
+        ],
+        "answer": [
+            2,
+            3
+        ],
+        "explanation": "Theo APA, trích dẫn trong bài dạng tường thuật là Họ (năm) với một tác giả, và Họ1 and Họ2 (năm) với hai tác giả. Không dùng tên viết tắt hay dấu phẩy như A, B. <br><b>Đáp án đúng: C, D</b>",
+        "multi": true
+    },
+    {
+        "id": 9,
+        "question": "Câu 9: Sự khác biệt giữa Khung lý thuyết (Theoretical Framework) và Khung khái niệm (Conceptual Framework) là gì? (Chọn một hoặc nhiều đáp án)",
+        "options": [
+            "A. Khung khái niệm mô tả cấu trúc, mô hình phân tích cho nghiên cứu hiện tại",
+            "B. Khung khái niệm bắt nguồn từ khung lý thuyết và tập trung vào vấn đề cụ thể của nghiên cứu",
+            "C. Khung lý thuyết có phạm vi rộng hơn, bao quát các lý thuyết hiện có",
+            "D. Khung lý thuyết luôn hẹp hơn khung khái niệm",
+            "E. Khung lý thuyết cung cấp nền tảng cơ bản, khung khái niệm là cơ sở để điều tra thực tế"
+        ],
+        "answer": [
+            0,
+            1,
+            2,
+            4
+        ],
+        "explanation": "Khung lý thuyết rộng, bao quát; khung khái niệm bắt nguồn từ đó và hẹp hơn, gắn với vấn đề cụ thể. Phương án D sai vì ngược lại. <br><b>Đáp án đúng: A, B, C, E</b>",
+        "multi": true
+    },
+    {
+        "id": 10,
+        "question": "Câu 10: Trích dẫn nào sau đây tuân thủ chuẩn mực APA:",
+        "options": [
+            "A. Bui, S. C., & Chang, Y. C. (2022). Generating positive online word of mouth via brand image and trust: The moderation role of perceived privacy. Journal of Business Administration (1025-9627).",
+            "B. Bui, S. C., & Chang, Y. C. (2022). Generating positive online word of mouth via brand image and trust: The moderation role of perceived privacy. Journal of Business Administration (1025-9627), 47-3.",
+            "C. Bui, S. C., & Chang, Y. C. (2022). Generating positive online word of mouth via brand image and trust: The moderation role of perceived privacy. Journal of Business Administration 47(3), (1025-9627).",
+            "D. Bui, S. C., & Chang, Y. C. (2022). Generating positive online word of mouth via brand image and trust: The moderation role of perceived privacy. Journal of Business Administration (1025-9627), 47(3)."
+        ],
+        "answer": 3,
+        "explanation": "APA ghi tập và số theo dạng Tập(Số), ví dụ 47(3), đặt sau tên tạp chí. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 11,
+        "question": "Câu 11: Phát biểu nào sau đây về đạo văn là chính xác nhất?",
+        "options": [
+            "A. Đạo văn là việc chiếm hữu sai trái và sử dụng những ý tưởng, suy nghĩ, ngôn ngữ của người khác và xem chúng như những gì do mình tạo ra.",
+            "B. Làm thế nào chúng ta có thể nói chắc chắn ý tưởng của chúng ta đến từ đâu? Chúng ta không thể đưa ra một tài liệu tham khảo cho tất cả mọi thứ.",
+            "C. Đạo văn là một tội ác khủng khiếp đến nỗi những người bị kết tội phải có nghĩa vụ phải đeo một chữ \"Plagiarism\" đỏ tươi trên quần áo của họ.",
+            "D. Thật dễ dàng để \"sao chép và dán\" từ internet mà ngày nay mọi người đều làm như vậy. Nếu một tài liệu tham khảo thích hợp được đưa ra, điều này không gây tác hại gì."
+        ],
+        "answer": 0,
+        "explanation": "Đây là định nghĩa chính xác của đạo văn: chiếm dụng ý tưởng, ngôn ngữ của người khác và coi là của mình. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 12,
+        "question": "Câu 12: Trình tự trong quy trình nghiên cứu gồm các giai đoạn nào:",
+        "options": [
+            "A. Quyết định, Lập kế hoạch, triển khai",
+            "B. Lập kế hoạch, triển khai, báo cáo",
+            "C. Quyết định, lập kế hoạch, triển khai, báo cáo",
+            "D. Lập kế hoạch, quyết định, triển khai, báo cáo"
+        ],
+        "answer": 0,
+        "explanation": "Quy trình nghiên cứu gồm 3 giai đoạn: Quyết định (What), Lập kế hoạch (How), Triển khai (Conducting). <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 13,
+        "question": "Câu 13: Nguồn tài liệu nghiên cứu phục vụ cho lược khảo lý thuyết uy tín có thể tìm được từ:",
+        "options": [
+            "A. Báo chí truyền thông",
+            "B. Mạng xã hội",
+            "C. Truyền miệng",
+            "D. Chỉ từ các nghiên cứu liên quan"
+        ],
+        "answer": 3,
+        "explanation": "Lược khảo lý thuyết cần nguồn học thuật uy tín, tức các nghiên cứu liên quan. Báo chí, mạng xã hội, truyền miệng không đủ độ tin cậy. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 14,
+        "question": "Câu 14: Những vấn đề nào cần xem xét để đánh giá \"Tầm quan trọng\" của một đề tài? (Chọn một hoặc nhiều đáp án)",
+        "options": [
+            "A. Vấn đề có phù hợp với chuyên ngành của nhà nghiên cứu không?",
+            "B. Có ý nghĩa về mặt chính sách hoặc lý thuyết không?",
+            "C. Có trùng lặp với các nghiên cứu trước đây không?",
+            "D. Có giúp nhà nghiên cứu trở nên nổi tiếng nhanh chóng không?",
+            "E. Vấn đề có đủ cụ thể để thực hiện nghiên cứu không?"
+        ],
+        "answer": [
+            0,
+            1,
+            2,
+            4
+        ],
+        "explanation": "Cần xét sự phù hợp chuyên ngành, ý nghĩa chính sách/lý thuyết, tính mới (không trùng lặp) và mức độ cụ thể. Việc nổi tiếng nhanh không phải tiêu chí. <br><b>Đáp án đúng: A, B, C, E</b>",
+        "multi": true
+    },
+    {
+        "id": 15,
+        "question": "Câu 15: Lựa chọn nào sau đây KHÔNG bị coi là vi phạm đạo đức trong nghiên cứu:",
+        "options": [
+            "A. Giấu diếm người tham gia và thu thập dữ liệu qua các phương tiện họ không biết",
+            "B. Đạo văn (plagiarism) tác phẩm của người khác",
+            "C. Sử dụng dữ liệu từ người tham gia dưới sự đồng ý của họ",
+            "D. Dịch lại nghiên cứu qua ngôn ngữ khác và bổ sung tên vào nhóm tác giả"
+        ],
+        "answer": 2,
+        "explanation": "Sử dụng dữ liệu khi người tham gia đã đồng ý là đúng đạo đức. Các phương án còn lại đều là vi phạm. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 16,
+        "question": "Câu 16: Khi thiết kế nghiên cứu dựa trên thời gian tham chiếu trong nghiên cứu định lượng, nghiên cứu hồi cứu là loại hình nào dưới đây",
+        "options": [
+            "A. Mối quan hệ giữa lạm phát và tỷ lệ phạm tội tại một khu vực dân cư",
+            "B. Tình trạng kinh tế của đất nước sau khi điều chỉnh chính sách đối ngoại",
+            "C. Viễn cảnh sau khi gia nhập một tổ chức quốc tế",
+            "D. Triển vọng của một sản phẩm sau chiến dịch quảng cáo"
+        ],
+        "answer": 1,
+        "explanation": "Nghiên cứu hồi cứu xem xét những sự việc đã xảy ra trong quá khứ (tình trạng sau khi chính sách đã điều chỉnh). C và D hướng về tương lai (tiền cứu). <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 17,
+        "question": "Câu 17: Trường hợp nào sau đây KHÔNG nhất thiết phải trích dẫn:",
+        "options": [
+            "A. Trích dẫn thông tin thứ cấp (secondary information)",
+            "B. Phát triển ý diễn giải của bản thân",
+            "C. Trình bày nguyên văn câu trả lời của người được phỏng vấn",
+            "D. Trích dẫn nguyên văn của tác giả khác"
+        ],
+        "answer": 1,
+        "explanation": "Ý tưởng, diễn giải do chính mình phát triển thì không cần trích dẫn. Thông tin thứ cấp và trích nguyên văn của người khác đều phải ghi nguồn. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 18,
+        "question": "Câu 18: Quy trình nghiên cứu có tất cả bao nhiêu giai đoạn: (Chọn một hoặc nhiều đáp án)",
+        "options": [
+            "A. 6",
+            "B. 3",
+            "C. 8",
+            "D. 4"
+        ],
+        "answer": [
+            1
+        ],
+        "explanation": "Quy trình nghiên cứu có 3 giai đoạn: Quyết định, Lập kế hoạch, Triển khai (8 là số bước, không phải số giai đoạn). <br><b>Đáp án đúng: B</b>",
+        "multi": true
+    },
+    {
+        "id": 19,
+        "question": "Câu 19: Mối quan hệ giữa Vấn đề nghiên cứu, Mục tiêu và Câu hỏi nghiên cứu là gì? (Chọn một hoặc nhiều đáp án)",
+        "options": [
+            "A. Chúng hoàn toàn độc lập và không liên quan đến nhau",
+            "B. Câu hỏi nghiên cứu được rút ra trực tiếp từ vấn đề nghiên cứu",
+            "C. Câu hỏi điều tra giúp thu thập dữ liệu để trả lời câu hỏi nghiên cứu",
+            "D. Mục tiêu nghiên cứu là kết quả mong muốn đạt được để giải quyết vấn đề",
+            "E. Câu hỏi nghiên cứu phải gắn liền với mục tiêu nghiên cứu"
+        ],
+        "answer": [
+            1,
+            2,
+            3,
+            4
+        ],
+        "explanation": "Ba yếu tố này liên kết chặt chẽ với nhau, nên phương án A sai. <br><b>Đáp án đúng: B, C, D, E</b>",
+        "multi": true
+    },
+    {
+        "id": 20,
+        "question": "Câu 20: Việc nào có thể giúp bạn tránh đạo văn?",
+        "options": [
+            "A. Tất cả các đáp án trên",
+            "B. Ghi chú bằng các ngôn từ riêng của mình",
+            "C. Chuyển ngữ (dịch) các từ khóa qua ngôn ngữ khác",
+            "D. Cắt và dán chính xác từ các tài liệu được xuất bản"
+        ],
+        "answer": 1,
+        "explanation": "Ghi chú bằng ngôn từ riêng (kèm trích dẫn) giúp tránh đạo văn. Dịch từ khóa hay cắt dán đều không giúp tránh đạo văn. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 21,
+        "question": "Câu 21: Giả thuyết nghiên cứu (Research Hypothesis) có những đặc điểm nào? (Chọn một hoặc nhiều đáp án)",
+        "options": [
+            "A. Là một sự tiên đoán hoặc phỏng đoán hợp lý về mối quan hệ giữa các biến",
+            "B. Là một câu hỏi nghi vấn về hiện tượng quan sát được",
+            "C. Phải trình bày dưới dạng một phát biểu có thể kiểm chứng được",
+            "D. Được chuyển đổi từ câu hỏi nghiên cứu thành một câu khẳng định có hướng trả lời",
+            "E. Cần được xác nhận hoặc bác bỏ thông qua thực nghiệm"
+        ],
+        "answer": [
+            0,
+            2,
+            3,
+            4
+        ],
+        "explanation": "Giả thuyết là phát biểu khẳng định, có thể kiểm chứng, không phải câu hỏi nghi vấn (phương án B sai). <br><b>Đáp án đúng: A, C, D, E</b>",
+        "multi": true
+    },
+    {
+        "id": 22,
+        "question": "Câu 22: Thiết kế trong các nghiên cứu định lượng có thể được phân loại từ bao nhiêu góc độ khác nhau (Chọn một hoặc nhiều đáp án)",
+        "options": [
+            "A. Từ ba góc độ khác nhau, dựa trên số liên hệ trên số tổng thể, giai đoạn tham chiếu của nghiên cứu và bản chất của cuộc điều tra",
+            "B. Từ hai góc độ khác nhau, dựa trên số liên hệ với số tổng thể và yếu tố định lượng",
+            "C. Từ hai góc độ khác nhau, dựa trên số liên hệ với số tổng thể và Bản chất của nghiên cứu",
+            "D. Từ ba góc độ khác nhau, dựa trên số liên hệ trên số tổng thể, giai đoạn tham chiếu của nghiên cứu và bản chất của nghiên cứu định lượng"
+        ],
+        "answer": [
+            0
+        ],
+        "explanation": "Thiết kế nghiên cứu định lượng được phân loại theo 3 góc độ: số lần tiếp xúc với tổng thể, thời gian tham chiếu và bản chất của cuộc điều tra. <br><b>Đáp án đúng: A</b>",
+        "multi": true
+    },
+    {
+        "id": 23,
+        "question": "Câu 23: Phát biểu nào sau đây KHÔNG đúng?",
+        "options": [
+            "A. Nghiên cứu định tính (qualitative) cần câu hỏi có cấu thể khai thác được nhiều thông tin",
+            "B. Bảng câu hỏi đóng, có cấu trúc thường được dùng trong Nghiên cứu định tính (qualitative) vì chuẩn xác, nghiêm ngặt",
+            "C. Bảng câu hỏi mở, bán cấu trúc thường được dùng trong Nghiên cứu định tính (qualitative)",
+            "D. Bảng câu hỏi đóng, có cấu trúc thường được sử dụng trong Nghiên cứu định lượng (quantitative)"
+        ],
+        "answer": 1,
+        "explanation": "Nghiên cứu định tính dùng câu hỏi mở, bán cấu trúc. Câu hỏi đóng có cấu trúc thuộc nghiên cứu định lượng. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 24,
+        "question": "Câu 24: Mục đích của việc trình bày trích dẫn và tài liệu tham khảo là gì? (Chọn một hoặc nhiều đáp án)",
+        "options": [
+            "A. Để làm cho bài viết trông có vẻ dài và nguy hiểm hơn",
+            "B. Ghi nhận sự cập nhật kiến thức và giới thiệu đóng góp của bản thân",
+            "C. Tuân thủ các tiêu chuẩn học thuật quốc tế (APA, MLA, Harvard...)",
+            "D. Xác minh các trích dẫn và giúp người đọc theo dõi nguồn tin gốc",
+            "E. Tránh đạo văn và ghi nhận quyền sở hữu trí tuệ của tác giả khác"
+        ],
+        "answer": [
+            1,
+            2,
+            3,
+            4
+        ],
+        "explanation": "Trích dẫn nhằm thể hiện kiến thức cập nhật, tuân thủ chuẩn học thuật, giúp truy nguồn gốc và tránh đạo văn. Phương án A sai. <br><b>Đáp án đúng: B, C, D, E</b>",
+        "multi": true
+    },
+    {
+        "id": 25,
+        "question": "Câu 25: Phát biểu nào sau đây liên quan đến vai trò của khảo lược lý thuyết",
+        "options": [
+            "A. Khảo lược lý thuyết là một công việc chỉ có đóng góp nhất định cho nghiên cứu",
+            "B. Khảo lược lý thuyết giúp mở rộng cơ sở kiến thức trong lĩnh vực nghiên cứu",
+            "C. Khảo lược lý thuyết mở rộng nhiều lĩnh vực nghiên cứu",
+            "D. Khảo lược lý thuyết giúp người đọc có thêm nhiều kết quả quan trọng"
+        ],
+        "answer": 1,
+        "explanation": "Vai trò chính của khảo lược lý thuyết là mở rộng cơ sở kiến thức trong lĩnh vực nghiên cứu. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 26,
+        "question": "Câu 26: Khi viết lược khảo lý thuyết, nhà nghiên cứu cần tránh những lỗi nào? (Chọn một hoặc nhiều đáp án)",
+        "options": [
+            "A. Chia nhỏ nội dung thành các tiêu đề phụ để người đọc dễ theo dõi",
+            "B. Không chỉ ra được khoảng trống nghiên cứu (research gap)",
+            "C. Viết thiếu tính phê phán hoặc thiếu sự so sánh với kết quả nghiên cứu mình đề xuất",
+            "D. Chỉ tóm tắt rời rạc mà không có sự tổng hợp, kết nối giữa các nghiên cứu",
+            "E. Trích dẫn từ những nguồn không uy tín hoặc quá cũ (ngoài 5-10 năm)"
+        ],
+        "answer": [
+            1,
+            2,
+            3,
+            4
+        ],
+        "explanation": "Chia tiêu đề phụ là cách làm tốt (phương án A không phải lỗi). Các phương án B, C, D, E đều là lỗi cần tránh. <br><b>Đáp án đúng: B, C, D, E</b>",
+        "multi": true
+    },
+    {
+        "id": 27,
+        "question": "Câu 27: Nghiên cứu được thực hiện với mục tiêu phát hiện sâu một lĩnh vực ít được biết đến hoặc điều tra các khả năng thực hiện một nghiên cứu cụ thể thuộc nhóm:",
+        "options": [
+            "A. Nghiên cứu cơ bản (basic)",
+            "B. Nghiên cứu định lượng (quantitative)",
+            "C. Nghiên cứu định tính (qualitative)",
+            "D. Nghiên cứu khám phá (exploratory)"
+        ],
+        "answer": 3,
+        "explanation": "Nghiên cứu khám phá nhằm tìm hiểu lĩnh vực ít được biết đến hoặc khảo sát tính khả thi của một nghiên cứu cụ thể. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 29,
+        "question": "Câu 29: Lược khảo lý thuyết (literature review) là giai đoạn:",
+        "options": [
+            "A. Có thể không cần thực hiện nếu là Nghiên cứu định tính (qualitative)",
+            "B. Có thể không cần thực hiện nếu là Nghiên cứu khám phá (Exploratory)",
+            "C. Có thể không cần thực hiện nếu là nghiên cứu dữ liệu lớn",
+            "D. Luôn phải được tiến hành để xác định kiến thức liên quan"
+        ],
+        "answer": 3,
+        "explanation": "Lược khảo lý thuyết là bước bắt buộc trong mọi loại nghiên cứu nhằm xác định kiến thức đã có và khoảng trống nghiên cứu. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 30,
+        "question": "Câu 30: Loại nghiên cứu nào thuộc về nghiên cứu định tính (Chọn đáp án đúng nhất)",
+        "options": [
+            "A. Nghiên cứu xu hướng, nghiên cứu thuần tập, nghiên cứu tình huống, nghiên cứu làm mù",
+            "B. Nghiên cứu tình huống, nghiên cứu lịch sử truyền miệng, quan sát có tham gia, phỏng vấn nhóm tập trung",
+            "C. Nghiên cứu tình huống, nghiên cứu lịch sử truyền miệng, quan sát có tham gia, nghiên cứu xu hướng",
+            "D. Quan sát có tham gia, nghiên cứu xu hướng, nghiên cứu lịch sử truyền miệng, nghiên cứu thuần tập"
+        ],
+        "answer": 1,
+        "explanation": "Nghiên cứu tình huống, lịch sử truyền miệng, quan sát có tham gia và phỏng vấn nhóm tập trung đều là định tính. Nghiên cứu xu hướng, thuần tập, làm mù là định lượng. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 31,
+        "question": "Câu 31: \"Tổng quan tài liệu\" (Literature Review) đóng vai trò gì? (Chọn một hoặc nhiều đáp án)",
+        "options": [
+            "A. Định hướng việc chọn mẫu và công cụ thống kê phù hợp",
+            "B. Làm sáng tỏ và tập trung hơn cho vấn đề nghiên cứu",
+            "C. Giúp nhà nghiên cứu hiểu rõ các nghiên cứu trước đó đã làm được gì",
+            "D. Giúp thay thế hoàn toàn việc thu thập dữ liệu thực tế",
+            "E. Là cơ sở lý thuyết để xây dựng khung phân tích và giả thuyết"
+        ],
+        "answer": [
+            1,
+            2,
+            4
+        ],
+        "explanation": "Tổng quan tài liệu làm rõ vấn đề, cho biết các nghiên cứu trước đã làm gì và là cơ sở xây dựng khung phân tích, giả thuyết. D sai vì không thay thế được việc thu thập dữ liệu; A không phải vai trò cốt lõi. <br><b>Đáp án đúng: B, C, E</b>",
+        "multi": true
+    }
+];
+
+
+    // TRẠNG THÁI ỨNG DỤNG
+    let questions = [...originalQuestions];
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let wrongAnswers = [];
+    let isReviewMode = false;
+
+    // DOM ELEMENTS
+    const qText = document.getElementById('q-text');
+    const optionsContainer = document.getElementById('options-container');
+    const btnAction = document.getElementById('btn-action'); 
+    const btnPrev = document.getElementById('btn-prev');
+    const scoreDisplay = document.getElementById('score');
+    const wrongDisplay = document.getElementById('wrongCount');
+    const explanationArea = document.getElementById('explanation-area');
+    const explanationText = document.getElementById('explanation-text');
+    const reviewBtn = document.getElementById('btn-review');
+    const reviewAlert = document.getElementById('review-alert');
+
+    // ===== MENU DANH SÁCH CÂU HỎI =====
+    const questionMenu = document.getElementById('question-menu');
+    const questionMenuOverlay = document.getElementById('question-menu-overlay');
+    const questionList = document.getElementById('question-list');
+    const questionMenuInfo = document.getElementById('question-menu-info');
+
+    function buildQuestionList() {
+        questionList.innerHTML = '';
+
+        if (questions.length === 0) {
+            questionMenuInfo.innerText = 'Không có câu hỏi.';
+            return;
+        }
+
+        questionMenuInfo.innerText =
+            `Đang có ${questions.length} câu trong danh sách hiện tại. Bấm vào số câu để làm.`;
+
+        questions.forEach((q, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'question-number-btn';
+            btn.innerText = q.id ? `Câu ${q.id}` : `Câu ${index + 1}`;
+            btn.title = q.question;
+
+            if (index === currentQuestionIndex) {
+                btn.classList.add('current');
+            }
+
+            btn.onclick = () => goToQuestion(index);
+            questionList.appendChild(btn);
+        });
+    }
+
+    function toggleQuestionMenu() {
+        const isOpen = questionMenu.classList.contains('show');
+
+        if (isOpen) {
+            closeQuestionMenu();
+        } else {
+            buildQuestionList();
+            questionMenu.classList.add('show');
+            questionMenuOverlay.classList.add('show');
+        }
+    }
+
+    function closeQuestionMenu() {
+        questionMenu.classList.remove('show');
+        questionMenuOverlay.classList.remove('show');
+    }
+
+    function goToQuestion(index) {
+        if (index < 0 || index >= questions.length) return;
+
+        currentQuestionIndex = index;
+        loadQuestion(currentQuestionIndex);
+        buildQuestionList();
+        closeQuestionMenu();
+
+        // Đưa người dùng về khu vực câu hỏi nếu đang ở vị trí khác trên trang.
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    }
+
+    // KHỞI TẠO
+    function init() {
+        loadQuestion(0);
+        updateStats();
+        buildQuestionList();
+    }
+
+    // HIỂN THỊ CÂU HỎI
+    function loadQuestion(index) {
+        if (questions.length === 0) {
+            qText.innerText = "Chúc mừng! Bạn đã hoàn thành hết các câu hỏi.";
+            optionsContainer.innerHTML = "";
+            btnAction.style.display = 'none';
+            explanationArea.style.display = 'none';
+            return;
+        }
+
+        const q = questions[index];
+        qText.innerText = q.question;
+        
+        optionsContainer.innerHTML = '';
+        q.options.forEach((opt, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt;
+            btn.onclick = () => selectOption(i, btn);
+            optionsContainer.appendChild(btn);
+        });
+
+        // Ẩn nút "Câu tiếp theo" và "Kiểm tra" khi mới load câu hỏi
+        btnAction.style.display = 'none';
+        document.getElementById('btn-check').style.display = 'none';
+        
+        explanationArea.style.display = 'none';
+        
+        // Cập nhật nút điều hướng
+        btnPrev.disabled = index === 0;
+
+        // Cập nhật trạng thái câu đang chọn trong menu
+        if (typeof questionList !== 'undefined') {
+            questionList.querySelectorAll('.question-number-btn').forEach((btn, i) => {
+                btn.classList.toggle('current', i === index);
+            });
+        }
+    }
+
+    // CHỌN ĐÁP ÁN VÀ KIỂM TRA NGAY LẬP TỨC
+    function selectOption(index, btnElement) {
+        // Kiểm tra xem đã chọn chưa (dựa vào class disabled)
+        const buttons = document.querySelectorAll('.option-btn');
+        if (buttons[0].classList.contains('disabled')) return; // Đã trả lời rồi thì không cho chọn lại
+
+        const q = questions[currentQuestionIndex];
+
+        // Câu chọn nhiều đáp án: bật/tắt lựa chọn, chờ bấm "Kiểm tra đáp án"
+        if (q.multi) {
+            btnElement.classList.toggle('selected');
+            const anySelected = document.querySelectorAll('.option-btn.selected').length > 0;
+            document.getElementById('btn-check').style.display = anySelected ? 'block' : 'none';
+            return;
+        }
+
+        const correctIndex = q.answer;
+
+        // Khóa tất cả các nút lại
+        buttons.forEach(b => {
+            b.classList.add('disabled');
+            b.onclick = null;
+        });
+
+        // Logic kiểm tra đúng sai
+        if (index === correctIndex) {
+            // ĐÚNG
+            btnElement.classList.add('correct');
+            btnElement.innerText += " ✅ (Chính xác)";
+            // Chỉ cộng điểm nếu chưa từng trả lời (để tránh spam điểm khi quay lại)
+            if (!q.answered) { 
+                score++;
+                q.answered = true;
+            }
+        } else {
+            // SAI
+            btnElement.classList.add('wrong');
+            btnElement.innerText += " ❌";
+            
+            // Hiện đáp án đúng
+            buttons[correctIndex].classList.add('correct'); 
+            buttons[correctIndex].innerText += " (Đáp án đúng)";
+            
+            // Hiện giải thích
+            explanationArea.style.display = 'block';
+            explanationText.innerHTML = q.explanation;
+            
+            // Lưu vào danh sách sai
+            if (!wrongAnswers.find(item => item.id === q.id)) {
+                wrongAnswers.push(q);
+            }
+        }
+
+        updateStats();
+
+        // HIỆN NÚT "CÂU TIẾP THEO"
+        btnAction.style.display = 'block';
+        if (currentQuestionIndex === questions.length - 1) {
+             btnAction.innerText = "Hoàn thành";
+        } else {
+             btnAction.innerText = "Câu tiếp theo ❯";
+        }
+    }
+
+    // KIỂM TRA CÂU CHỌN NHIỀU ĐÁP ÁN
+    function checkMulti() {
+        const buttons = document.querySelectorAll('.option-btn');
+        if (buttons[0].classList.contains('disabled')) return;
+
+        const q = questions[currentQuestionIndex];
+        const correctSet = new Set(q.answer);
+        const chosen = [];
+        buttons.forEach((b, i) => { if (b.classList.contains('selected')) chosen.push(i); });
+
+        const isCorrect = chosen.length === correctSet.size && chosen.every(i => correctSet.has(i));
+
+        buttons.forEach((b, i) => {
+            b.classList.add('disabled');
+            b.onclick = null;
+            b.classList.remove('selected');
+            const picked = chosen.includes(i);
+            if (correctSet.has(i) && picked) {
+                b.classList.add('correct');
+                b.innerText += " ✅";
+            } else if (correctSet.has(i) && !picked) {
+                b.classList.add('missed');
+                b.innerText += " (Đáp án đúng - bạn chưa chọn)";
+            } else if (picked) {
+                b.classList.add('wrong');
+                b.innerText += " ❌";
+            }
+        });
+
+        if (isCorrect) {
+            if (!q.answered) { score++; q.answered = true; }
+        } else {
+            explanationArea.style.display = 'block';
+            explanationText.innerHTML = q.explanation;
+            if (!wrongAnswers.find(item => item.id === q.id)) wrongAnswers.push(q);
+        }
+
+        updateStats();
+        document.getElementById('btn-check').style.display = 'none';
+        btnAction.style.display = 'block';
+        btnAction.innerText = (currentQuestionIndex === questions.length - 1) ? "Hoàn thành" : "Câu tiếp theo ❯";
+    }
+
+    // ĐIỀU HƯỚNG
+    function changeQuestion(direction) {
+        currentQuestionIndex += direction;
+        
+        // Logic biên
+        if (currentQuestionIndex < 0) currentQuestionIndex = 0;
+        if (currentQuestionIndex >= questions.length) {
+            alert("Bạn đã hoàn thành danh sách câu hỏi hiện tại!");
+            currentQuestionIndex = questions.length - 1;
+            return;
+        }
+        
+        loadQuestion(currentQuestionIndex);
+    }
+
+    // CẬP NHẬT THỐNG KÊ
+    function updateStats() {
+        scoreDisplay.innerText = score;
+        wrongDisplay.innerText = wrongAnswers.length;
+        reviewBtn.innerText = `Ôn câu sai (${wrongAnswers.length})`;
+        
+        if (wrongAnswers.length > 0) {
+            reviewBtn.classList.replace('btn-secondary', 'btn-warning');
+            reviewBtn.disabled = false;
+        } else {
+            reviewBtn.classList.replace('btn-warning', 'btn-secondary');
+            reviewBtn.disabled = true;
+        }
+    }
+
+    // CHẾ ĐỘ ÔN CÂU SAI
+    function toggleReviewMode() {
+        if (wrongAnswers.length === 0) return;
+
+        isReviewMode = !isReviewMode;
+        
+        if (isReviewMode) {
+            questions = [...wrongAnswers]; // Chuyển sang list câu sai
+            reviewAlert.style.display = 'block';
+            reviewBtn.innerText = "Quay lại tất cả câu hỏi";
+        } else {
+            questions = [...originalQuestions]; // Quay lại list gốc
+            reviewAlert.style.display = 'none';
+        }
+        
+        // Reset lại từ đầu list mới
+        currentQuestionIndex = 0;
+        loadQuestion(0);
+        updateStats();
+        buildQuestionList();
+    }
+
+    // RANDOM CÂU HỎI
+    function shuffleQuestions() {
+        if (confirm("Bạn có muốn xáo trộn thứ tự câu hỏi để thử thách bản thân không? (Điểm số sẽ được reset)")) {
+            for (let i = questions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [questions[i], questions[j]] = [questions[j], questions[i]];
+            }
+            // Reset
+            currentQuestionIndex = 0;
+            score = 0;
+            loadQuestion(0);
+            updateStats();
+            buildQuestionList();
+        }
+    }    
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeQuestionMenu();
+        }
+    });
+
+    init();
+
+</script>
+
+</body>
+</html>
