@@ -1,0 +1,3095 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ôn Thi Kiểm Toán Căn Bản (200 Câu - Chương 1 đến Chương 4)</title>
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --bg-color: #f4f6f9;
+            --text-color: #333;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        /* Header & Stats */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .stats {
+            font-size: 0.9rem;
+            display: flex;
+            gap: 15px;
+        }
+
+        .stat-item {
+            font-weight: bold;
+        }
+        .stat-correct { color: var(--success-color); }
+        .stat-wrong { color: var(--danger-color); }
+
+        /* Question Area */
+        .question-box {
+            margin-bottom: 25px;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        /* Options */
+        .options-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .option-btn {
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: #fff;
+            text-align: left;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .option-btn:hover:not(.disabled) {
+            background-color: #f8f9fa;
+            border-color: var(--primary-color);
+        }
+
+        /* Trạng thái khi đã chọn/hiển thị kết quả */
+        .option-btn.disabled {
+            cursor: default;
+            opacity: 0.9;
+        }
+
+        .option-btn.correct {
+            background-color: #d4edda;
+            border-color: var(--success-color);
+            color: #155724;
+            font-weight: bold;
+        }
+
+        .option-btn.wrong {
+            background-color: #f8d7da;
+            border-color: var(--danger-color);
+            color: #721c24;
+            opacity: 0.7;
+        }
+
+        /* Explanation */
+        .explanation {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            border-radius: 8px;
+            color: #856404;
+            animation: fadeIn 0.5s;
+        }
+
+        .explanation h4 { margin-top: 0; }
+
+        /* Footer Controls */
+        .footer-controls {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-primary { background-color: var(--primary-color); color: white; }
+        .btn-secondary { background-color: #6c757d; color: white; }
+        .btn-warning { background-color: #ffc107; color: #333; }
+        .btn-success { background-color: var(--success-color); color: white; }
+        
+        /* Action Button (Large) */
+        .action-btn { 
+            width: 100%; 
+            margin-top: 20px; 
+            padding: 15px; 
+            font-size: 1.2rem; 
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: none; /* Mặc định ẩn, chỉ hiện khi đã chọn đáp án */
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+
+        /* ===== MENU DANH SÁCH CÂU HỎI ===== */
+        .question-menu-btn {
+            position: fixed;
+            top: 18px;
+            right: 18px;
+            z-index: 1001;
+            width: 48px;
+            height: 48px;
+            border: none;
+            border-radius: 10px;
+            background: var(--primary-color);
+            color: #fff;
+            font-size: 25px;
+            line-height: 1;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .question-menu-btn:hover {
+            transform: scale(1.06);
+            background: #0056b3;
+        }
+
+        .question-menu-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 999;
+            background: rgba(0,0,0,0.25);
+        }
+
+        .question-menu-overlay.show {
+            display: block;
+        }
+
+        .question-menu {
+            position: fixed;
+            top: 0;
+            right: -360px;
+            z-index: 1000;
+            width: 330px;
+            max-width: 88vw;
+            height: 100vh;
+            box-sizing: border-box;
+            background: #fff;
+            box-shadow: -5px 0 20px rgba(0,0,0,0.18);
+            padding: 22px 18px;
+            overflow-y: auto;
+            transition: right 0.25s ease;
+        }
+
+        .question-menu.show {
+            right: 0;
+        }
+
+        .question-menu-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .question-menu-header h3 {
+            margin: 0;
+            color: var(--primary-color);
+            font-size: 1.15rem;
+        }
+
+        .question-menu-close {
+            border: none;
+            background: #f1f1f1;
+            width: 34px;
+            height: 34px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .question-list {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .question-number-btn {
+            border: 1px solid #d9d9d9;
+            background: #f8f9fa;
+            color: #333;
+            border-radius: 7px;
+            padding: 9px 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.15s;
+        }
+
+        .question-number-btn:hover {
+            background: #e7f1ff;
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .question-number-btn.current {
+            background: var(--primary-color);
+            color: #fff;
+            border-color: var(--primary-color);
+        }
+
+        .question-menu-info {
+            margin: 0 0 14px;
+            color: #666;
+            font-size: 0.88rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .container { padding: 15px; }
+            .question-text { font-size: 1.1rem; }
+            .header { flex-direction: column; align-items: flex-start; gap: 10px; }
+        }
+
+        .option-btn.selected {
+            background-color: #e7f1ff;
+            border-color: var(--primary-color);
+            font-weight: bold;
+        }
+        .option-btn.missed {
+            background-color: #fff3cd;
+            border-color: #ffc107;
+            color: #856404;
+            font-weight: bold;
+        }
+        .multi-hint { font-size: 0.9rem; color: #6c757d; margin: -10px 0 15px; }
+    </style>
+</head>
+<body>
+
+<!-- Nút 3 gạch mở danh sách câu hỏi -->
+<button class="question-menu-btn" id="question-menu-btn" onclick="toggleQuestionMenu()" aria-label="Mở danh sách câu hỏi">☰</button>
+
+<!-- Lớp nền khi mở danh sách -->
+<div class="question-menu-overlay" id="question-menu-overlay" onclick="closeQuestionMenu()"></div>
+
+<!-- Danh sách câu hỏi -->
+<aside class="question-menu" id="question-menu">
+    <div class="question-menu-header">
+        <h3>📚 Danh sách câu hỏi</h3>
+        <button class="question-menu-close" onclick="closeQuestionMenu()" aria-label="Đóng">×</button>
+    </div>
+    <p class="question-menu-info" id="question-menu-info">Chọn số câu để làm.</p>
+    <div class="question-list" id="question-list"></div>
+</aside>
+
+<div class="container">
+    <div class="header">
+        <h1 class="title">Ôn Thi Kiểm Toán Căn Bản (C1–C4)</h1>
+        <div class="stats">
+            <span class="stat-item stat-correct">Đúng: <span id="score">0</span></span>
+            <span class="stat-item stat-wrong">Sai: <span id="wrongCount">0</span></span>
+        </div>
+    </div>
+
+    <!-- Khu vực hiển thị thông báo chế độ ôn lại -->
+    <div id="review-alert" style="display:none; background: #cce5ff; color: #004085; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
+        Đang trong chế độ ôn lại các câu đã làm sai.
+    </div>
+
+    <div class="question-box">
+        <div class="question-text" id="q-text">Đang tải câu hỏi...</div>
+        
+        <div class="options-grid" id="options-container">
+            <!-- Options will be generated here -->
+        </div>
+
+        <!-- Nút hành động chính (Chỉ còn chức năng Next) -->
+        <button class="btn btn-primary action-btn" id="btn-check" onclick="checkMulti()">Kiểm tra đáp án</button>
+        <button class="btn btn-success action-btn" id="btn-action" onclick="changeQuestion(1)">Câu tiếp theo ❯</button>
+
+        <div class="explanation" id="explanation-area">
+            <h4>💡 Giải thích chi tiết:</h4>
+            <div id="explanation-text"></div>
+        </div>
+    </div>
+
+    <div class="footer-controls">
+        <button class="btn btn-secondary" id="btn-prev" onclick="changeQuestion(-1)">❮ Câu trước</button>
+        <button class="btn btn-warning" onclick="toggleReviewMode()" id="btn-review">Ôn câu sai (0)</button>
+        <button class="btn btn-secondary" onclick="shuffleQuestions()">🔀 Trộn câu hỏi</button>
+    </div>
+</div>
+
+<script>
+    // DỮ LIỆU CÂU HỎI KIỂM TOÁN CĂN BẢN (Câu 1–200)
+    const originalQuestions = [
+    {
+        "id": 1,
+        "question": "Câu 1 (Chương 1): Theo Arens , kiểm toán là quá trình:",
+        "options": [
+            "A. lập và trình bày báo cáo tài chính theo chuẩn mực và chế độ kế toán hiện hành",
+            "B. kiểm tra toàn bộ chứng từ kế toán nhằm phát hiện mọi sai phạm của đơn vị",
+            "C. tư vấn cho Ban Giám đốc các biện pháp nhằm gia tăng lợi nhuận của đơn vị",
+            "D. thu thập và đánh giá bằng chứng về thông tin được kiểm tra để xác định và báo cáo mức độ phù hợp của thông tin đó với các chuẩn mực đã được thiết lập"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: thu thập và đánh giá bằng chứng về thông tin được kiểm tra để xác định và báo cáo mức độ phù hợp của thông tin đó với các chuẩn mực đã được thiết lập. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 2,
+        "question": "Câu 2 (Chương 1): Theo mục đích kiểm toán, kiểm toán được phân thành:",
+        "options": [
+            "A. kiểm toán của Nhà nước, kiểm toán nội bộ và kiểm toán độc lập",
+            "B. kiểm toán hoạt động, kiểm toán nội bộ và kiểm toán báo cáo tài chính",
+            "C. kiểm toán hoạt động, kiểm toán tuân thủ và kiểm toán báo cáo tài chính",
+            "D. kiểm toán tuân thủ, kiểm toán của Nhà nước và kiểm toán độc lập"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: kiểm toán hoạt động, kiểm toán tuân thủ và kiểm toán báo cáo tài chính. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 3,
+        "question": "Câu 3 (Chương 1): Theo chủ thể kiểm toán, kiểm toán được phân thành:",
+        "options": [
+            "A. kiểm toán của Nhà nước, kiểm toán nội bộ và kiểm toán độc lập",
+            "B. kiểm toán hoạt động, kiểm toán tuân thủ và kiểm toán báo cáo tài chính",
+            "C. kiểm toán của Nhà nước, kiểm toán tuân thủ và kiểm toán nội bộ",
+            "D. kiểm toán độc lập, kiểm toán hoạt động và kiểm toán nội bộ"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: kiểm toán của Nhà nước, kiểm toán nội bộ và kiểm toán độc lập. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 4,
+        "question": "Câu 4 (Chương 1): Kiểm toán hoạt động là việc kiểm tra và đánh giá về:",
+        "options": [
+            "A. mức độ chấp hành một quy định nào đó của Nhà nước hay của chính đơn vị",
+            "B. sự trình bày trung thực và hợp lý của báo cáo tài chính của một đơn vị",
+            "C. sự hữu hiệu và tính hiệu quả của hoạt động nhằm đề xuất các biện pháp cải tiến",
+            "D. tính chính xác của số liệu trên các sổ kế toán chi tiết"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: sự hữu hiệu và tính hiệu quả của hoạt động nhằm đề xuất các biện pháp cải tiến. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 5,
+        "question": "Câu 5 (Chương 1): Kiểm toán tuân thủ là việc kiểm tra nhằm:",
+        "options": [
+            "A. đưa ra ý kiến về sự trình bày trung thực và hợp lý của báo cáo tài chính",
+            "B. đánh giá sự hữu hiệu và tính hiệu quả của hoạt động trong đơn vị",
+            "C. xác định giá trị hợp lý của tài sản và nợ phải trả của đơn vị",
+            "D. đánh giá mức độ chấp hành một quy định nào đó của Nhà nước hay của chính đơn vị"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: đánh giá mức độ chấp hành một quy định nào đó của Nhà nước hay của chính đơn vị. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 6,
+        "question": "Câu 6 (Chương 1): Kiểm toán báo cáo tài chính là việc kiểm tra để đưa ra:",
+        "options": [
+            "A. kết luận về mức độ chấp hành pháp luật thuế của đơn vị",
+            "B. đề xuất cải tiến hiệu quả hoạt động của các bộ phận trong đơn vị",
+            "C. ý kiến nhận xét về sự trình bày trung thực và hợp lý của báo cáo tài chính của một đơn vị",
+            "D. sự đảm bảo tuyệt đối rằng báo cáo tài chính không còn bất kỳ sai sót nào"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: ý kiến nhận xét về sự trình bày trung thực và hợp lý của báo cáo tài chính của một đơn vị. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 7,
+        "question": "Câu 7 (Chương 1): Định nghĩa ‘Kiểm toán nội bộ là một chức năng độc lập, khách quan nhằm đảm bảo và tư vấn…’ do tổ chức nào đưa ra?",
+        "options": [
+            "A. Hiệp hội Kế toán công chứng Hoa Kỳ (AICPA)",
+            "B. Liên đoàn Kế toán Quốc tế (IFAC)",
+            "C. Viện Kiểm toán nội bộ Hoa Kỳ (IIA)",
+            "D. Hội Kiểm toán viên hành nghề Việt Nam (VACPA)"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: Viện Kiểm toán nội bộ Hoa Kỳ (IIA). <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 8,
+        "question": "Câu 8 (Chương 1): Công ty kiểm toán đầu tiên của Việt Nam (VACO) ra đời vào thời điểm nào?",
+        "options": [
+            "A. Tháng 5/1991",
+            "B. Tháng 1/1994",
+            "C. Tháng 9/1999",
+            "D. Tháng 4/2005"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: Tháng 5/1991. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 9,
+        "question": "Câu 9 (Chương 1): Hội Kiểm toán viên hành nghề Việt Nam (VACPA) được thành lập vào thời điểm nào?",
+        "options": [
+            "A. Tháng 4/2005",
+            "B. Tháng 7/1994",
+            "C. Tháng 3/2011",
+            "D. Tháng 12/2012"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: Tháng 4/2005. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 10,
+        "question": "Câu 10 (Chương 1): Luật Kiểm toán độc lập của Việt Nam (Luật số 67/2011/QH12) được ban hành vào thời điểm nào?",
+        "options": [
+            "A. Tháng 1/1994",
+            "B. Tháng 9/1999",
+            "C. Tháng 12/2012",
+            "D. Tháng 3/2011"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: Tháng 3/2011. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 11,
+        "question": "Câu 11 (Chương 1): Ở Việt Nam, cơ quan chịu trách nhiệm soạn thảo và ban hành các chuẩn mực kiểm toán Việt Nam là:",
+        "options": [
+            "A. Kiểm toán Nhà nước",
+            "B. Bộ Tài chính",
+            "C. Hội Kiểm toán viên hành nghề Việt Nam (VACPA)",
+            "D. Liên đoàn Kế toán Quốc tế (IFAC)"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: Bộ Tài chính. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 12,
+        "question": "Câu 12 (Chương 1): Nguyên tắc nào sau đây KHÔNG thuộc các nguyên tắc đạo đức nghề nghiệp của kiểm toán viên (Thông tư 70/2015/TT-BTC)?",
+        "options": [
+            "A. Chính trực",
+            "B. Khách quan",
+            "C. Tính bảo mật",
+            "D. Tính tiết kiệm chi phí"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: Tính tiết kiệm chi phí. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 13,
+        "question": "Câu 13 (Chương 1): Nguy cơ nào sau đây KHÔNG thuộc nhóm các nguy cơ ảnh hưởng đến việc tuân thủ đạo đức nghề nghiệp kiểm toán?",
+        "options": [
+            "A. Nguy cơ do rủi ro phát hiện",
+            "B. Nguy cơ do tư lợi",
+            "C. Nguy cơ tự kiểm tra",
+            "D. Nguy cơ bị đe dọa"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: Nguy cơ do rủi ro phát hiện. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 14,
+        "question": "Câu 14 (Chương 1): Theo VSA 200, mục đích của kiểm toán báo cáo tài chính là để kiểm toán viên đưa ra ý kiến về việc:",
+        "options": [
+            "A. báo cáo tài chính có được lập, trên các khía cạnh trọng yếu, phù hợp với khuôn khổ về lập và trình bày báo cáo tài chính được áp dụng hay không",
+            "B. báo cáo tài chính có hoàn toàn không chứa đựng bất kỳ sai sót nào hay không",
+            "C. đơn vị có hoạt động hiệu quả và đạt được các mục tiêu kinh doanh hay không",
+            "D. đơn vị có tuân thủ toàn bộ các quy định pháp luật có liên quan hay không"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: báo cáo tài chính có được lập, trên các khía cạnh trọng yếu, phù hợp với khuôn khổ về lập và trình bày báo cáo tài chính được áp dụng hay không. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 15,
+        "question": "Câu 15 (Chương 1): Theo VSA 200, trong kiểm toán báo cáo tài chính, kiểm toán viên phải đạt được mức độ đảm bảo nào?",
+        "options": [
+            "A. Đảm bảo tuyệt đối",
+            "B. Đảm bảo hợp lý",
+            "C. Đảm bảo tối đa",
+            "D. Đảm bảo hạn chế"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: Đảm bảo hợp lý. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 16,
+        "question": "Câu 16 (Chương 1): Theo VSA 200, chủ thể nào chịu trách nhiệm đối với việc lập và trình bày hợp lý báo cáo tài chính?",
+        "options": [
+            "A. Kiểm toán viên và doanh nghiệp kiểm toán",
+            "B. Bộ Tài chính",
+            "C. Ban Giám đốc và Ban quản trị đơn vị được kiểm toán",
+            "D. Hội Kiểm toán viên hành nghề Việt Nam"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: Ban Giám đốc và Ban quản trị đơn vị được kiểm toán. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 17,
+        "question": "Câu 17 (Chương 1): Quy trình kiểm toán báo cáo tài chính gồm các giai đoạn:",
+        "options": [
+            "A. chấp nhận khách hàng; thực hiện kiểm toán; phát hành báo cáo kiểm toán",
+            "B. lập kế hoạch kiểm toán; thực hiện kiểm toán; tổng hợp và lập báo cáo kiểm toán",
+            "C. tìm hiểu hệ thống kiểm soát nội bộ; thực hiện thử nghiệm cơ bản; ký báo cáo kiểm toán",
+            "D. đánh giá rủi ro; chọn mẫu; lập báo cáo tài chính"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: lập kế hoạch kiểm toán; thực hiện kiểm toán; tổng hợp và lập báo cáo kiểm toán. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 18,
+        "question": "Câu 18 (Chương 1): Yếu tố nào sau đây giúp hoạt động kiểm toán phát triển theo thời gian?",
+        "options": [
+            "A. Sự hợp nhất giữa quyền sở hữu và chức năng quản lý",
+            "B. Việc thu hẹp thị trường đầu tư",
+            "C. Sự tách rời giữa quyền sở hữu và chức năng quản lý – tác nghiệp",
+            "D. Sự suy giảm của thị trường chứng khoán"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: Sự tách rời giữa quyền sở hữu và chức năng quản lý – tác nghiệp. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 19,
+        "question": "Câu 19 (Chương 1): Cơ quan thuế kiểm tra việc chấp hành các quy định về quyết toán thuế trong 3 năm của Công ty CP Dầu khí ABC. Theo mục đích, đây là loại kiểm toán nào?",
+        "options": [
+            "A. Kiểm toán hoạt động",
+            "B. Kiểm toán báo cáo tài chính",
+            "C. Kiểm toán độc lập",
+            "D. Kiểm toán tuân thủ"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: Kiểm toán tuân thủ. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 20,
+        "question": "Câu 20 (Chương 1): Theo học thuyết về thông tin (Information hypothesis), kiểm toán có vai trò:",
+        "options": [
+            "A. làm giảm rủi ro thông tin, tăng độ tin cậy cho những người sử dụng báo cáo tài chính",
+            "B. giúp đơn vị giảm số thuế phải nộp",
+            "C. thay thế Ban Giám đốc trong việc lập báo cáo tài chính",
+            "D. đảm bảo đơn vị luôn đạt được mức lợi nhuận kế hoạch"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: làm giảm rủi ro thông tin, tăng độ tin cậy cho những người sử dụng báo cáo tài chính. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 21,
+        "question": "Câu 21 (Chương 1): Theo lý thuyết người đại diện (Agency theory), kiểm toán là cần thiết vì:",
+        "options": [
+            "A. người sử dụng thông tin có thể chịu tổn thất nặng nề khi thông tin sai",
+            "B. có sự mâu thuẫn lợi ích giữa Ban Giám đốc và các cổ đông nên cổ đông cần kiểm tra thông tin do Ban Giám đốc báo cáo",
+            "C. kiểm toán giúp giảm rủi ro thông tin cho các nhà đầu tư",
+            "D. pháp luật bắt buộc mọi doanh nghiệp đều phải được kiểm toán"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: có sự mâu thuẫn lợi ích giữa Ban Giám đốc và các cổ đông nên cổ đông cần kiểm tra thông tin do Ban Giám đốc báo cáo. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 22,
+        "question": "Câu 22 (Chương 1): Học thuyết về sự đảm bảo (Insurance hypothesis) giải thích nhu cầu kiểm toán xuất phát từ:",
+        "options": [
+            "A. việc người sử dụng thông tin có thể chịu tổn thất nặng nề khi thông tin sai nên cần có sự đảm bảo",
+            "B. sự mâu thuẫn lợi ích giữa Ban Giám đốc và các cổ đông",
+            "C. sự thay đổi thường xuyên của các chuẩn mực kế toán",
+            "D. yêu cầu giảm chi phí thuế của doanh nghiệp"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: việc người sử dụng thông tin có thể chịu tổn thất nặng nề khi thông tin sai nên cần có sự đảm bảo. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 23,
+        "question": "Câu 23 (Chương 1): Chuẩn mực kiểm toán là cần thiết vì chuẩn mực:",
+        "options": [
+            "A. thay thế hoàn toàn xét đoán nghề nghiệp của kiểm toán viên",
+            "B. là cơ sở để đánh giá chất lượng, hiệu quả và mức độ tuân thủ của kiểm toán viên, đồng thời là căn cứ giải quyết tranh chấp",
+            "C. là cơ sở để Ban Giám đốc lập báo cáo tài chính",
+            "D. là công cụ đảm bảo báo cáo tài chính không có sai sót"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: là cơ sở để đánh giá chất lượng, hiệu quả và mức độ tuân thủ của kiểm toán viên, đồng thời là căn cứ giải quyết tranh chấp. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 24,
+        "question": "Câu 24 (Chương 1): Độc lập về tư tưởng của kiểm toán viên được hiểu là:",
+        "options": [
+            "A. việc tránh các sự kiện, tình huống khiến bên thứ ba hợp lý nghi ngờ tính chính trực của kiểm toán viên",
+            "B. việc kiểm toán viên không có bất kỳ mối quan hệ nào với khách hàng",
+            "C. trạng thái tư tưởng cho phép đưa ra kết luận mà không bị tác động bởi các yếu tố ảnh hưởng đến xét đoán chuyên môn",
+            "D. việc kiểm toán viên tự quyết định phạm vi kiểm toán mà không cần thỏa thuận với khách hàng"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: trạng thái tư tưởng cho phép đưa ra kết luận mà không bị tác động bởi các yếu tố ảnh hưởng đến xét đoán chuyên môn. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 25,
+        "question": "Câu 25 (Chương 1): Độc lập về hình thức đòi hỏi kiểm toán viên phải:",
+        "options": [
+            "A. duy trì trạng thái tư tưởng không bị chi phối khi đưa ra kết luận",
+            "B. luôn từ chối kiểm toán cho các khách hàng đã quen biết",
+            "C. tránh các sự kiện, tình huống nghiêm trọng đến mức một bên thứ ba hợp lý, đủ thông tin có thể kết luận tính chính trực, khách quan và hoài nghi nghề nghiệp đã bị ảnh hưởng",
+            "D. giữ bí mật mọi thông tin có được từ khách hàng"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: tránh các sự kiện, tình huống nghiêm trọng đến mức một bên thứ ba hợp lý, đủ thông tin có thể kết luận tính chính trực, khách quan và hoài nghi nghề nghiệp đã bị ảnh hưởng. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 26,
+        "question": "Câu 26 (Chương 1): Nguyên tắc khách quan đòi hỏi kiểm toán viên phải:",
+        "options": [
+            "A. không cho phép sự thiên vị, xung đột lợi ích hoặc ảnh hưởng không hợp lý chi phối các xét đoán chuyên môn và kinh doanh",
+            "B. thẳng thắn, trung thực trong tất cả các mối quan hệ chuyên môn và kinh doanh",
+            "C. duy trì kiến thức và kỹ năng chuyên môn cần thiết để cung cấp dịch vụ có chất lượng",
+            "D. không sử dụng thông tin có được từ cuộc kiểm toán để thu lợi cá nhân"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: không cho phép sự thiên vị, xung đột lợi ích hoặc ảnh hưởng không hợp lý chi phối các xét đoán chuyên môn và kinh doanh. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 27,
+        "question": "Câu 27 (Chương 1): Trường hợp nào sau đây việc kiểm toán viên cung cấp thông tin của khách hàng cho bên thứ ba là thích hợp?",
+        "options": [
+            "A. Bên thứ ba là người thân của kiểm toán viên",
+            "B. Có nghĩa vụ phải công bố theo yêu cầu của pháp luật",
+            "C. Thông tin đó giúp kiểm toán viên thu lợi cá nhân",
+            "D. Bên thứ ba cam kết sẽ giữ bí mật thông tin"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: Có nghĩa vụ phải công bố theo yêu cầu của pháp luật. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 28,
+        "question": "Câu 28 (Chương 1): Kiểm toán viên vừa lập báo cáo tài chính vừa kiểm toán chính báo cáo tài chính đó cho khách hàng. Tình huống này tạo ra nguy cơ nào?",
+        "options": [
+            "A. Nguy cơ về sự bào chữa",
+            "B. Nguy cơ bị đe dọa",
+            "C. Nguy cơ từ sự quen thuộc",
+            "D. Nguy cơ tự kiểm tra"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: Nguy cơ tự kiểm tra. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 29,
+        "question": "Câu 29 (Chương 1): Kiểm toán viên có quan hệ bạn bè thân thiết nhiều năm với giám đốc công ty khách hàng nên dễ chấp nhận quan điểm của giám đốc. Đây là nguy cơ nào?",
+        "options": [
+            "A. Nguy cơ do tư lợi",
+            "B. Nguy cơ tự kiểm tra",
+            "C. Nguy cơ từ sự quen thuộc",
+            "D. Nguy cơ về sự bào chữa"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: Nguy cơ từ sự quen thuộc. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 30,
+        "question": "Câu 30 (Chương 1): Các biện pháp bảo vệ trước các nguy cơ đối với việc tuân thủ đạo đức nghề nghiệp bao gồm:",
+        "options": [
+            "A. chỉ các biện pháp do doanh nghiệp kiểm toán tự đặt ra",
+            "B. chỉ các biện pháp xử phạt hành chính sau khi vi phạm xảy ra",
+            "C. việc từ chối toàn bộ các hợp đồng kiểm toán",
+            "D. biện pháp do tổ chức nghề nghiệp, pháp luật và các quy định có liên quan điều chỉnh, và biện pháp được xây dựng trong môi trường làm việc"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: biện pháp do tổ chức nghề nghiệp, pháp luật và các quy định có liên quan điều chỉnh, và biện pháp được xây dựng trong môi trường làm việc. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 31,
+        "question": "Câu 31 (Chương 1): Yếu tố nào sau đây KHÔNG phải là hạn chế tiềm tàng của cuộc kiểm toán?",
+        "options": [
+            "A. Việc kiểm tra trên cơ sở chọn mẫu",
+            "B. Những hạn chế tiềm tàng của kiểm soát nội bộ",
+            "C. Kiểm toán viên kiểm tra toàn bộ 100% các nghiệp vụ phát sinh",
+            "D. Sự xét đoán nghề nghiệp của kiểm toán viên"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: Kiểm toán viên kiểm tra toàn bộ 100% các nghiệp vụ phát sinh. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 32,
+        "question": "Câu 32 (Chương 1): Vì sao kiểm toán viên không thể đưa ra sự đảm bảo tuyệt đối rằng báo cáo tài chính không có sai sót?",
+        "options": [
+            "A. Vì báo cáo tài chính do kiểm toán viên lập và trình bày",
+            "B. Vì chuẩn mực kiểm toán không yêu cầu thu thập bằng chứng kiểm toán",
+            "C. Vì Ban Giám đốc không chịu trách nhiệm về báo cáo tài chính",
+            "D. Vì bằng chứng kiểm toán chỉ mang tính thuyết phục, không chứng minh tuyệt đối chính xác"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: Vì bằng chứng kiểm toán chỉ mang tính thuyết phục, không chứng minh tuyệt đối chính xác. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 33,
+        "question": "Câu 33 (Chương 1): Trách nhiệm dân sự ngoài hợp đồng của kiểm toán viên phát sinh đối với:",
+        "options": [
+            "A. bất kỳ cá nhân nào đã đọc báo cáo kiểm toán",
+            "B. người sử dụng kết quả kiểm toán có lợi ích liên quan trực tiếp, có hiểu biết hợp lý về BCTC và đã sử dụng thận trọng thông tin trên BCTC đã kiểm toán",
+            "C. chỉ khách hàng đã ký hợp đồng kiểm toán",
+            "D. chỉ các cơ quan quản lý nhà nước"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: người sử dụng kết quả kiểm toán có lợi ích liên quan trực tiếp, có hiểu biết hợp lý về BCTC và đã sử dụng thận trọng thông tin trên BCTC đã kiểm toán. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 34,
+        "question": "Câu 34 (Chương 1): Ngoài trách nhiệm dân sự, kiểm toán viên còn có thể bị xử lý theo Luật hình sự khi:",
+        "options": [
+            "A. kiểm toán viên có hành vi gian lận",
+            "B. kiểm toán viên phát hiện sai sót không trọng yếu",
+            "C. kiểm toán viên đưa ra ý kiến kiểm toán khác với kỳ trước",
+            "D. kiểm toán viên chọn cỡ mẫu nhỏ hơn dự kiến"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: kiểm toán viên có hành vi gian lận. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 35,
+        "question": "Câu 35 (Chương 1): Điểm khác biệt cơ bản giữa kiểm toán của Nhà nước và kiểm toán độc lập về chủ thể thực hiện là:",
+        "options": [
+            "A. kiểm toán của Nhà nước do công chức của Nhà nước tiến hành, còn kiểm toán độc lập do kiểm toán viên độc lập thuộc các tổ chức kiểm toán độc lập tiến hành",
+            "B. kiểm toán của Nhà nước chỉ do kiểm toán viên nội bộ thực hiện, kiểm toán độc lập do cơ quan thuế thực hiện",
+            "C. cả hai đều do nhân viên của đơn vị được kiểm toán thực hiện",
+            "D. kiểm toán độc lập do công chức Nhà nước thực hiện, kiểm toán của Nhà nước do doanh nghiệp kiểm toán thực hiện"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: kiểm toán của Nhà nước do công chức của Nhà nước tiến hành, còn kiểm toán độc lập do kiểm toán viên độc lập thuộc các tổ chức kiểm toán độc lập tiến hành. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 36,
+        "question": "Câu 36 (Chương 1): Các thử nghiệm kiểm soát và thử nghiệm cơ bản được thực hiện ở giai đoạn nào của quy trình kiểm toán BCTC?",
+        "options": [
+            "A. Lập kế hoạch kiểm toán",
+            "B. Thực hiện kiểm toán",
+            "C. Tổng hợp và lập báo cáo kiểm toán",
+            "D. Soát xét, phê duyệt và phát hành báo cáo"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: Thực hiện kiểm toán. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 37,
+        "question": "Câu 37 (Chương 1): Hoạt động nào sau đây thuộc giai đoạn lập kế hoạch kiểm toán?",
+        "options": [
+            "A. Thực hiện các thử nghiệm kiểm soát và thử nghiệm cơ bản",
+            "B. Tổng hợp kết quả và lập báo cáo kiểm toán",
+            "C. Soát xét, phê duyệt và phát hành báo cáo kiểm toán",
+            "D. Xác định hợp đồng kiểm toán, đánh giá rủi ro, xây dựng kế hoạch và chương trình kiểm toán"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: Xác định hợp đồng kiểm toán, đánh giá rủi ro, xây dựng kế hoạch và chương trình kiểm toán. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 38,
+        "question": "Câu 38 (Chương 1): Điểm khác biệt chính giữa kiểm toán hoạt động và kiểm toán tuân thủ là:",
+        "options": [
+            "A. kiểm toán hoạt động đánh giá tính hữu hiệu, hiệu quả để đề xuất cải tiến, còn kiểm toán tuân thủ đánh giá mức độ chấp hành các quy định",
+            "B. kiểm toán hoạt động chỉ do kiểm toán viên độc lập thực hiện, kiểm toán tuân thủ chỉ do kiểm toán viên nội bộ thực hiện",
+            "C. kiểm toán hoạt động đưa ra ý kiến về tính trung thực của BCTC, kiểm toán tuân thủ thì không",
+            "D. kiểm toán hoạt động chỉ áp dụng cho khu vực nhà nước, kiểm toán tuân thủ chỉ áp dụng cho khu vực tư nhân"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: kiểm toán hoạt động đánh giá tính hữu hiệu, hiệu quả để đề xuất cải tiến, còn kiểm toán tuân thủ đánh giá mức độ chấp hành các quy định. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 39,
+        "question": "Câu 39 (Chương 1): KTV Bình đang kiểm toán cho Công ty cổ phần HS. Công ty tặng KTV Bình một số cổ phiếu của công ty. Nếu KTV Bình nhận, KTV có vi phạm nguyên tắc độc lập không?",
+        "options": [
+            "A. Có, vì KTV có lợi ích tài chính trực tiếp trong khách hàng được kiểm toán (nguy cơ do tư lợi)",
+            "B. Không, vì số cổ phiếu được tặng không làm thay đổi số liệu trên báo cáo tài chính",
+            "C. Không, vì cổ phiếu là quà tặng hợp pháp từ công ty",
+            "D. Chỉ vi phạm nếu KTV bán số cổ phiếu đó trước ngày phát hành báo cáo kiểm toán"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: Có, vì KTV có lợi ích tài chính trực tiếp trong khách hàng được kiểm toán (nguy cơ do tư lợi). <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 40,
+        "question": "Câu 40 (Chương 1): KTV Nam được mời kiểm toán BCTC cho Công ty TNHH SV. Giám đốc công ty là chị Ngọc, vợ của KTV Nam. Nhận định nào sau đây đúng?",
+        "options": [
+            "A. KTV Nam không vi phạm vì chị Ngọc không phải là kế toán trưởng",
+            "B. KTV Nam vi phạm nguyên tắc độc lập vì có quan hệ gia đình gần gũi với người quản lý của khách hàng",
+            "C. KTV Nam không vi phạm vì quan hệ vợ chồng nằm ngoài hoạt động nghề nghiệp",
+            "D. KTV Nam không vi phạm nếu công ty không niêm yết trên thị trường chứng khoán"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: KTV Nam vi phạm nguyên tắc độc lập vì có quan hệ gia đình gần gũi với người quản lý của khách hàng. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 41,
+        "question": "Câu 41 (Chương 1): KTV An được mời vừa lập BCTC vừa kiểm toán BCTC cho Công ty X để công ty vay ngân hàng. Việc KTV An đồng ý sẽ vi phạm nguyên tắc nào và vì sao?",
+        "options": [
+            "A. Bảo mật, vì KTV cung cấp thông tin của khách hàng cho ngân hàng",
+            "B. Độc lập, do nguy cơ tự kiểm tra: KTV tự kiểm toán chính BCTC do mình lập",
+            "C. Năng lực chuyên môn, vì KTV chưa đủ kiến thức để lập BCTC",
+            "D. Không vi phạm nguyên tắc nào vì mục đích lập BCTC là để vay vốn hợp pháp"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: Độc lập, do nguy cơ tự kiểm tra: KTV tự kiểm toán chính BCTC do mình lập. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 42,
+        "question": "Câu 42 (Chương 1): KTV được mời kiểm toán cho Siêu thị X. Mẹ của KTV thỉnh thoảng mua hàng tại siêu thị này với tư cách khách hàng bình thường. Nhận định nào sau đây phù hợp nhất?",
+        "options": [
+            "A. KTV vi phạm vì mẹ của KTV có quan hệ kinh doanh với khách hàng",
+            "B. KTV vi phạm vì người thân là khách hàng của đơn vị được kiểm toán",
+            "C. KTV vi phạm vì phải công khai mọi giao dịch mua bán của người thân",
+            "D. KTV không vi phạm nguyên tắc độc lập vì giao dịch mua hàng thông thường không tạo ra lợi ích tài chính hay ảnh hưởng đáng kể đến xét đoán của KTV"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: KTV không vi phạm nguyên tắc độc lập vì giao dịch mua hàng thông thường không tạo ra lợi ích tài chính hay ảnh hưởng đáng kể đến xét đoán của KTV. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 43,
+        "question": "Câu 43 (Chương 1): Khách hàng mời KTV đi du lịch nước ngoài miễn phí và đề nghị KTV bỏ qua các sai sót trọng yếu trên BCTC. Nếu KTV đồng ý, KTV vi phạm:",
+        "options": [
+            "A. chỉ nguyên tắc bảo mật",
+            "B. nguyên tắc chính trực và khách quan, do xét đoán chịu ảnh hưởng của lợi ích cá nhân (nguy cơ do tư lợi)",
+            "C. không nguyên tắc nào vì chuyến du lịch không được ghi trong hợp đồng kiểm toán",
+            "D. chỉ nguyên tắc tư cách nghề nghiệp vì đi du lịch trong thời gian làm việc"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: nguyên tắc chính trực và khách quan, do xét đoán chịu ảnh hưởng của lợi ích cá nhân (nguy cơ do tư lợi). <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 44,
+        "question": "Câu 44 (Chương 1): KTV đang kiểm toán Công ty X và tư vấn cho bạn mình nên mua cổ phiếu của công ty này dựa trên thông tin có được từ cuộc kiểm toán. KTV vi phạm nguyên tắc nào?",
+        "options": [
+            "A. Độc lập về hình thức",
+            "B. Năng lực chuyên môn và tính thận trọng",
+            "C. Không vi phạm vì cổ phiếu được giao dịch công khai trên thị trường",
+            "D. Bảo mật, do sử dụng thông tin từ cuộc kiểm toán để thu lợi cho bên thứ ba"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: Bảo mật, do sử dụng thông tin từ cuộc kiểm toán để thu lợi cho bên thứ ba. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 45,
+        "question": "Câu 45 (Chương 1): KTV tâm sự với vợ (chồng) về các phát hiện trong cuộc kiểm toán tại Công ty cổ phần X khi chưa được phép. Hành vi này vi phạm:",
+        "options": [
+            "A. nguyên tắc khách quan",
+            "B. nguyên tắc bảo mật, vì tiết lộ thông tin có được từ quá trình kiểm toán khi chưa được phép",
+            "C. nguyên tắc năng lực chuyên môn",
+            "D. không nguyên tắc nào vì người nhận thông tin là người thân"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: nguyên tắc bảo mật, vì tiết lộ thông tin có được từ quá trình kiểm toán khi chưa được phép. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 46,
+        "question": "Câu 46 (Chương 1): Giám đốc công ty khách hàng cho rằng: ‘BCTC có sai sót là do KTV không phát hiện nên KTV phải chịu trách nhiệm lập và trình bày BCTC’. Lập luận này:",
+        "options": [
+            "A. đúng, vì KTV phải đảm bảo tuyệt đối BCTC không có sai sót",
+            "B. đúng, vì KTV là người ký BCTC của đơn vị",
+            "C. sai, vì không bên nào phải chịu trách nhiệm đối với BCTC",
+            "D. sai, vì Ban Giám đốc và Ban quản trị chịu trách nhiệm lập và trình bày hợp lý BCTC; KTV chịu trách nhiệm về ý kiến kiểm toán"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: sai, vì Ban Giám đốc và Ban quản trị chịu trách nhiệm lập và trình bày hợp lý BCTC; KTV chịu trách nhiệm về ý kiến kiểm toán. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 47,
+        "question": "Câu 47 (Chương 1): Bộ phận kiểm toán nội bộ của Công ty DEF Việt Nam kiểm tra và đánh giá hiệu quả hoạt động bán hàng của các chi nhánh phía Nam năm N. Hoạt động này thuộc loại kiểm toán nào (theo mục đích; theo chủ thể)?",
+        "options": [
+            "A. Kiểm toán tuân thủ; kiểm toán nội bộ",
+            "B. Kiểm toán hoạt động; kiểm toán độc lập",
+            "C. Kiểm toán hoạt động; kiểm toán nội bộ",
+            "D. Kiểm toán báo cáo tài chính; kiểm toán nội bộ"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: Kiểm toán hoạt động; kiểm toán nội bộ. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 48,
+        "question": "Câu 48 (Chương 1): KTV độc lập kiểm toán BCTC của Ngân hàng TMCP XYZ năm N. ‘Thông tin được kiểm tra’ và ‘chuẩn mực đã được thiết lập’ trong trường hợp này lần lượt là:",
+        "options": [
+            "A. Quy trình bán hàng; chuẩn mực kiểm toán Việt Nam",
+            "B. Việc quyết toán thuế; Luật thuế thu nhập doanh nghiệp",
+            "C. Báo cáo tài chính năm N; khuôn khổ lập và trình bày BCTC được áp dụng (chuẩn mực và chế độ kế toán)",
+            "D. Hiệu quả hoạt động tín dụng; quy chế nội bộ của ngân hàng"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: Báo cáo tài chính năm N; khuôn khổ lập và trình bày BCTC được áp dụng (chuẩn mực và chế độ kế toán). <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 49,
+        "question": "Câu 49 (Chương 1): Cơ quan thuế kiểm tra việc tuân thủ quy định về quyết toán thuế trong 3 năm (N-2 đến N) của Công ty CP Dầu khí ABC. ‘Thông tin được kiểm tra’ và ‘chuẩn mực đã được thiết lập’ lần lượt là:",
+        "options": [
+            "A. Báo cáo tài chính của công ty; chuẩn mực kiểm toán Việt Nam",
+            "B. Hồ sơ quyết toán thuế của 3 năm; các quy định của pháp luật về thuế",
+            "C. Hiệu quả sử dụng vốn; kế hoạch kinh doanh của công ty",
+            "D. Quy trình kiểm soát nội bộ; khuôn khổ COSO"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: Hồ sơ quyết toán thuế của 3 năm; các quy định của pháp luật về thuế. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 50,
+        "question": "Câu 50 (Chương 1): Kiểm toán viên Nhà nước kiểm tra việc chấp hành pháp luật về đầu tư công tại một dự án sử dụng vốn ngân sách. Hoạt động này là:",
+        "options": [
+            "A. kiểm toán tuân thủ do kiểm toán của Nhà nước thực hiện",
+            "B. kiểm toán báo cáo tài chính do kiểm toán độc lập thực hiện",
+            "C. kiểm toán hoạt động do kiểm toán nội bộ thực hiện",
+            "D. kiểm toán báo cáo tài chính do kiểm toán nội bộ thực hiện"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 1]</b> Phương án chính xác là: kiểm toán tuân thủ do kiểm toán của Nhà nước thực hiện. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 51,
+        "question": "Câu 51 (Chương 2): Khái niệm kiểm soát nội bộ được báo cáo COSO chính thức sử dụng thay cho khái niệm ‘kiểm soát nội bộ về kế toán’ vào năm nào?",
+        "options": [
+            "A. 1949",
+            "B. 1979",
+            "C. 1985",
+            "D. 1992"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: 1992. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 52,
+        "question": "Câu 52 (Chương 2): Ủy ban COSO được thành lập vào năm nào?",
+        "options": [
+            "A. 1949",
+            "B. 1958",
+            "C. 1992",
+            "D. 1985"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: 1985. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 53,
+        "question": "Câu 53 (Chương 2): Tổ chức nào lần đầu tiên đưa ra khái niệm về kiểm soát nội bộ vào năm 1949?",
+        "options": [
+            "A. COSO",
+            "B. AICPA",
+            "C. IFAC",
+            "D. SEC"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: AICPA. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 54,
+        "question": "Câu 54 (Chương 2): Theo COSO (2013), kiểm soát nội bộ được thiết kế để cung cấp sự đảm bảo hợp lý nhằm đạt được các mục tiêu về:",
+        "options": [
+            "A. doanh thu, chi phí và lợi nhuận",
+            "B. hoạt động, báo cáo tài chính và sự tuân thủ",
+            "C. hoạt động, tuân thủ và lợi nhuận tối đa",
+            "D. báo cáo tài chính, kiểm toán và thuế"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: hoạt động, báo cáo tài chính và sự tuân thủ. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 55,
+        "question": "Câu 55 (Chương 2): Theo VSA 315, các mục tiêu của kiểm soát nội bộ gồm:",
+        "options": [
+            "A. ngăn chặn tuyệt đối mọi gian lận; tối đa hóa lợi nhuận; tuân thủ pháp luật",
+            "B. độ tin cậy của BCTC; mở rộng thị phần; giảm số thuế phải nộp",
+            "C. độ tin cậy của BCTC; hiệu quả, hiệu suất hoạt động; tuân thủ pháp luật và các quy định có liên quan",
+            "D. bảo vệ tài sản; tăng trưởng doanh thu; phát hành báo cáo kiểm toán"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: độ tin cậy của BCTC; hiệu quả, hiệu suất hoạt động; tuân thủ pháp luật và các quy định có liên quan. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 56,
+        "question": "Câu 56 (Chương 2): Theo VSA 315, kiểm soát nội bộ gồm mấy thành phần và đó là những thành phần nào?",
+        "options": [
+            "A. 5 thành phần: môi trường kiểm soát; quy trình đánh giá rủi ro; hệ thống thông tin; các hoạt động kiểm soát; giám sát các kiểm soát",
+            "B. 4 thành phần: môi trường kiểm soát; đánh giá rủi ro; hoạt động kiểm soát; giám sát các kiểm soát",
+            "C. 5 thành phần: môi trường kiểm soát; hoạt động kiểm soát; phê chuẩn; phân chia trách nhiệm; kiểm soát vật chất",
+            "D. 3 thành phần: kiểm soát phòng ngừa; kiểm soát phát hiện; kiểm soát bù đắp"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: 5 thành phần: môi trường kiểm soát; quy trình đánh giá rủi ro; hệ thống thông tin; các hoạt động kiểm soát; giám sát các kiểm soát. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 57,
+        "question": "Câu 57 (Chương 2): Hạn chế tiềm tàng nào sau đây thuộc về kiểm soát nội bộ?",
+        "options": [
+            "A. Cỡ mẫu kiểm toán quá nhỏ",
+            "B. Kiểm toán viên thiếu thái độ hoài nghi nghề nghiệp",
+            "C. Chuẩn mực kiểm toán chưa đầy đủ",
+            "D. Sự thông đồng của các cá nhân"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: Sự thông đồng của các cá nhân. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 58,
+        "question": "Câu 58 (Chương 2): Hoạt động nào sau đây KHÔNG thuộc nhóm các hoạt động kiểm soát?",
+        "options": [
+            "A. Phê chuẩn",
+            "B. Xác định các rủi ro kinh doanh liên quan đến việc lập báo cáo tài chính",
+            "C. Kiểm soát vật chất",
+            "D. Phân chia trách nhiệm"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: Xác định các rủi ro kinh doanh liên quan đến việc lập báo cáo tài chính. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 59,
+        "question": "Câu 59 (Chương 2): Trong các hoạt động kiểm soát, phê chuẩn gồm hai loại là:",
+        "options": [
+            "A. phê chuẩn trước và phê chuẩn sau",
+            "B. phê chuẩn chung và phê chuẩn cụ thể",
+            "C. phê chuẩn thường xuyên và phê chuẩn định kỳ",
+            "D. phê chuẩn thủ công và phê chuẩn tự động"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: phê chuẩn chung và phê chuẩn cụ thể. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 60,
+        "question": "Câu 60 (Chương 2): Kiểm soát quá trình xử lý thông tin gồm hai nhóm:",
+        "options": [
+            "A. kiểm soát thường xuyên và kiểm soát định kỳ",
+            "B. kiểm soát ngăn ngừa và kiểm soát phát hiện",
+            "C. kiểm soát vật chất và kiểm soát tài chính",
+            "D. kiểm soát chung và kiểm soát ứng dụng"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: kiểm soát chung và kiểm soát ứng dụng. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 61,
+        "question": "Câu 61 (Chương 2): Giám sát các kiểm soát gồm hai hình thức:",
+        "options": [
+            "A. giám sát thường xuyên và giám sát định kỳ",
+            "B. giám sát chung và giám sát ứng dụng",
+            "C. giám sát nội bộ và giám sát của Nhà nước",
+            "D. giám sát trước và giám sát sau"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: giám sát thường xuyên và giám sát định kỳ. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 62,
+        "question": "Câu 62 (Chương 2): Ba phương pháp mô tả hệ thống kiểm soát nội bộ thường dùng là:",
+        "options": [
+            "A. quan sát, phỏng vấn và kiểm tra",
+            "B. tường thuật, bảng câu hỏi và lưu đồ",
+            "C. phỏng vấn, thu thập tài liệu và quan sát",
+            "D. tường thuật, phỏng vấn và bảng cân đối"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: tường thuật, bảng câu hỏi và lưu đồ. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 63,
+        "question": "Câu 63 (Chương 2): Các phương pháp tìm hiểu kiểm soát nội bộ gồm:",
+        "options": [
+            "A. tính toán lại, thực hiện lại, xác nhận từ bên ngoài",
+            "B. tường thuật, bảng câu hỏi, lưu đồ",
+            "C. thu thập và nghiên cứu tài liệu, quan sát, phỏng vấn",
+            "D. kiểm tra chi tiết, phân tích, chọn mẫu"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: thu thập và nghiên cứu tài liệu, quan sát, phỏng vấn. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 64,
+        "question": "Câu 64 (Chương 2): Các thủ tục sử dụng trong thử nghiệm kiểm soát gồm:",
+        "options": [
+            "A. tính toán lại, xác nhận, phân tích và chọn mẫu",
+            "B. tường thuật, bảng câu hỏi, lưu đồ và phỏng vấn",
+            "C. kiểm kê, xác nhận, tính toán và quan sát",
+            "D. kiểm tra, phỏng vấn, quan sát và thực hiện lại"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: kiểm tra, phỏng vấn, quan sát và thực hiện lại. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 65,
+        "question": "Câu 65 (Chương 2): Theo VSA 265, kiểm toán viên phải trao đổi các khiếm khuyết nghiêm trọng trong kiểm soát nội bộ với Ban quản trị đơn vị được kiểm toán bằng hình thức nào?",
+        "options": [
+            "A. Bằng lời nói, vào cuối cuộc kiểm toán",
+            "B. Bằng văn bản, một cách kịp thời",
+            "C. Qua báo cáo kiểm toán, sau khi phát hành",
+            "D. Bằng văn bản, chỉ khi Ban Giám đốc yêu cầu"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: Bằng văn bản, một cách kịp thời. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 66,
+        "question": "Câu 66 (Chương 2): Theo VSA 500, các thủ tục kiểm toán tiếp theo (sau thủ tục đánh giá rủi ro) gồm:",
+        "options": [
+            "A. tìm hiểu đơn vị và đánh giá rủi ro",
+            "B. lập kế hoạch và lập chương trình kiểm toán",
+            "C. thử nghiệm kiểm soát và thử nghiệm cơ bản",
+            "D. soát xét và phát hành báo cáo kiểm toán"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: thử nghiệm kiểm soát và thử nghiệm cơ bản. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 67,
+        "question": "Câu 67 (Chương 2): Bảng câu hỏi về kiểm soát nội bộ là:",
+        "options": [
+            "A. bảng liệt kê những câu hỏi đã được chuẩn bị trước về hệ thống KSNB để xác định sự tồn tại của các kiểm soát",
+            "B. sự mô tả bằng văn bản về nguồn gốc và sự luân chuyển của chứng từ, sổ sách",
+            "C. hình vẽ mô tả hệ thống KSNB bằng các ký hiệu đã được quy ước",
+            "D. bản kê các khiếm khuyết nghiêm trọng đã được phát hiện"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: bảng liệt kê những câu hỏi đã được chuẩn bị trước về hệ thống KSNB để xác định sự tồn tại của các kiểm soát. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 68,
+        "question": "Câu 68 (Chương 2): Yếu tố nào sau đây thuộc môi trường kiểm soát?",
+        "options": [
+            "A. Kiểm soát vật chất đối với tài sản",
+            "B. Phê chuẩn các nghiệp vụ",
+            "C. Triết lý và phong cách điều hành của Ban Giám đốc",
+            "D. Giám sát thường xuyên của nhà quản lý"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: Triết lý và phong cách điều hành của Ban Giám đốc. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 69,
+        "question": "Câu 69 (Chương 2): Kiểm soát nội bộ chỉ cung cấp sự ‘đảm bảo hợp lý’ mà không phải ‘đảm bảo tuyệt đối’ chủ yếu vì:",
+        "options": [
+            "A. KSNB chỉ áp dụng cho một số nghiệp vụ trọng yếu",
+            "B. KSNB có những hạn chế tiềm tàng như sai lầm của con người, sự thông đồng, sự lạm quyền và quan hệ giữa chi phí và lợi ích",
+            "C. KSNB do kiểm toán viên thiết kế nên khó đảm bảo",
+            "D. chuẩn mực không yêu cầu đơn vị phải thiết lập KSNB"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: KSNB có những hạn chế tiềm tàng như sai lầm của con người, sự thông đồng, sự lạm quyền và quan hệ giữa chi phí và lợi ích. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 70,
+        "question": "Câu 70 (Chương 2): Môi trường kiểm soát có vai trò:",
+        "options": [
+            "A. trực tiếp ngăn chặn từng sai sót phát sinh ở nghiệp vụ cụ thể",
+            "B. tạo nên đặc điểm chung của đơn vị và tác động trực tiếp đến ý thức kiểm soát của các thành viên",
+            "C. thay thế hoàn toàn cho các hoạt động kiểm soát",
+            "D. chỉ ảnh hưởng đến bộ phận kế toán của đơn vị"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: tạo nên đặc điểm chung của đơn vị và tác động trực tiếp đến ý thức kiểm soát của các thành viên. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 71,
+        "question": "Câu 71 (Chương 2): Một chính sách nhân sự tốt:",
+        "options": [
+            "A. có thể thay thế hoàn toàn các thủ tục kiểm soát",
+            "B. không có ảnh hưởng đến môi trường kiểm soát",
+            "C. chỉ liên quan đến việc tuyển dụng nhân viên mới",
+            "D. có thể khắc phục các yếu kém của thủ tục kiểm soát nhưng không thể thay thế hoàn toàn cho các thủ tục kiểm soát"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: có thể khắc phục các yếu kém của thủ tục kiểm soát nhưng không thể thay thế hoàn toàn cho các thủ tục kiểm soát. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 72,
+        "question": "Câu 72 (Chương 2): Quy trình đánh giá rủi ro của đơn vị là cơ sở để:",
+        "options": [
+            "A. kiểm toán viên xác định mức trọng yếu",
+            "B. kiểm toán viên xác định cỡ mẫu kiểm toán",
+            "C. Ban Giám đốc xác định các rủi ro cần được quản lý",
+            "D. cơ quan thuế xác định mức xử phạt"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: Ban Giám đốc xác định các rủi ro cần được quản lý. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 73,
+        "question": "Câu 73 (Chương 2): Tình huống nào sau đây ít có khả năng làm phát sinh hoặc thay đổi rủi ro của đơn vị?",
+        "options": [
+            "A. Đơn vị tăng trưởng nhanh",
+            "B. Đơn vị áp dụng hệ thống thông tin mới",
+            "C. Môi trường hoạt động, nhân sự, hệ thống thông tin và công nghệ của đơn vị không có bất kỳ thay đổi nào",
+            "D. Đơn vị mở rộng hoạt động ra nước ngoài"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: Môi trường hoạt động, nhân sự, hệ thống thông tin và công nghệ của đơn vị không có bất kỳ thay đổi nào. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 74,
+        "question": "Câu 74 (Chương 2): Hệ thống thông tin liên quan đến việc lập và trình bày BCTC bao gồm việc:",
+        "options": [
+            "A. phê chuẩn mọi giao dịch trước khi thực hiện",
+            "B. tạo lập, ghi chép, xử lý và báo cáo các giao dịch; duy trì trách nhiệm đối với tài sản, nợ phải trả và vốn chủ sở hữu",
+            "C. so sánh kết quả thực tế với kế hoạch",
+            "D. kiểm kê tài sản định kỳ"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: tạo lập, ghi chép, xử lý và báo cáo các giao dịch; duy trì trách nhiệm đối với tài sản, nợ phải trả và vốn chủ sở hữu. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 75,
+        "question": "Câu 75 (Chương 2): Phê chuẩn cụ thể thường được áp dụng trong trường hợp nào?",
+        "options": [
+            "A. Các nghiệp vụ lặp đi lặp lại nằm trong chính sách chung",
+            "B. Nghiệp vụ bất thường không có trong chính sách chung, hoặc nghiệp vụ thường xuyên nhưng vượt giới hạn cho phép của chính sách chung",
+            "C. Mọi nghiệp vụ có giá trị nhỏ",
+            "D. Chỉ các nghiệp vụ đã hoàn thành"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: Nghiệp vụ bất thường không có trong chính sách chung, hoặc nghiệp vụ thường xuyên nhưng vượt giới hạn cho phép của chính sách chung. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 76,
+        "question": "Câu 76 (Chương 2): Phê chuẩn chung được hiểu là:",
+        "options": [
+            "A. việc đưa ra các chính sách chung để cấp dưới thực hiện mà không cần xét duyệt lại từng nghiệp vụ",
+            "B. sự phê chuẩn của người quản lý cho từng nghiệp vụ cụ thể",
+            "C. sự phê chuẩn sau khi nghiệp vụ đã xảy ra",
+            "D. sự phê chuẩn của kiểm toán viên đối với nghiệp vụ"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: việc đưa ra các chính sách chung để cấp dưới thực hiện mà không cần xét duyệt lại từng nghiệp vụ. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 77,
+        "question": "Câu 77 (Chương 2): Sự khác nhau giữa kiểm soát chung và kiểm soát ứng dụng trong xử lý thông tin là:",
+        "options": [
+            "A. kiểm soát chung liên quan đến nhiều chương trình ứng dụng (như kiểm soát truy cập, phần mềm hệ thống), còn kiểm soát ứng dụng áp dụng cho việc xử lý giao dịch của từng chương trình",
+            "B. kiểm soát chung áp dụng cho từng giao dịch, còn kiểm soát ứng dụng áp dụng cho toàn hệ thống",
+            "C. kiểm soát chung chỉ thực hiện thủ công, còn kiểm soát ứng dụng chỉ thực hiện tự động",
+            "D. kiểm soát chung do kiểm toán viên thực hiện, còn kiểm soát ứng dụng do Ban Giám đốc thực hiện"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: kiểm soát chung liên quan đến nhiều chương trình ứng dụng (như kiểm soát truy cập, phần mềm hệ thống), còn kiểm soát ứng dụng áp dụng cho việc xử lý giao dịch của từng chương trình. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 78,
+        "question": "Câu 78 (Chương 2): Khiếm khuyết nghiêm trọng trong kiểm soát nội bộ là:",
+        "options": [
+            "A. mọi khiếm khuyết được phát hiện trong cuộc kiểm toán",
+            "B. một hoặc nhiều khiếm khuyết kết hợp lại mà theo xét đoán của kiểm toán viên là đủ nghiêm trọng và cần sự lưu ý của Ban quản trị",
+            "C. khiếm khuyết chỉ gây ra sai sót dưới mức trọng yếu",
+            "D. khiếm khuyết mà đơn vị đã khắc phục xong"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: một hoặc nhiều khiếm khuyết kết hợp lại mà theo xét đoán của kiểm toán viên là đủ nghiêm trọng và cần sự lưu ý của Ban quản trị. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 79,
+        "question": "Câu 79 (Chương 2): Hoạt động nào sau đây thuộc kiểm soát vật chất?",
+        "options": [
+            "A. Quy định hạn chế tiếp cận tài sản và thực hiện kiểm kê định kỳ",
+            "B. So sánh số liệu thực tế với kế hoạch",
+            "C. Phê chuẩn đơn đặt hàng của khách hàng",
+            "D. Phân công người ghi sổ khác với người giữ tiền"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: Quy định hạn chế tiếp cận tài sản và thực hiện kiểm kê định kỳ. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 80,
+        "question": "Câu 80 (Chương 2): Mục đích của nguyên tắc phân chia trách nhiệm là:",
+        "options": [
+            "A. giảm số lượng nhân viên cần thiết của đơn vị",
+            "B. tăng tốc độ xử lý nghiệp vụ",
+            "C. giảm khả năng xảy ra nhầm lẫn và gian lận bằng cách có sự tham gia của nhiều người trong một quy trình nghiệp vụ",
+            "D. thay thế hoàn toàn cho việc phê chuẩn"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: giảm khả năng xảy ra nhầm lẫn và gian lận bằng cách có sự tham gia của nhiều người trong một quy trình nghiệp vụ. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 81,
+        "question": "Câu 81 (Chương 2): Giám sát định kỳ đối với kiểm soát nội bộ thường được thực hiện thông qua:",
+        "options": [
+            "A. các cuộc kiểm toán định kỳ do kiểm toán viên nội bộ hoặc kiểm toán độc lập thực hiện",
+            "B. hoạt động hằng ngày của nhân viên trong phạm vi trách nhiệm của họ",
+            "C. việc phê chuẩn các giao dịch bất thường",
+            "D. việc kiểm kê hằng ngày của thủ kho"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: các cuộc kiểm toán định kỳ do kiểm toán viên nội bộ hoặc kiểm toán độc lập thực hiện. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 82,
+        "question": "Câu 82 (Chương 2): Kiểm toán viên tìm hiểu kiểm soát nội bộ của đơn vị nhằm mục đích:",
+        "options": [
+            "A. thay Ban Giám đốc thiết kế lại hệ thống kiểm soát nội bộ",
+            "B. chứng minh tuyệt đối rằng KSNB của đơn vị hoạt động hiệu quả",
+            "C. xác định mức phí kiểm toán",
+            "D. xác định các loại sai sót tiềm tàng, các yếu tố ảnh hưởng đến rủi ro có sai sót trọng yếu và nội dung, lịch trình, phạm vi các thủ tục kiểm toán tiếp theo"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: xác định các loại sai sót tiềm tàng, các yếu tố ảnh hưởng đến rủi ro có sai sót trọng yếu và nội dung, lịch trình, phạm vi các thủ tục kiểm toán tiếp theo. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 83,
+        "question": "Câu 83 (Chương 2): Theo VSA 315, đối với các kiểm soát có liên quan đến cuộc kiểm toán, kiểm toán viên phải:",
+        "options": [
+            "A. chỉ cần xác định các kiểm soát có hiệu lực pháp lý",
+            "B. đánh giá hiệu quả vận hành của mọi kiểm soát trong đơn vị",
+            "C. thiết kế lại các kiểm soát cho phù hợp với đơn vị",
+            "D. đánh giá về mặt thiết kế của các kiểm soát và xác định xem chúng đã được thực hiện tại đơn vị hay chưa"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: đánh giá về mặt thiết kế của các kiểm soát và xác định xem chúng đã được thực hiện tại đơn vị hay chưa. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 84,
+        "question": "Câu 84 (Chương 2): Phương pháp tường thuật phù hợp nhất với trường hợp nào?",
+        "options": [
+            "A. Đơn vị có cơ cấu kiểm soát rất phức tạp",
+            "B. Đơn vị có hệ thống thông tin hoàn toàn tự động",
+            "C. Đơn vị có cơ cấu kiểm soát đơn giản, dễ mô tả",
+            "D. Đơn vị có nhiều chi nhánh ở nước ngoài"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: Đơn vị có cơ cấu kiểm soát đơn giản, dễ mô tả. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 85,
+        "question": "Câu 85 (Chương 2): Nhược điểm của phương pháp bảng câu hỏi là:",
+        "options": [
+            "A. mất nhiều thời gian lập và khó phân công cho các kiểm toán viên",
+            "B. khó diễn đạt và mô tả chi tiết hệ thống kiểm soát",
+            "C. có thể không bao gồm các kiểm soát đặc thù của đơn vị",
+            "D. chỉ áp dụng được cho các đơn vị có quy mô nhỏ"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: có thể không bao gồm các kiểm soát đặc thù của đơn vị. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 86,
+        "question": "Câu 86 (Chương 2): Phương pháp mô tả KSNB nào giúp dễ dàng chỉ ra các thủ tục kiểm soát cần bổ sung nhưng thường mất nhiều thời gian?",
+        "options": [
+            "A. Tường thuật",
+            "B. Bảng câu hỏi",
+            "C. Phỏng vấn",
+            "D. Lưu đồ"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: Lưu đồ. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 87,
+        "question": "Câu 87 (Chương 2): Hạn chế của thủ tục ‘quan sát’ trong thử nghiệm kiểm soát là:",
+        "options": [
+            "A. chỉ cung cấp bằng chứng tại thời điểm quan sát và có thể ảnh hưởng đến cách thức nhân viên thực hiện thủ tục",
+            "B. luôn cung cấp bằng chứng về hiệu lực của kiểm soát trong cả kỳ",
+            "C. chỉ áp dụng được đối với tài sản hiện vật",
+            "D. không thể kết hợp với thủ tục phỏng vấn"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: chỉ cung cấp bằng chứng tại thời điểm quan sát và có thể ảnh hưởng đến cách thức nhân viên thực hiện thủ tục. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 88,
+        "question": "Câu 88 (Chương 2): Theo VSA 265, khiếm khuyết trong kiểm soát nội bộ xảy ra khi:",
+        "options": [
+            "A. Ban Giám đốc quyết định không thay đổi chính sách kế toán so với năm trước",
+            "B. kiểm toán viên chọn cỡ mẫu nhỏ hơn mức cần thiết trong thử nghiệm kiểm soát",
+            "C. đơn vị có quy mô nhỏ nên không thể thiết lập kiểm soát nội bộ",
+            "D. cách thức thiết kế, thực hiện hoặc vận hành một kiểm soát không thể ngăn chặn, hoặc phát hiện và sửa chữa kịp thời sai sót trong BCTC; hoặc thiếu một kiểm soát cần thiết"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: cách thức thiết kế, thực hiện hoặc vận hành một kiểm soát không thể ngăn chặn, hoặc phát hiện và sửa chữa kịp thời sai sót trong BCTC; hoặc thiếu một kiểm soát cần thiết. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 89,
+        "question": "Câu 89 (Chương 2): Tại một công ty, nhân viên thu tiền đồng thời thực hiện việc ghi sổ các khoản thu. Rủi ro có thể xảy ra là:",
+        "options": [
+            "A. tiền thu được sẽ luôn được ghi sổ đầy đủ và chính xác",
+            "B. khách hàng sẽ thanh toán chậm hơn so với thỏa thuận",
+            "C. công ty không thể lập báo cáo tài chính đúng hạn",
+            "D. nhân viên có thể biển thủ tiền thu được và che giấu bằng cách ghi chép sai trên sổ sách"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: nhân viên có thể biển thủ tiền thu được và che giấu bằng cách ghi chép sai trên sổ sách. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 90,
+        "question": "Câu 90 (Chương 2): Nhân viên tín dụng xét duyệt hồ sơ vay vốn đồng thời thực hiện thẩm định tài sản bảo đảm của khoản vay. Đây là điểm yếu về:",
+        "options": [
+            "A. phân chia trách nhiệm, làm tăng rủi ro định giá tài sản bảo đảm thiếu khách quan để khoản vay được duyệt",
+            "B. kiểm soát vật chất đối với tiền mặt tồn quỹ",
+            "C. giám sát định kỳ do kiểm toán nội bộ thực hiện",
+            "D. hệ thống thông tin do thiếu phần mềm ứng dụng"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: phân chia trách nhiệm, làm tăng rủi ro định giá tài sản bảo đảm thiếu khách quan để khoản vay được duyệt. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 91,
+        "question": "Câu 91 (Chương 2): Chính sách của công ty cho phép nhân viên bán hàng bán chịu tối đa 50 triệu đồng/khách hàng. Một đơn hàng bán chịu 80 triệu đồng vượt giới hạn này. Để phù hợp với hoạt động kiểm soát, đơn hàng cần:",
+        "options": [
+            "A. có phê chuẩn cụ thể của người quản lý có thẩm quyền",
+            "B. chỉ cần phê chuẩn chung vì đã có chính sách bán chịu",
+            "C. không cần phê chuẩn vì khách hàng là khách hàng quen thuộc",
+            "D. ghi sổ trước và báo cáo cho người quản lý vào cuối tháng"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: có phê chuẩn cụ thể của người quản lý có thẩm quyền. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 92,
+        "question": "Câu 92 (Chương 2): Tại công ty XYZ, mọi đơn đặt hàng của nhà phân phối phải được đại diện bán hàng khu vực xét duyệt trước khi gửi về phòng Kinh doanh. Đây là hoạt động kiểm soát nào?",
+        "options": [
+            "A. Kiểm soát vật chất",
+            "B. Giám sát định kỳ",
+            "C. Phê chuẩn",
+            "D. Kiểm soát chung đối với hệ thống thông tin"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: Phê chuẩn. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 93,
+        "question": "Câu 93 (Chương 2): Hằng tháng, giám đốc kinh doanh so sánh doanh số thực tế với kế hoạch, phân tích chênh lệch và yêu cầu các bộ phận giải trình. Đây là hoạt động kiểm soát nào?",
+        "options": [
+            "A. Phân chia trách nhiệm",
+            "B. Kiểm soát vật chất",
+            "C. Đánh giá hoạt động",
+            "D. Phê chuẩn cụ thể"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: Đánh giá hoạt động. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 94,
+        "question": "Câu 94 (Chương 2): Kiểm toán viên theo dõi thủ kho đối chiếu phiếu nhập kho với đơn mua hàng và biên bản kiểm nhận trước khi nhập kho. Thủ tục kiểm toán viên đang sử dụng trong thử nghiệm kiểm soát là:",
+        "options": [
+            "A. Kiểm tra tài liệu",
+            "B. Quan sát",
+            "C. Thực hiện lại",
+            "D. Phỏng vấn"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: Quan sát. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 95,
+        "question": "Câu 95 (Chương 2): Kiểm toán viên chọn 25 phiếu xuất kho trong năm để xem có chữ ký phê duyệt của người có thẩm quyền hay không. Thủ tục kiểm toán viên đang sử dụng là:",
+        "options": [
+            "A. Quan sát",
+            "B. Phỏng vấn",
+            "C. Kiểm tra",
+            "D. Thực hiện lại"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: Kiểm tra. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 96,
+        "question": "Câu 96 (Chương 2): Kiểm toán viên tự mình độc lập thực hiện lại việc đối chiếu số lượng hàng bán trong tháng với số liệu của thủ kho mà kế toán công nợ đã thực hiện. Thủ tục này là:",
+        "options": [
+            "A. Quan sát",
+            "B. Kiểm tra tài sản hiện vật",
+            "C. Thực hiện lại",
+            "D. Phỏng vấn"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: Thực hiện lại. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 97,
+        "question": "Câu 97 (Chương 2): Trong quá trình kiểm toán, kiểm toán viên phát hiện Ban Giám đốc không có khả năng giám sát việc lập và trình bày báo cáo tài chính. Kiểm toán viên nên:",
+        "options": [
+            "A. bỏ qua vì đây không phải là sai sót cụ thể trên báo cáo tài chính",
+            "B. tự khắc phục khiếm khuyết bằng cách trực tiếp lập báo cáo tài chính cho đơn vị",
+            "C. chỉ trao đổi bằng miệng sau khi phát hành báo cáo kiểm toán",
+            "D. coi đây là dấu hiệu của khiếm khuyết nghiêm trọng và trao đổi bằng văn bản một cách kịp thời với Ban quản trị (VSA 265)"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: coi đây là dấu hiệu của khiếm khuyết nghiêm trọng và trao đổi bằng văn bản một cách kịp thời với Ban quản trị (VSA 265). <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 98,
+        "question": "Câu 98 (Chương 2): Trong ví dụ tường thuật về quy trình bán hàng của công ty XYZ, kết luận là KSNB hữu hiệu, ngoại trừ việc công ty vận tải có thể giao hàng chậm hoặc vận chuyển đến nhà phân phối ở xa. Kiểm toán viên cần bổ sung thủ tục nào?",
+        "options": [
+            "A. Kiểm tra thêm việc khóa sổ nghiệp vụ bán hàng",
+            "B. Xác nhận lại số lượng hàng tồn kho cuối ngày",
+            "C. Đánh giá lại chính sách nhân sự của công ty",
+            "D. Mở rộng thử nghiệm kiểm soát đối với việc phê chuẩn đơn đặt hàng"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: Kiểm tra thêm việc khóa sổ nghiệp vụ bán hàng. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 99,
+        "question": "Câu 99 (Chương 2): Công ty khách hàng vừa áp dụng chuẩn mực kế toán mới, thay đổi phần mềm kế toán, mở rộng hoạt động sang nước ngoài và thay nhiều nhân sự chủ chốt. Thành phần kiểm soát nội bộ mà kiểm toán viên cần đặc biệt quan tâm xem xét là:",
+        "options": [
+            "A. kiểm soát vật chất đối với hàng tồn kho",
+            "B. phân chia trách nhiệm giữa thủ kho và kế toán kho",
+            "C. giám sát định kỳ của kiểm toán độc lập",
+            "D. quy trình đánh giá rủi ro của đơn vị"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: quy trình đánh giá rủi ro của đơn vị. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 100,
+        "question": "Câu 100 (Chương 2): Công ty không có bộ quy tắc ứng xử chính thức, Ban Giám đốc thường bỏ qua các hành vi thiếu trung thực của nhân viên. Điểm yếu này thuộc yếu tố nào của môi trường kiểm soát?",
+        "options": [
+            "A. Truyền đạt thông tin và yêu cầu thực thi tính chính trực và các giá trị đạo đức",
+            "B. Cơ cấu tổ chức",
+            "C. Phân công quyền hạn và trách nhiệm",
+            "D. Cam kết về năng lực"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 2]</b> Phương án chính xác là: Truyền đạt thông tin và yêu cầu thực thi tính chính trực và các giá trị đạo đức. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 101,
+        "question": "Câu 101 (Chương 3): Theo VSA 200, rủi ro kiểm toán là rủi ro do kiểm toán viên và công ty kiểm toán:",
+        "options": [
+            "A. không thu thập đủ bằng chứng về hoạt động kinh doanh của đơn vị",
+            "B. bị khách hàng khởi kiện vì mức phí kiểm toán",
+            "C. không hoàn thành cuộc kiểm toán đúng thời hạn",
+            "D. đưa ra ý kiến kiểm toán không thích hợp khi báo cáo tài chính đã được kiểm toán còn có những sai sót trọng yếu"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: đưa ra ý kiến kiểm toán không thích hợp khi báo cáo tài chính đã được kiểm toán còn có những sai sót trọng yếu. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 102,
+        "question": "Câu 102 (Chương 3): Mô hình rủi ro kiểm toán được thể hiện bằng công thức:",
+        "options": [
+            "A. Rủi ro kiểm toán = Rủi ro tiềm tàng + Rủi ro kiểm soát + Rủi ro phát hiện",
+            "B. Rủi ro kiểm toán = Rủi ro tiềm tàng × Rủi ro phát hiện",
+            "C. Rủi ro kiểm toán = Rủi ro tiềm tàng × Rủi ro kiểm soát × Rủi ro phát hiện",
+            "D. Rủi ro kiểm toán = Rủi ro kiểm soát × Rủi ro lấy mẫu"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: Rủi ro kiểm toán = Rủi ro tiềm tàng × Rủi ro kiểm soát × Rủi ro phát hiện. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 103,
+        "question": "Câu 103 (Chương 3): Rủi ro có sai sót trọng yếu ở cấp độ cơ sở dẫn liệu bao gồm hai bộ phận là:",
+        "options": [
+            "A. rủi ro tiềm tàng và rủi ro kiểm soát",
+            "B. rủi ro kiểm soát và rủi ro phát hiện",
+            "C. rủi ro tiềm tàng và rủi ro phát hiện",
+            "D. rủi ro kinh doanh và rủi ro gian lận"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: rủi ro tiềm tàng và rủi ro kiểm soát. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 104,
+        "question": "Câu 104 (Chương 3): Rủi ro nào sau đây là rủi ro của chính kiểm toán viên mà kiểm toán viên có thể kiểm soát được?",
+        "options": [
+            "A. Rủi ro tiềm tàng",
+            "B. Rủi ro kiểm soát",
+            "C. Rủi ro phát hiện",
+            "D. Rủi ro kinh doanh"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: Rủi ro phát hiện. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 105,
+        "question": "Câu 105 (Chương 3): Tam giác gian lận của Cressey (1953) gồm ba yếu tố:",
+        "options": [
+            "A. áp lực, cơ hội và năng lực",
+            "B. cơ hội, kiểm soát và thái độ",
+            "C. động cơ, quyền hạn và lợi nhuận",
+            "D. áp lực (động cơ), cơ hội và thái độ biện minh (hợp lý hóa)"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: áp lực (động cơ), cơ hội và thái độ biện minh (hợp lý hóa). <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 106,
+        "question": "Câu 106 (Chương 3): Hai loại sai sót do cố ý mà kiểm toán viên cần quan tâm là:",
+        "options": [
+            "A. sai sót do nhầm lẫn và sai sót do gian lận",
+            "B. sai sót về định lượng và sai sót về định tính",
+            "C. sai sót do lập báo cáo tài chính gian lận và sai sót do biển thủ tài sản",
+            "D. sai sót do rủi ro tiềm tàng và sai sót do rủi ro kiểm soát"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: sai sót do lập báo cáo tài chính gian lận và sai sót do biển thủ tài sản. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 107,
+        "question": "Câu 107 (Chương 3): Chuẩn mực kiểm toán Việt Nam quy định trách nhiệm của kiểm toán viên liên quan đến gian lận trong quá trình kiểm toán báo cáo tài chính là:",
+        "options": [
+            "A. VSA 200",
+            "B. VSA 500",
+            "C. VSA 240",
+            "D. VSA 700"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: VSA 240. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 108,
+        "question": "Câu 108 (Chương 3): Theo VSA 320, thông tin được coi là trọng yếu nếu:",
+        "options": [
+            "A. việc thiếu thông tin đó hoặc thiếu tính chính xác của thông tin đó sẽ ảnh hưởng đến quyết định của người sử dụng báo cáo tài chính",
+            "B. thông tin đó có giá trị tuyệt đối lớn nhất trên báo cáo tài chính",
+            "C. thông tin đó được Ban Giám đốc đánh giá là quan trọng",
+            "D. thông tin đó chỉ liên quan đến các giao dịch với bên liên quan"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: việc thiếu thông tin đó hoặc thiếu tính chính xác của thông tin đó sẽ ảnh hưởng đến quyết định của người sử dụng báo cáo tài chính. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 109,
+        "question": "Câu 109 (Chương 3): Mức trọng yếu thực hiện thường được xác định trong khoảng:",
+        "options": [
+            "A. 50% đến 75% mức trọng yếu đối với tổng thể báo cáo tài chính",
+            "B. 10% đến 25% mức trọng yếu đối với tổng thể báo cáo tài chính",
+            "C. 75% đến 100% mức trọng yếu đối với tổng thể báo cáo tài chính",
+            "D. 100% đến 150% mức trọng yếu đối với tổng thể báo cáo tài chính"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: 50% đến 75% mức trọng yếu đối với tổng thể báo cáo tài chính. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 110,
+        "question": "Câu 110 (Chương 3): Khung tỷ lệ phổ biến để xác định mức trọng yếu tổng thể dựa trên lợi nhuận trước thuế là:",
+        "options": [
+            "A. 0,5% đến 3%",
+            "B. 1% đến 2%",
+            "C. 1% đến 5%",
+            "D. 5% đến 10%"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: 5% đến 10%. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 111,
+        "question": "Câu 111 (Chương 3): Hồ sơ kiểm toán hàng năm còn được gọi là:",
+        "options": [
+            "A. hồ sơ thường trực (Permanent file)",
+            "B. hồ sơ hiện hành (Current file)",
+            "C. hồ sơ kiểm toán chung",
+            "D. hồ sơ lưu trữ vĩnh viễn"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: hồ sơ hiện hành (Current file). <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 112,
+        "question": "Câu 112 (Chương 3): Khái niệm hồ sơ kiểm toán được quy định trong chuẩn mực kiểm toán nào?",
+        "options": [
+            "A. VSA 200",
+            "B. VSA 315",
+            "C. VSA 530",
+            "D. VSA 230"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: VSA 230. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 113,
+        "question": "Câu 113 (Chương 3): Lập kế hoạch kiểm toán bao gồm việc xây dựng:",
+        "options": [
+            "A. chiến lược kiểm toán tổng thể và kế hoạch kiểm toán",
+            "B. kế hoạch kiểm toán và báo cáo kiểm toán",
+            "C. chương trình kiểm toán và hồ sơ kiểm toán",
+            "D. chiến lược kinh doanh và kế hoạch tài chính của đơn vị"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: chiến lược kiểm toán tổng thể và kế hoạch kiểm toán. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 114,
+        "question": "Câu 114 (Chương 3): Nội dung của chương trình kiểm toán gồm:",
+        "options": [
+            "A. mục tiêu kiểm toán từng phần hành; nội dung, lịch trình và phạm vi các thủ tục kiểm toán cụ thể; thời gian ước tính cho từng phần hành",
+            "B. chiến lược phát triển của đơn vị; mục tiêu doanh thu; ngân sách hoạt động",
+            "C. ý kiến kiểm toán; thư quản lý; biên bản họp Ban Giám đốc",
+            "D. danh sách khách hàng của đơn vị; hợp đồng bán hàng; chính sách nhân sự"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: mục tiêu kiểm toán từng phần hành; nội dung, lịch trình và phạm vi các thủ tục kiểm toán cụ thể; thời gian ước tính cho từng phần hành. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 115,
+        "question": "Câu 115 (Chương 3): Yêu cầu nào sau đây là yêu cầu đối với hồ sơ kiểm toán?",
+        "options": [
+            "A. Chỉ cần lưu trữ dưới dạng giấy",
+            "B. Có đề mục rõ ràng, đầy đủ chữ ký của kiểm toán viên, chú thích đầy đủ về nguồn gốc dữ liệu và ký hiệu sử dụng",
+            "C. Chỉ cần ghi kết luận, không cần ghi nguồn gốc dữ liệu",
+            "D. Có thể không cần chữ ký của kiểm toán viên"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: Có đề mục rõ ràng, đầy đủ chữ ký của kiểm toán viên, chú thích đầy đủ về nguồn gốc dữ liệu và ký hiệu sử dụng. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 116,
+        "question": "Câu 116 (Chương 3): Rủi ro tiềm tàng và rủi ro kiểm soát được xem là rủi ro của chủ thể nào?",
+        "options": [
+            "A. Kiểm toán viên",
+            "B. Doanh nghiệp kiểm toán",
+            "C. Đơn vị được kiểm toán",
+            "D. Cơ quan quản lý nhà nước"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: Đơn vị được kiểm toán. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 117,
+        "question": "Câu 117 (Chương 3): Rủi ro tiềm tàng là:",
+        "options": [
+            "A. rủi ro mà kiểm soát nội bộ của đơn vị không ngăn chặn hoặc không phát hiện và sửa chữa kịp thời sai sót",
+            "B. rủi ro vốn có do khả năng cơ sở dẫn liệu chứa đựng sai sót trọng yếu, trước khi xem xét đến bất kỳ kiểm soát nào liên quan",
+            "C. rủi ro các thủ tục của kiểm toán viên không phát hiện được hết các sai sót trọng yếu",
+            "D. rủi ro đơn vị không đạt được mục tiêu và chiến lược kinh doanh"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: rủi ro vốn có do khả năng cơ sở dẫn liệu chứa đựng sai sót trọng yếu, trước khi xem xét đến bất kỳ kiểm soát nào liên quan. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 118,
+        "question": "Câu 118 (Chương 3): Rủi ro kiểm soát là:",
+        "options": [
+            "A. rủi ro vốn có của một nhóm giao dịch hoặc số dư tài khoản nhạy cảm",
+            "B. rủi ro kiểm toán viên chọn mẫu không đại diện cho tổng thể",
+            "C. rủi ro xảy ra sai sót trọng yếu mà kiểm soát nội bộ của đơn vị không thể ngăn chặn hoặc không phát hiện và sửa chữa kịp thời",
+            "D. rủi ro Ban Giám đốc cố ý lập báo cáo tài chính sai lệch"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: rủi ro xảy ra sai sót trọng yếu mà kiểm soát nội bộ của đơn vị không thể ngăn chặn hoặc không phát hiện và sửa chữa kịp thời. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 119,
+        "question": "Câu 119 (Chương 3): Rủi ro phát hiện là:",
+        "options": [
+            "A. rủi ro vốn có của các khoản mục nhạy cảm",
+            "B. rủi ro đơn vị thiếu các thủ tục kiểm soát cần thiết",
+            "C. rủi ro Ban Giám đốc thiếu trung thực",
+            "D. rủi ro các thủ tục kiểm toán viên thực hiện để giảm rủi ro kiểm toán xuống mức thấp có thể chấp nhận được vẫn không phát hiện hết các sai sót trọng yếu"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: rủi ro các thủ tục kiểm toán viên thực hiện để giảm rủi ro kiểm toán xuống mức thấp có thể chấp nhận được vẫn không phát hiện hết các sai sót trọng yếu. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 120,
+        "question": "Câu 120 (Chương 3): Nhân tố nào sau đây ảnh hưởng đến rủi ro phát hiện?",
+        "options": [
+            "A. Thời gian, nội dung và phạm vi của các thử nghiệm cơ bản",
+            "B. Sự trung thực của người quản lý",
+            "C. Tính nhạy cảm của tài sản",
+            "D. Môi trường kiểm soát yếu kém"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: Thời gian, nội dung và phạm vi của các thử nghiệm cơ bản. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 121,
+        "question": "Câu 121 (Chương 3): Nhân tố nào sau đây ảnh hưởng đến rủi ro kiểm soát?",
+        "options": [
+            "A. Tính chất ngành nghề của khách hàng",
+            "B. Môi trường kiểm soát yếu kém, thiếu thủ tục kiểm soát hoặc thủ tục kiểm soát không hữu hiệu",
+            "C. Cỡ mẫu và phạm vi của thử nghiệm cơ bản",
+            "D. Sự phức tạp của các nghiệp vụ"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: Môi trường kiểm soát yếu kém, thiếu thủ tục kiểm soát hoặc thủ tục kiểm soát không hữu hiệu. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 122,
+        "question": "Câu 122 (Chương 3): Khi kiểm toán viên đánh giá rủi ro có sai sót trọng yếu ở mức cao và muốn giữ rủi ro kiểm toán ở mức có thể chấp nhận được, kiểm toán viên cần:",
+        "options": [
+            "A. giảm rủi ro phát hiện bằng cách mở rộng thử nghiệm cơ bản (nội dung, thời gian, phạm vi)",
+            "B. tăng rủi ro phát hiện và giảm thử nghiệm cơ bản",
+            "C. giảm rủi ro tiềm tàng bằng cách điều chỉnh sổ sách của đơn vị",
+            "D. bỏ qua rủi ro kiểm soát"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: giảm rủi ro phát hiện bằng cách mở rộng thử nghiệm cơ bản (nội dung, thời gian, phạm vi). <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 123,
+        "question": "Câu 123 (Chương 3): Theo ma trận rủi ro kiểm toán, khi cả rủi ro tiềm tàng và rủi ro kiểm soát đều được đánh giá ở mức cao thì mức rủi ro phát hiện có thể chấp nhận được là:",
+        "options": [
+            "A. trung bình",
+            "B. thấp nhất",
+            "C. cao",
+            "D. cao nhất"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: thấp nhất. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 124,
+        "question": "Câu 124 (Chương 3): Việc thay đổi kế hoạch kiểm toán là cần thiết khi:",
+        "options": [
+            "A. kiểm toán viên muốn rút ngắn thời gian kiểm toán",
+            "B. khách hàng yêu cầu giảm phí kiểm toán",
+            "C. xảy ra các sự kiện ngoài dự kiến, thay đổi điều kiện hoặc bằng chứng kiểm toán thu thập được mâu thuẫn với bằng chứng trước đó",
+            "D. đơn vị được kiểm toán thay đổi biểu tượng thương hiệu"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: xảy ra các sự kiện ngoài dự kiến, thay đổi điều kiện hoặc bằng chứng kiểm toán thu thập được mâu thuẫn với bằng chứng trước đó. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 125,
+        "question": "Câu 125 (Chương 3): Rủi ro kinh doanh khác rủi ro kiểm toán ở chỗ:",
+        "options": [
+            "A. rủi ro kinh doanh là rủi ro kiểm toán viên đưa ra ý kiến không thích hợp, còn rủi ro kiểm toán là rủi ro của đơn vị",
+            "B. hai loại rủi ro này hoàn toàn giống nhau",
+            "C. rủi ro kinh doanh là rủi ro đơn vị không đạt được mục tiêu và chiến lược kinh doanh, còn rủi ro kiểm toán là rủi ro kiểm toán viên đưa ra ý kiến không thích hợp",
+            "D. rủi ro kinh doanh chỉ do kiểm toán viên đánh giá, rủi ro kiểm toán chỉ do Ban Giám đốc đánh giá"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: rủi ro kinh doanh là rủi ro đơn vị không đạt được mục tiêu và chiến lược kinh doanh, còn rủi ro kiểm toán là rủi ro kiểm toán viên đưa ra ý kiến không thích hợp. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 126,
+        "question": "Câu 126 (Chương 3): Việc hiểu biết về rủi ro kinh doanh của đơn vị giúp kiểm toán viên:",
+        "options": [
+            "A. tăng khả năng phát hiện rủi ro có sai sót trọng yếu, vì hầu hết rủi ro kinh doanh gây hậu quả tài chính ảnh hưởng đến báo cáo tài chính",
+            "B. thay Ban Giám đốc quản lý các rủi ro kinh doanh",
+            "C. loại bỏ hoàn toàn rủi ro kiểm toán",
+            "D. xác định mức phí kiểm toán"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: tăng khả năng phát hiện rủi ro có sai sót trọng yếu, vì hầu hết rủi ro kinh doanh gây hậu quả tài chính ảnh hưởng đến báo cáo tài chính. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 127,
+        "question": "Câu 127 (Chương 3): Kiểm toán viên không có trách nhiệm phải phát hiện hoặc đánh giá tất cả các loại rủi ro kinh doanh vì:",
+        "options": [
+            "A. rủi ro kinh doanh không bao giờ ảnh hưởng đến báo cáo tài chính",
+            "B. không phải tất cả rủi ro kinh doanh đều làm phát sinh rủi ro có sai sót trọng yếu",
+            "C. rủi ro kinh doanh thuộc trách nhiệm của cơ quan thuế",
+            "D. rủi ro kinh doanh đã được kiểm soát nội bộ loại trừ hoàn toàn"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: không phải tất cả rủi ro kinh doanh đều làm phát sinh rủi ro có sai sót trọng yếu. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 128,
+        "question": "Câu 128 (Chương 3): Kiểm toán viên chỉ phải quan tâm đến những gian lận:",
+        "options": [
+            "A. do nhân viên cấp thấp thực hiện",
+            "B. có giá trị lớn nhất trong đơn vị",
+            "C. đã bị cơ quan điều tra phát hiện",
+            "D. dẫn đến sai sót trọng yếu trong báo cáo tài chính"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: dẫn đến sai sót trọng yếu trong báo cáo tài chính. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 129,
+        "question": "Câu 129 (Chương 3): Mục tiêu của kiểm toán viên khi đánh giá gian lận gồm:",
+        "options": [
+            "A. ngăn chặn hoàn toàn mọi gian lận trong đơn vị; truy cứu trách nhiệm người gian lận",
+            "B. chứng minh Ban Giám đốc không có gian lận; thay Ban Giám đốc xử lý nhân viên vi phạm",
+            "C. xác định và đánh giá rủi ro có sai sót trọng yếu do gian lận; thu thập đầy đủ bằng chứng thích hợp; có biện pháp xử lý thích hợp đối với gian lận đã xác định hoặc có nghi vấn",
+            "D. chỉ phát hiện gian lận dưới mức trọng yếu; báo cáo với cơ quan thuế"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: xác định và đánh giá rủi ro có sai sót trọng yếu do gian lận; thu thập đầy đủ bằng chứng thích hợp; có biện pháp xử lý thích hợp đối với gian lận đã xác định hoặc có nghi vấn. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 130,
+        "question": "Câu 130 (Chương 3): Tính trọng yếu của thông tin cần được xem xét trên cả hai phương diện nào?",
+        "options": [
+            "A. Tài chính và phi tài chính",
+            "B. Chủ quan và khách quan",
+            "C. Ngắn hạn và dài hạn",
+            "D. Định lượng và định tính"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: Định lượng và định tính. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 131,
+        "question": "Câu 131 (Chương 3): Mục tiêu của việc đánh giá tính trọng yếu trong kiểm toán là:",
+        "options": [
+            "A. xác định mức phí kiểm toán",
+            "B. xác định trách nhiệm của Ban Giám đốc",
+            "C. xác định nội dung, lịch trình và phạm vi các thủ tục kiểm toán, và đánh giá ảnh hưởng của những sai sót trọng yếu",
+            "D. xác định thời điểm ký hợp đồng kiểm toán"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: xác định nội dung, lịch trình và phạm vi các thủ tục kiểm toán, và đánh giá ảnh hưởng của những sai sót trọng yếu. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 132,
+        "question": "Câu 132 (Chương 3): Mức trọng yếu thực hiện được xác định thấp hơn mức trọng yếu tổng thể nhằm:",
+        "options": [
+            "A. tăng mức phí kiểm toán",
+            "B. giảm số lượng bằng chứng kiểm toán cần thu thập",
+            "C. thay thế cho mức trọng yếu khoản mục",
+            "D. giảm khả năng tổng hợp các sai sót không được điều chỉnh và không được phát hiện vượt quá mức trọng yếu đối với tổng thể báo cáo tài chính"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: giảm khả năng tổng hợp các sai sót không được điều chỉnh và không được phát hiện vượt quá mức trọng yếu đối với tổng thể báo cáo tài chính. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 133,
+        "question": "Câu 133 (Chương 3): Mức trọng yếu khoản mục cần được xác định riêng khi:",
+        "options": [
+            "A. mọi khoản mục trên báo cáo tài chính đều có giá trị lớn",
+            "B. sai sót của một nhóm giao dịch, số dư tài khoản hoặc thông tin thuyết minh thấp hơn mức trọng yếu tổng thể nhưng vẫn có thể ảnh hưởng đến quyết định kinh tế của người sử dụng báo cáo tài chính",
+            "C. kiểm toán viên không muốn xác định mức trọng yếu tổng thể",
+            "D. đơn vị được kiểm toán có quy mô nhỏ"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: sai sót của một nhóm giao dịch, số dư tài khoản hoặc thông tin thuyết minh thấp hơn mức trọng yếu tổng thể nhưng vẫn có thể ảnh hưởng đến quyết định kinh tế của người sử dụng báo cáo tài chính. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 134,
+        "question": "Câu 134 (Chương 3): Ở giai đoạn lập kế hoạch kiểm toán, mức trọng yếu được vận dụng để:",
+        "options": [
+            "A. đánh giá rủi ro có sai sót trọng yếu và xác định nội dung, lịch trình, phạm vi các thủ tục kiểm toán tiếp theo",
+            "B. quyết định loại ý kiến kiểm toán cuối cùng",
+            "C. thay thế cho chương trình kiểm toán",
+            "D. ký kết hợp đồng kiểm toán với khách hàng"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: đánh giá rủi ro có sai sót trọng yếu và xác định nội dung, lịch trình, phạm vi các thủ tục kiểm toán tiếp theo. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 135,
+        "question": "Câu 135 (Chương 3): Chiến lược kiểm toán tổng thể khác với kế hoạch kiểm toán ở chỗ:",
+        "options": [
+            "A. chiến lược kiểm toán tổng thể xác định định hướng cơ bản, nội dung trọng tâm và phương pháp tiếp cận chung; kế hoạch kiểm toán xác định nội dung, lịch trình, phạm vi các thủ tục sẽ thực hiện",
+            "B. chiến lược kiểm toán tổng thể xác định chi tiết từng thủ tục; kế hoạch kiểm toán chỉ nêu định hướng chung",
+            "C. hai khái niệm này hoàn toàn trùng khớp",
+            "D. chiến lược kiểm toán tổng thể chỉ được lập sau khi kết thúc cuộc kiểm toán"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: chiến lược kiểm toán tổng thể xác định định hướng cơ bản, nội dung trọng tâm và phương pháp tiếp cận chung; kế hoạch kiểm toán xác định nội dung, lịch trình, phạm vi các thủ tục sẽ thực hiện. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 136,
+        "question": "Câu 136 (Chương 3): Hồ sơ kiểm toán KHÔNG có chức năng nào sau đây?",
+        "options": [
+            "A. Lưu trữ bằng chứng làm cơ sở cho ý kiến của kiểm toán viên",
+            "B. Thay thế trách nhiệm lập báo cáo tài chính của Ban Giám đốc",
+            "C. Trợ giúp việc lập kế hoạch và thực hiện công việc kiểm toán",
+            "D. Trợ giúp việc kiểm tra, soát xét và đánh giá chất lượng công việc kiểm toán"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: Thay thế trách nhiệm lập báo cáo tài chính của Ban Giám đốc. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 137,
+        "question": "Câu 137 (Chương 3): Tại đơn vị được kiểm toán, kế toán kho kiêm nhiệm thủ kho. Tình huống này thuộc loại rủi ro nào?",
+        "options": [
+            "A. Rủi ro tiềm tàng",
+            "B. Rủi ro phát hiện",
+            "C. Rủi ro kinh doanh",
+            "D. Rủi ro kiểm soát"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: Rủi ro kiểm soát. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 138,
+        "question": "Câu 138 (Chương 3): Kiểm toán viên chính không giám sát kiểm toán viên phụ trong quá trình thực hiện kiểm toán. Tình huống này làm tăng loại rủi ro nào?",
+        "options": [
+            "A. Rủi ro phát hiện",
+            "B. Rủi ro kiểm soát",
+            "C. Rủi ro tiềm tàng",
+            "D. Rủi ro kinh doanh"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: Rủi ro phát hiện. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 139,
+        "question": "Câu 139 (Chương 3): Kiểm toán viên chọn cỡ mẫu nhỏ, không đại diện cho tổng thể. Tình huống này làm tăng loại rủi ro nào?",
+        "options": [
+            "A. Rủi ro phát hiện",
+            "B. Rủi ro kiểm soát",
+            "C. Rủi ro tiềm tàng",
+            "D. Rủi ro gian lận"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: Rủi ro phát hiện. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 140,
+        "question": "Câu 140 (Chương 3): Khách hàng được kiểm toán là một công ty cổ phần niêm yết. Yếu tố này chủ yếu ảnh hưởng đến loại rủi ro nào?",
+        "options": [
+            "A. Rủi ro kiểm soát",
+            "B. Rủi ro tiềm tàng",
+            "C. Rủi ro phát hiện",
+            "D. Rủi ro lấy mẫu"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: Rủi ro tiềm tàng. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 141,
+        "question": "Câu 141 (Chương 3): Chứng từ của đơn vị không được đánh số trước liên tục. Tình huống này thuộc loại rủi ro nào?",
+        "options": [
+            "A. Rủi ro tiềm tàng",
+            "B. Rủi ro kiểm soát",
+            "C. Rủi ro phát hiện",
+            "D. Rủi ro kinh doanh"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: Rủi ro kiểm soát. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 142,
+        "question": "Câu 142 (Chương 3): Giám đốc công ty được trả lương theo mức lợi nhuận đạt được. Tình huống này chủ yếu làm tăng loại rủi ro nào?",
+        "options": [
+            "A. Rủi ro kiểm soát",
+            "B. Rủi ro phát hiện",
+            "C. Rủi ro lấy mẫu",
+            "D. Rủi ro tiềm tàng"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: Rủi ro tiềm tàng. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 143,
+        "question": "Câu 143 (Chương 3): Sản phẩm của đơn vị là đồ trang sức bằng vàng, đá quý. Đặc điểm này chủ yếu ảnh hưởng đến loại rủi ro nào?",
+        "options": [
+            "A. Rủi ro kiểm soát",
+            "B. Rủi ro tiềm tàng",
+            "C. Rủi ro phát hiện",
+            "D. Rủi ro ngoài lấy mẫu"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: Rủi ro tiềm tàng. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 144,
+        "question": "Câu 144 (Chương 3): Khoản mục ‘Dự phòng nợ phải thu khó đòi’ thường có mức rủi ro tiềm tàng cao vì:",
+        "options": [
+            "A. khoản mục này luôn có giá trị lớn nhất trên báo cáo tài chính",
+            "B. khoản mục này không bị chi phối bởi kiểm soát nội bộ",
+            "C. khoản mục này do kiểm toán viên lập",
+            "D. khoản mục này đòi hỏi nhiều xét đoán và ước tính của Ban Giám đốc"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: khoản mục này đòi hỏi nhiều xét đoán và ước tính của Ban Giám đốc. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 145,
+        "question": "Câu 145 (Chương 3): Đơn vị không có điều lệ đạo đức nghề nghiệp chính thức. Điểm yếu này thuộc loại rủi ro nào?",
+        "options": [
+            "A. Rủi ro tiềm tàng",
+            "B. Rủi ro kiểm soát",
+            "C. Rủi ro phát hiện",
+            "D. Rủi ro kinh doanh"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: Rủi ro kiểm soát. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 146,
+        "question": "Câu 146 (Chương 3): Lợi nhuận trước thuế của đơn vị là 800 triệu đồng. Kiểm toán viên chọn mức trọng yếu tổng thể bằng 5% lợi nhuận trước thuế và mức trọng yếu thực hiện bằng 70% mức trọng yếu tổng thể. Mức trọng yếu thực hiện là:",
+        "options": [
+            "A. 40 triệu đồng",
+            "B. 56 triệu đồng",
+            "C. 80 triệu đồng",
+            "D. 28 triệu đồng"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 3]</b> Mức trọng yếu tổng thể = 800 × 5% = 40 triệu đồng. Mức trọng yếu thực hiện = 40 × 70% = 28 triệu đồng. <br><b>Đáp án đúng: D (28 triệu đồng)</b>"
+    },
+    {
+        "id": 147,
+        "question": "Câu 147 (Chương 3): Số liệu trên BCTC: tổng tài sản 100.000; doanh thu thuần 75.000; lợi nhuận trước thuế 25.000; vốn chủ sở hữu 40.000 (triệu đồng). Kiểm toán viên áp dụng tỷ lệ: tổng tài sản 1%; doanh thu thuần 0,5%; lợi nhuận trước thuế 5%; vốn chủ sở hữu 1% và lấy bình quân các kết quả. Mức trọng yếu tổng thể là:",
+        "options": [
+            "A. 1.000 triệu đồng",
+            "B. 1.250 triệu đồng",
+            "C. 756,25 triệu đồng",
+            "D. 375 triệu đồng"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 3]</b> Các mức tính theo từng tiêu chí lần lượt là: Tổng tài sản = 100.000 × 1% = 1.000; Doanh thu thuần = 75.000 × 0,5% = 375; Lợi nhuận trước thuế = 25.000 × 5% = 1.250; Vốn chủ sở hữu = 40.000 × 1% = 400. Bình quân = (1.000 + 375 + 1.250 + 400) / 4 = 756,25 triệu đồng. <br><b>Đáp án đúng: C (756,25 triệu đồng)</b>"
+    },
+    {
+        "id": 148,
+        "question": "Câu 148 (Chương 3): Một công ty sử dụng bảng tỷ lệ tính mức trọng yếu theo doanh thu: 40.000–70.000 USD → 1,5%; 20.000–40.000 USD → 2%; 70.000–100.000 USD → 1%. Doanh thu của khách hàng là 55.000 USD. Mức trọng yếu tổng thể là:",
+        "options": [
+            "A. 1.100 USD",
+            "B. 550 USD",
+            "C. 825 USD",
+            "D. 1.650 USD"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 3]</b> Doanh thu 55.000 USD nằm trong khung 40.000–70.000 USD (tỷ lệ 1,5%). Mức trọng yếu tổng thể = 55.000 × 1,5% = 825 USD. <br><b>Đáp án đúng: C (825 USD)</b>"
+    },
+    {
+        "id": 149,
+        "question": "Câu 149 (Chương 3): Thủ quỹ của một công ty vừa giữ két vừa ghi sổ quỹ, không bị ai kiểm tra; anh ta đang nợ nần nhiều và tự nhủ ‘chỉ mượn tạm rồi sẽ hoàn trả’. Yếu tố ‘cơ hội’ trong tam giác gian lận ở tình huống này là:",
+        "options": [
+            "A. Thủ quỹ đang nợ nần nhiều",
+            "B. Thủ quỹ vừa giữ két vừa ghi sổ quỹ mà không bị ai kiểm tra",
+            "C. Suy nghĩ ‘chỉ mượn tạm rồi sẽ hoàn trả’",
+            "D. Việc công ty có nhiều chi nhánh"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: Thủ quỹ vừa giữ két vừa ghi sổ quỹ mà không bị ai kiểm tra. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 150,
+        "question": "Câu 150 (Chương 3): Khi hoàn thành kiểm toán, tổng các sai sót chưa được điều chỉnh là 45 triệu đồng, trong khi mức trọng yếu tổng thể là 40 triệu đồng (mỗi sai sót riêng lẻ đều nhỏ hơn 40 triệu). Kiểm toán viên nên:",
+        "options": [
+            "A. đề nghị đơn vị điều chỉnh; nếu không điều chỉnh, xem xét ảnh hưởng đến ý kiến kiểm toán vì tổng sai sót vượt mức trọng yếu tổng thể",
+            "B. chấp nhận báo cáo tài chính vì mỗi sai sót riêng lẻ đều nhỏ hơn mức trọng yếu",
+            "C. tăng mức trọng yếu lên để sai sót không còn trọng yếu",
+            "D. bỏ qua vì chỉ xét về mặt định lượng"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 3]</b> Phương án chính xác là: đề nghị đơn vị điều chỉnh; nếu không điều chỉnh, xem xét ảnh hưởng đến ý kiến kiểm toán vì tổng sai sót vượt mức trọng yếu tổng thể. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 151,
+        "question": "Câu 151 (Chương 4): Theo VSA 315, cơ sở dẫn liệu là:",
+        "options": [
+            "A. các chứng từ gốc do kiểm toán viên thu thập trong cuộc kiểm toán",
+            "B. các thủ tục kiểm toán do kiểm toán viên thiết kế",
+            "C. các quy định của chuẩn mực kế toán Việt Nam",
+            "D. các khẳng định của Ban Giám đốc về các khoản mục và thông tin trình bày trong báo cáo tài chính, được kiểm toán viên sử dụng để xem xét các loại sai sót có thể xảy ra"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 4]</b> Phương án chính xác là: các khẳng định của Ban Giám đốc về các khoản mục và thông tin trình bày trong báo cáo tài chính, được kiểm toán viên sử dụng để xem xét các loại sai sót có thể xảy ra. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 152,
+        "question": "Câu 152 (Chương 4): Cơ sở dẫn liệu nào sau đây KHÔNG thuộc nhóm cơ sở dẫn liệu đối với số dư?",
+        "options": [
+            "A. Hiện hữu",
+            "B. Quyền và nghĩa vụ",
+            "C. Đánh giá và phân bổ",
+            "D. Đúng kỳ"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 4]</b> Phương án chính xác là: Đúng kỳ. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 153,
+        "question": "Câu 153 (Chương 4): Các cơ sở dẫn liệu đối với giao dịch và sự kiện phát sinh gồm:",
+        "options": [
+            "A. hiện hữu, quyền và nghĩa vụ, đầy đủ, đánh giá và phân bổ",
+            "B. hiện hữu (phát sinh), đầy đủ, chính xác, đúng kỳ, phân loại",
+            "C. hiện hữu, đầy đủ, phân loại và dễ hiểu, chính xác và đánh giá",
+            "D. hiện hữu, quyền và nghĩa vụ, đúng kỳ, dễ hiểu, phân bổ"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 4]</b> Phương án chính xác là: hiện hữu (phát sinh), đầy đủ, chính xác, đúng kỳ, phân loại. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 154,
+        "question": "Câu 154 (Chương 4): Cơ sở dẫn liệu ‘Cut off’ trong nhóm giao dịch và sự kiện có nghĩa là:",
+        "options": [
+            "A. Chính xác",
+            "B. Đúng kỳ",
+            "C. Phân loại",
+            "D. Đầy đủ"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 4]</b> Phương án chính xác là: Đúng kỳ. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 155,
+        "question": "Câu 155 (Chương 4): Theo VSA 500, bằng chứng kiểm toán là:",
+        "options": [
+            "A. chỉ các chứng từ kế toán gốc của đơn vị",
+            "B. các tài liệu do Ban Giám đốc cung cấp theo yêu cầu của kiểm toán viên",
+            "C. tất cả các tài liệu, thông tin do kiểm toán viên thu thập được liên quan đến cuộc kiểm toán và dựa trên các thông tin này kiểm toán viên hình thành ý kiến của mình",
+            "D. các văn bản pháp luật liên quan đến hoạt động của đơn vị"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 4]</b> Phương án chính xác là: tất cả các tài liệu, thông tin do kiểm toán viên thu thập được liên quan đến cuộc kiểm toán và dựa trên các thông tin này kiểm toán viên hình thành ý kiến của mình. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 156,
+        "question": "Câu 156 (Chương 4): Bằng chứng kiểm toán được kiểm toán viên thu thập thông qua:",
+        "options": [
+            "A. thử nghiệm kiểm soát và thử nghiệm cơ bản (gồm thủ tục phân tích cơ bản và kiểm tra chi tiết)",
+            "B. chỉ thử nghiệm kiểm soát",
+            "C. chỉ thủ tục phân tích",
+            "D. chỉ việc phỏng vấn Ban Giám đốc"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 4]</b> Phương án chính xác là: thử nghiệm kiểm soát và thử nghiệm cơ bản (gồm thủ tục phân tích cơ bản và kiểm tra chi tiết). <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 157,
+        "question": "Câu 157 (Chương 4): Hai tiêu chuẩn để đánh giá bằng chứng kiểm toán là:",
+        "options": [
+            "A. tính chính xác và tính kịp thời",
+            "B. tính độc lập và tính khách quan",
+            "C. tính trọng yếu và tính hiệu quả",
+            "D. tính đầy đủ và tính thích hợp"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 4]</b> Phương án chính xác là: tính đầy đủ và tính thích hợp. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 158,
+        "question": "Câu 158 (Chương 4): Tính thích hợp của bằng chứng kiểm toán là tiêu chuẩn đánh giá về:",
+        "options": [
+            "A. số lượng của bằng chứng kiểm toán",
+            "B. chất lượng của bằng chứng kiểm toán",
+            "C. chi phí thu thập bằng chứng kiểm toán",
+            "D. thời gian thu thập bằng chứng kiểm toán"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 4]</b> Phương án chính xác là: chất lượng của bằng chứng kiểm toán. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 159,
+        "question": "Câu 159 (Chương 4): Chuẩn mực kiểm toán Việt Nam nào quy định về giải trình bằng văn bản của Ban Giám đốc?",
+        "options": [
+            "A. VSA 620",
+            "B. VSA 580",
+            "C. VSA 610",
+            "D. VSA 550"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 4]</b> Phương án chính xác là: VSA 580. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 160,
+        "question": "Câu 160 (Chương 4): Bằng chứng về các bên liên quan được quy định tại chuẩn mực kiểm toán nào?",
+        "options": [
+            "A. VSA 580",
+            "B. VSA 600",
+            "C. VSA 620",
+            "D. VSA 550"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 4]</b> Phương án chính xác là: VSA 550. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 161,
+        "question": "Câu 161 (Chương 4): Thủ tục nào sau đây KHÔNG thuộc bảy loại thủ tục kiểm toán?",
+        "options": [
+            "A. Lập bút toán điều chỉnh sổ kế toán thay cho đơn vị",
+            "B. Quan sát",
+            "C. Tính toán lại",
+            "D. Thực hiện lại"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 4]</b> Phương án chính xác là: Lập bút toán điều chỉnh sổ kế toán thay cho đơn vị. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 162,
+        "question": "Câu 162 (Chương 4): Thủ tục kiểm tra (VSA 500) bao gồm:",
+        "options": [
+            "A. kiểm tra tài liệu và phỏng vấn",
+            "B. kiểm tra tài liệu và kiểm tra tài sản hiện vật",
+            "C. kiểm tra tài sản và tính toán lại",
+            "D. quan sát và xác nhận từ bên ngoài"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 4]</b> Phương án chính xác là: kiểm tra tài liệu và kiểm tra tài sản hiện vật. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 163,
+        "question": "Câu 163 (Chương 4): Quan sát là việc:",
+        "options": [
+            "A. tự mình thực hiện lại thủ tục mà đơn vị đã thực hiện",
+            "B. gửi thư đến bên thứ ba để xác nhận số dư",
+            "C. theo dõi một quy trình hoặc thủ tục do người khác thực hiện",
+            "D. kiểm tra độ chính xác về mặt toán học của số liệu"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 4]</b> Phương án chính xác là: theo dõi một quy trình hoặc thủ tục do người khác thực hiện. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 164,
+        "question": "Câu 164 (Chương 4): Tính toán lại là việc:",
+        "options": [
+            "A. theo dõi một quy trình do người khác thực hiện",
+            "B. tìm kiếm thông tin từ những người có hiểu biết bên trong hoặc bên ngoài đơn vị",
+            "C. so sánh số liệu kỳ này với số liệu kỳ trước",
+            "D. kiểm tra độ chính xác về mặt toán học của các số liệu"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 4]</b> Phương án chính xác là: kiểm tra độ chính xác về mặt toán học của các số liệu. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 165,
+        "question": "Câu 165 (Chương 4): Chuẩn mực kiểm toán Việt Nam quy định về xác nhận từ bên ngoài là:",
+        "options": [
+            "A. VSA 500",
+            "B. VSA 505",
+            "C. VSA 530",
+            "D. VSA 610"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 4]</b> Phương án chính xác là: VSA 505. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 166,
+        "question": "Câu 166 (Chương 4): Ba phương pháp phân tích trong thủ tục phân tích là:",
+        "options": [
+            "A. phân tích định tính, phân tích định lượng và phân tích dự báo",
+            "B. phân tích rủi ro, phân tích mẫu và phân tích hồ sơ",
+            "C. phân tích tính hợp lý, phân tích tỷ suất và phân tích xu hướng",
+            "D. phân tích SWOT, phân tích PEST và phân tích năm lực lượng cạnh tranh"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 4]</b> Phương án chính xác là: phân tích tính hợp lý, phân tích tỷ suất và phân tích xu hướng. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 167,
+        "question": "Câu 167 (Chương 4): Tỷ suất ‘vòng quay hàng tồn kho’ thuộc nhóm tỷ suất nào?",
+        "options": [
+            "A. Tỷ suất về quản lý tài sản (tỷ suất hoạt động)",
+            "B. Tỷ suất về khả năng thanh toán",
+            "C. Tỷ suất về khả năng sinh lời",
+            "D. Tỷ suất đòn cân nợ"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 4]</b> Phương án chính xác là: Tỷ suất về quản lý tài sản (tỷ suất hoạt động). <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 168,
+        "question": "Câu 168 (Chương 4): Phương pháp nào sau đây KHÔNG phải là phương pháp chọn mẫu được nêu trong VSA 530?",
+        "options": [
+            "A. Chọn mẫu ngẫu nhiên",
+            "B. Chọn mẫu hệ thống",
+            "C. Chọn mẫu theo chỉ định của Ban Giám đốc",
+            "D. Chọn mẫu theo đơn vị tiền tệ"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 4]</b> Phương án chính xác là: Chọn mẫu theo chỉ định của Ban Giám đốc. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 169,
+        "question": "Câu 169 (Chương 4): Sự khác nhau giữa tính thích hợp và tính đầy đủ của bằng chứng kiểm toán là:",
+        "options": [
+            "A. tính thích hợp đánh giá số lượng bằng chứng, còn tính đầy đủ đánh giá chất lượng bằng chứng",
+            "B. tính thích hợp đánh giá chất lượng (sự phù hợp và độ tin cậy) của bằng chứng, còn tính đầy đủ đánh giá số lượng bằng chứng",
+            "C. tính thích hợp chỉ áp dụng cho thử nghiệm cơ bản, tính đầy đủ chỉ áp dụng cho thử nghiệm kiểm soát",
+            "D. hai tiêu chuẩn này là một và không có sự khác nhau"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 4]</b> Phương án chính xác là: tính thích hợp đánh giá chất lượng (sự phù hợp và độ tin cậy) của bằng chứng, còn tính đầy đủ đánh giá số lượng bằng chứng. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 170,
+        "question": "Câu 170 (Chương 4): Bằng chứng kiểm toán có nguồn gốc càng độc lập với đơn vị được kiểm toán thì:",
+        "options": [
+            "A. độ tin cậy càng thấp",
+            "B. độ tin cậy càng cao",
+            "C. càng không cần kiểm tra thêm",
+            "D. càng ít giá trị chứng minh"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 4]</b> Phương án chính xác là: độ tin cậy càng cao. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 171,
+        "question": "Câu 171 (Chương 4): Trong các bằng chứng sau, bằng chứng nào có độ tin cậy cao nhất?",
+        "options": [
+            "A. Bản sao hợp đồng do đơn vị cung cấp",
+            "B. Lời giải thích bằng miệng của kế toán trưởng",
+            "C. Bảng tính do nhân viên kế toán của đơn vị lập",
+            "D. Thư xác nhận số dư tiền gửi do ngân hàng gửi trực tiếp cho kiểm toán viên"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 4]</b> Phương án chính xác là: Thư xác nhận số dư tiền gửi do ngân hàng gửi trực tiếp cho kiểm toán viên. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 172,
+        "question": "Câu 172 (Chương 4): Khi rủi ro có sai sót trọng yếu tăng lên và chất lượng bằng chứng thấp, số lượng bằng chứng kiểm toán viên cần thu thập sẽ:",
+        "options": [
+            "A. giảm đi",
+            "B. không thay đổi",
+            "C. tăng lên",
+            "D. chỉ thay đổi khi Ban Giám đốc yêu cầu"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 4]</b> Phương án chính xác là: tăng lên. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 173,
+        "question": "Câu 173 (Chương 4): Khi các bằng chứng thu thập được không nhất quán hoặc kiểm toán viên hoài nghi về độ tin cậy của thông tin dùng làm bằng chứng, theo VSA 500 kiểm toán viên phải:",
+        "options": [
+            "A. loại bỏ các bằng chứng không thuận lợi",
+            "B. chấp nhận bằng chứng do Ban Giám đốc cung cấp",
+            "C. xác định các điều chỉnh hoặc bổ sung cần thiết đối với thủ tục kiểm toán",
+            "D. dừng ngay cuộc kiểm toán"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 4]</b> Phương án chính xác là: xác định các điều chỉnh hoặc bổ sung cần thiết đối với thủ tục kiểm toán. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 174,
+        "question": "Câu 174 (Chương 4): Kiểm toán viên chứng kiến kiểm kê hàng tồn kho và thấy số lượng thực tế khớp với sổ sách. Bằng chứng này chưa đủ để kết luận hàng tồn kho đã được đánh giá đúng vì:",
+        "options": [
+            "A. kiểm kê không được xem là bằng chứng kiểm toán",
+            "B. bằng chứng thu thập phải phù hợp với từng cơ sở dẫn liệu; kiểm kê chủ yếu chứng minh sự hiện hữu chứ không chứng minh việc đánh giá",
+            "C. bằng chứng do kiểm toán viên trực tiếp thu thập thì không đáng tin cậy",
+            "D. hàng tồn kho không thuộc cơ sở dẫn liệu nào"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 4]</b> Phương án chính xác là: bằng chứng thu thập phải phù hợp với từng cơ sở dẫn liệu; kiểm kê chủ yếu chứng minh sự hiện hữu chứ không chứng minh việc đánh giá. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 175,
+        "question": "Câu 175 (Chương 4): Thư xác nhận dạng khẳng định khác thư xác nhận dạng phủ định ở chỗ:",
+        "options": [
+            "A. dạng khẳng định chỉ phúc đáp khi không đồng ý; dạng phủ định yêu cầu phúc đáp trong mọi trường hợp",
+            "B. dạng khẳng định yêu cầu bên xác nhận nêu rõ đồng ý hay không đồng ý; dạng phủ định chỉ phúc đáp khi bên xác nhận không đồng ý",
+            "C. dạng khẳng định chỉ gửi cho nhân viên của đơn vị; dạng phủ định chỉ gửi cho khách hàng",
+            "D. dạng khẳng định không cần phản hồi từ bên xác nhận"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 4]</b> Phương án chính xác là: dạng khẳng định yêu cầu bên xác nhận nêu rõ đồng ý hay không đồng ý; dạng phủ định chỉ phúc đáp khi bên xác nhận không đồng ý. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 176,
+        "question": "Câu 176 (Chương 4): Vì sao kiểm toán viên không được sử dụng thư xác nhận dạng phủ định làm thử nghiệm cơ bản duy nhất để xử lý rủi ro có sai sót trọng yếu đã đánh giá ở cấp độ cơ sở dẫn liệu?",
+        "options": [
+            "A. Vì việc không nhận được phản hồi không đồng nghĩa với việc bên xác nhận đồng ý, nên bằng chứng thu được kém tin cậy",
+            "B. Vì thư xác nhận dạng phủ định tốn kém hơn dạng khẳng định",
+            "C. Vì thư xác nhận dạng phủ định chỉ áp dụng cho nợ phải trả",
+            "D. Vì thư xác nhận dạng phủ định bị cấm sử dụng trong mọi trường hợp"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 4]</b> Phương án chính xác là: Vì việc không nhận được phản hồi không đồng nghĩa với việc bên xác nhận đồng ý, nên bằng chứng thu được kém tin cậy. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 177,
+        "question": "Câu 177 (Chương 4): Khi không nhận được thư phản hồi đối với thư xác nhận, kiểm toán viên cần:",
+        "options": [
+            "A. thực hiện các thủ tục kiểm toán thay thế; nếu phản hồi dạng khẳng định là không thể thiếu để có đủ bằng chứng thì coi là giới hạn phạm vi kiểm toán",
+            "B. mặc nhiên coi như bên xác nhận đã đồng ý với số dư",
+            "C. loại khoản mục đó ra khỏi phạm vi kiểm toán",
+            "D. đề nghị Ban Giám đốc tự xác nhận thay cho bên thứ ba"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 4]</b> Phương án chính xác là: thực hiện các thủ tục kiểm toán thay thế; nếu phản hồi dạng khẳng định là không thể thiếu để có đủ bằng chứng thì coi là giới hạn phạm vi kiểm toán. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 178,
+        "question": "Câu 178 (Chương 4): Khi Ban Giám đốc không đồng ý để kiểm toán viên gửi thư xác nhận, kiểm toán viên cần:",
+        "options": [
+            "A. chấp nhận ngay lý do và bỏ qua thủ tục xác nhận",
+            "B. xem xét ảnh hưởng đến rủi ro có sai sót trọng yếu (kể cả gian lận), điều tra lý do và thu thập bằng chứng về tính hợp lý, hợp lệ của lý do đó",
+            "C. tự gửi thư đến bên thứ ba mà không thông báo cho Ban Giám đốc",
+            "D. chấm dứt hợp đồng kiểm toán ngay lập tức"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 4]</b> Phương án chính xác là: xem xét ảnh hưởng đến rủi ro có sai sót trọng yếu (kể cả gian lận), điều tra lý do và thu thập bằng chứng về tính hợp lý, hợp lệ của lý do đó. <br><b>Đáp án đúng: B</b>"
+    },
+    {
+        "id": 179,
+        "question": "Câu 179 (Chương 4): Hạn chế của thủ tục quan sát là:",
+        "options": [
+            "A. chỉ cung cấp bằng chứng về phương pháp thực hiện công việc tại thời điểm quan sát nên cần kết hợp với các thủ tục khác",
+            "B. chỉ áp dụng được đối với tài sản có thể cân, đong, đo, đếm",
+            "C. luôn cung cấp đầy đủ bằng chứng thích hợp về cả kỳ kế toán",
+            "D. không thể thực hiện đối với nhân viên của đơn vị"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 4]</b> Phương án chính xác là: chỉ cung cấp bằng chứng về phương pháp thực hiện công việc tại thời điểm quan sát nên cần kết hợp với các thủ tục khác. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 180,
+        "question": "Câu 180 (Chương 4): Kiểm toán viên đối chiếu từ sổ sách kế toán sang chứng từ gốc. Thủ tục này chủ yếu nhằm thu thập bằng chứng về cơ sở dẫn liệu nào?",
+        "options": [
+            "A. Đầy đủ",
+            "B. Đúng kỳ",
+            "C. Hiện hữu (phát sinh)",
+            "D. Phân loại"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 4]</b> Phương án chính xác là: Hiện hữu (phát sinh). <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 181,
+        "question": "Câu 181 (Chương 4): Thủ tục phân tích tính hợp lý được thực hiện bằng cách:",
+        "options": [
+            "A. tính toán ước tính cho một số dư hoặc khoản mục, so sánh với số liệu sổ sách và tìm hiểu các chênh lệch bất thường",
+            "B. đối chiếu chứng từ gốc với sổ cái",
+            "C. gửi thư xác nhận cho khách hàng",
+            "D. chọn mẫu ngẫu nhiên các nghiệp vụ để kiểm tra"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 4]</b> Phương án chính xác là: tính toán ước tính cho một số dư hoặc khoản mục, so sánh với số liệu sổ sách và tìm hiểu các chênh lệch bất thường. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 182,
+        "question": "Câu 182 (Chương 4): Phân tích xu hướng giúp kiểm toán viên:",
+        "options": [
+            "A. ước tính chính xác doanh thu từ số liệu phi tài chính",
+            "B. xác nhận số dư tài khoản với bên thứ ba",
+            "C. kiểm tra độ chính xác toán học của sổ kế toán",
+            "D. xem xét biến động của số dư tài khoản qua các kỳ để nhanh chóng nhận ra bất thường, từ đó khoanh vùng và định hướng rủi ro"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 4]</b> Phương án chính xác là: xem xét biến động của số dư tài khoản qua các kỳ để nhanh chóng nhận ra bất thường, từ đó khoanh vùng và định hướng rủi ro. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 183,
+        "question": "Câu 183 (Chương 4): Phân tích tỷ suất thường được thực hiện bằng cách:",
+        "options": [
+            "A. ước tính số dư dựa trên số liệu phi tài chính",
+            "B. đối chiếu từng chứng từ với sổ sách tương ứng",
+            "C. quan sát nhân viên thực hiện quy trình kiểm soát",
+            "D. tính các tỷ suất từ mối quan hệ giữa các tài khoản, khoản mục và so sánh với năm trước hoặc với đơn vị cùng ngành"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 4]</b> Phương án chính xác là: tính các tỷ suất từ mối quan hệ giữa các tài khoản, khoản mục và so sánh với năm trước hoặc với đơn vị cùng ngành. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 184,
+        "question": "Câu 184 (Chương 4): Rủi ro lấy mẫu khác rủi ro ngoài lấy mẫu ở chỗ:",
+        "options": [
+            "A. rủi ro lấy mẫu phát sinh từ nguyên nhân không liên quan đến lấy mẫu; rủi ro ngoài lấy mẫu là sự khác biệt giữa kết luận từ mẫu và từ tổng thể",
+            "B. rủi ro lấy mẫu chỉ có ở thử nghiệm cơ bản; rủi ro ngoài lấy mẫu chỉ có ở thử nghiệm kiểm soát",
+            "C. rủi ro lấy mẫu là kết luận dựa trên mẫu có thể khác với kết luận khi kiểm tra toàn bộ tổng thể; rủi ro ngoài lấy mẫu phát sinh từ các nguyên nhân không liên quan đến việc lấy mẫu",
+            "D. hai loại rủi ro này hoàn toàn giống nhau"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 4]</b> Phương án chính xác là: rủi ro lấy mẫu là kết luận dựa trên mẫu có thể khác với kết luận khi kiểm tra toàn bộ tổng thể; rủi ro ngoài lấy mẫu phát sinh từ các nguyên nhân không liên quan đến việc lấy mẫu. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 185,
+        "question": "Câu 185 (Chương 4): Trong thử nghiệm kiểm soát, nếu do rủi ro lấy mẫu mà kiểm toán viên kết luận kiểm soát có hiệu quả cao hơn thực tế thì kiểm toán viên sẽ:",
+        "options": [
+            "A. đánh giá rủi ro kiểm soát cao hơn thực tế và mở rộng thử nghiệm cơ bản không cần thiết",
+            "B. không bị ảnh hưởng gì trong quá trình kiểm toán",
+            "C. đánh giá rủi ro kiểm soát thấp hơn thực tế và có thể giảm thử nghiệm cơ bản quá mức cần thiết",
+            "D. phải từ chối đưa ra ý kiến kiểm toán"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 4]</b> Phương án chính xác là: đánh giá rủi ro kiểm soát thấp hơn thực tế và có thể giảm thử nghiệm cơ bản quá mức cần thiết. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 186,
+        "question": "Câu 186 (Chương 4): Trong thử nghiệm kiểm soát, khi tỷ lệ sai lệch có thể bỏ qua tăng lên (các yếu tố khác không đổi) thì cỡ mẫu:",
+        "options": [
+            "A. tăng",
+            "B. không thay đổi",
+            "C. tăng gấp đôi",
+            "D. giảm"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 4]</b> Phương án chính xác là: giảm. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 187,
+        "question": "Câu 187 (Chương 4): Trong thử nghiệm chi tiết, khi kiểm toán viên đánh giá rủi ro có sai sót trọng yếu tăng lên (các yếu tố khác không đổi) thì cỡ mẫu:",
+        "options": [
+            "A. tăng",
+            "B. giảm",
+            "C. không thay đổi",
+            "D. không liên quan đến rủi ro"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 4]</b> Phương án chính xác là: tăng. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 188,
+        "question": "Câu 188 (Chương 4): Yếu tố nào sau đây ảnh hưởng không đáng kể đến cỡ mẫu?",
+        "options": [
+            "A. Tỷ lệ sai lệch dự kiến của tổng thể tăng lên",
+            "B. Đánh giá rủi ro có sai sót trọng yếu tăng lên",
+            "C. Mức đảm bảo mong muốn từ kết quả mẫu tăng lên",
+            "D. Số lượng đơn vị lấy mẫu trong tổng thể tăng lên"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 4]</b> Phương án chính xác là: Số lượng đơn vị lấy mẫu trong tổng thể tăng lên. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 189,
+        "question": "Câu 189 (Chương 4): Kiểm toán viên chứng kiến kiểm kê hàng tồn kho cuối năm của đơn vị. Thủ tục này chủ yếu thu thập bằng chứng về cơ sở dẫn liệu nào của hàng tồn kho?",
+        "options": [
+            "A. Quyền và nghĩa vụ",
+            "B. Đánh giá và phân bổ",
+            "C. Đúng kỳ",
+            "D. Hiện hữu"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 4]</b> Phương án chính xác là: Hiện hữu. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 190,
+        "question": "Câu 190 (Chương 4): Doanh thu các tháng (triệu đồng): năm 20x0: 310, 300, 230, 240, 280, 300, 310, 310, 300, 330, 320, 340; năm 20x1: 320, 310, 240, 260, 260, 700, 500, 360, 430, 320, 340, 360. Khi phân tích xu hướng, những tháng bất thường nhất cần được kiểm toán viên chú ý là:",
+        "options": [
+            "A. Tháng 6 và tháng 7 năm 20x1",
+            "B. Tháng 1 và tháng 2 năm 20x1",
+            "C. Tháng 3 và tháng 4 năm 20x1",
+            "D. Tháng 11 và tháng 12 năm 20x1"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 4]</b> Phương án chính xác là: Tháng 6 và tháng 7 năm 20x1. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 191,
+        "question": "Câu 191 (Chương 4): Một khách sạn có 100 phòng, công suất thuê phòng bình quân 70%, giá thuê bình quân 1,2 triệu đồng/phòng/đêm. Kiểm toán viên ước tính doanh thu cho thuê phòng của tháng có 30 ngày là:",
+        "options": [
+            "A. 2.520 triệu đồng",
+            "B. 84 triệu đồng",
+            "C. 2.100 triệu đồng",
+            "D. 3.600 triệu đồng"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 4]</b> Doanh thu ước tính = 100 phòng × 70% × 1,2 triệu đồng × 30 ngày = 2.520 triệu đồng. <br><b>Đáp án đúng: A (2.520 triệu đồng)</b>"
+    },
+    {
+        "id": 192,
+        "question": "Câu 192 (Chương 4): Một trường đào tạo có số học viên bình quân là 1.200 người, học phí bình quân 15 triệu đồng/học viên/năm. Doanh thu học phí ước tính của kiểm toán viên là:",
+        "options": [
+            "A. 1.800 triệu đồng",
+            "B. 180.000 triệu đồng",
+            "C. 18.000 triệu đồng",
+            "D. 15.000 triệu đồng"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 4]</b> Doanh thu học phí ước tính = 1.200 học viên × 15 triệu đồng/năm = 18.000 triệu đồng. <br><b>Đáp án đúng: C (18.000 triệu đồng)</b>"
+    },
+    {
+        "id": 193,
+        "question": "Câu 193 (Chương 4): Công ty vận tải có tổng quãng đường vận chuyển trong năm là 200.000 km, mức tiêu hao nhiên liệu 0,25 lít/km, đơn giá nhiên liệu 22.000 đồng/lít. Chi phí nhiên liệu ước tính là:",
+        "options": [
+            "A. 110 triệu đồng",
+            "B. 11.000 triệu đồng",
+            "C. 1.100 triệu đồng",
+            "D. 4.400 triệu đồng"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 4]</b> Chi phí nhiên liệu ước tính = 200.000 km × 0,25 lít/km × 22.000 đồng/lít = 1.100.000.000 đồng = 1.100 triệu đồng. <br><b>Đáp án đúng: C (1.100 triệu đồng)</b>"
+    },
+    {
+        "id": 194,
+        "question": "Câu 194 (Chương 4): Hàng tồn kho đầu kỳ 500 triệu đồng, giá trị hàng mua trong kỳ 2.300 triệu đồng, hàng tồn kho cuối kỳ 600 triệu đồng. Giá trị hàng xuất kho ước tính của kiểm toán viên là:",
+        "options": [
+            "A. 3.400 triệu đồng",
+            "B. 2.200 triệu đồng",
+            "C. 2.400 triệu đồng",
+            "D. 1.700 triệu đồng"
+        ],
+        "answer": 1,
+        "explanation": "<b>[Chương 4]</b> Giá trị hàng xuất kho ước tính = Tồn đầu kỳ (500) + Mua trong kỳ (2.300) – Tồn cuối kỳ (600) = 2.200 triệu đồng. <br><b>Đáp án đúng: B (2.200 triệu đồng)</b>"
+    },
+    {
+        "id": 195,
+        "question": "Câu 195 (Chương 4): Kiểm toán viên đánh giá rủi ro có sai sót trọng yếu đối với khoản phải thu khách hàng là cao. Để thu thập bằng chứng tin cậy về sự hiện hữu của các khoản này, kiểm toán viên nên ưu tiên sử dụng loại thư xác nhận nào?",
+        "options": [
+            "A. Thư xác nhận dạng phủ định vì chi phí thấp hơn",
+            "B. Không gửi thư xác nhận mà chỉ phỏng vấn kế toán công nợ",
+            "C. Thư xác nhận dạng khẳng định",
+            "D. Chỉ xem lại hóa đơn bán hàng do đơn vị lưu giữ"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 4]</b> Phương án chính xác là: Thư xác nhận dạng khẳng định. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 196,
+        "question": "Câu 196 (Chương 4): Kiểm toán viên gửi thư xác nhận dạng khẳng định cho khách hàng có số dư phải thu lớn nhưng không nhận được phản hồi sau khi gửi nhắc. Kiểm toán viên nên:",
+        "options": [
+            "A. mặc nhiên kết luận số dư là đúng",
+            "B. loại số dư này khỏi báo cáo tài chính",
+            "C. thực hiện các thủ tục thay thế như kiểm tra các khoản thu tiền sau ngày khóa sổ và chứng từ giao hàng",
+            "D. nhờ kế toán của đơn vị tự điền vào thư xác nhận"
+        ],
+        "answer": 2,
+        "explanation": "<b>[Chương 4]</b> Phương án chính xác là: thực hiện các thủ tục thay thế như kiểm tra các khoản thu tiền sau ngày khóa sổ và chứng từ giao hàng. <br><b>Đáp án đúng: C</b>"
+    },
+    {
+        "id": 197,
+        "question": "Câu 197 (Chương 4): Tổng thể gồm 2.000 phiếu xuất kho. Kiểm toán viên chọn mẫu hệ thống với cỡ mẫu 50 phiếu. Khoảng cách chọn mẫu là:",
+        "options": [
+            "A. 20",
+            "B. 50",
+            "C. 100",
+            "D. 40"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 4]</b> Khoảng cách chọn mẫu = Kích thước tổng thể / Cỡ mẫu = 2.000 / 50 = 40. <br><b>Đáp án đúng: D (40)</b>"
+    },
+    {
+        "id": 198,
+        "question": "Câu 198 (Chương 4): Kiểm toán viên dự kiến cỡ mẫu trong thử nghiệm kiểm soát với tỷ lệ sai lệch có thể bỏ qua là 8%. Nếu kiểm toán viên giảm tỷ lệ sai lệch có thể bỏ qua xuống 5% (các yếu tố khác không đổi), cỡ mẫu sẽ:",
+        "options": [
+            "A. tăng lên",
+            "B. giảm xuống",
+            "C. không thay đổi",
+            "D. không xác định được"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 4]</b> Phương án chính xác là: tăng lên. <br><b>Đáp án đúng: A</b>"
+    },
+    {
+        "id": 199,
+        "question": "Câu 199 (Chương 4): Kiểm toán viên muốn tập trung kiểm tra các khoản phải thu có giá trị lớn; cỡ mẫu, việc lựa chọn và đánh giá kết quả chủ yếu dựa trên giá trị tiền tệ. Phương pháp chọn mẫu phù hợp nhất là:",
+        "options": [
+            "A. Chọn mẫu theo khối",
+            "B. Lựa chọn bất kỳ",
+            "C. Chọn mẫu hệ thống theo số hiệu chứng từ",
+            "D. Chọn mẫu theo đơn vị tiền tệ"
+        ],
+        "answer": 3,
+        "explanation": "<b>[Chương 4]</b> Phương án chính xác là: Chọn mẫu theo đơn vị tiền tệ. <br><b>Đáp án đúng: D</b>"
+    },
+    {
+        "id": 200,
+        "question": "Câu 200 (Chương 4): Kiểm toán viên thực hiện một thủ tục không phù hợp với mục tiêu kiểm toán và hiểu sai kết quả bằng chứng thu thập được, dẫn đến kết luận sai. Rủi ro này là:",
+        "options": [
+            "A. Rủi ro ngoài lấy mẫu",
+            "B. Rủi ro lấy mẫu",
+            "C. Rủi ro tiềm tàng",
+            "D. Rủi ro kiểm soát"
+        ],
+        "answer": 0,
+        "explanation": "<b>[Chương 4]</b> Phương án chính xác là: Rủi ro ngoài lấy mẫu. <br><b>Đáp án đúng: A</b>"
+    }
+];
+
+
+    // TRẠNG THÁI ỨNG DỤNG
+    let questions = [...originalQuestions];
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let wrongAnswers = [];
+    let isReviewMode = false;
+
+    // DOM ELEMENTS
+    const qText = document.getElementById('q-text');
+    const optionsContainer = document.getElementById('options-container');
+    const btnAction = document.getElementById('btn-action'); 
+    const btnPrev = document.getElementById('btn-prev');
+    const scoreDisplay = document.getElementById('score');
+    const wrongDisplay = document.getElementById('wrongCount');
+    const explanationArea = document.getElementById('explanation-area');
+    const explanationText = document.getElementById('explanation-text');
+    const reviewBtn = document.getElementById('btn-review');
+    const reviewAlert = document.getElementById('review-alert');
+
+    // ===== MENU DANH SÁCH CÂU HỎI =====
+    const questionMenu = document.getElementById('question-menu');
+    const questionMenuOverlay = document.getElementById('question-menu-overlay');
+    const questionList = document.getElementById('question-list');
+    const questionMenuInfo = document.getElementById('question-menu-info');
+
+    function buildQuestionList() {
+        questionList.innerHTML = '';
+
+        if (questions.length === 0) {
+            questionMenuInfo.innerText = 'Không có câu hỏi.';
+            return;
+        }
+
+        questionMenuInfo.innerText =
+            `Đang có ${questions.length} câu trong danh sách hiện tại. Bấm vào số câu để làm.`;
+
+        questions.forEach((q, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'question-number-btn';
+            btn.innerText = q.id ? `Câu ${q.id}` : `Câu ${index + 1}`;
+            btn.title = q.question;
+
+            if (index === currentQuestionIndex) {
+                btn.classList.add('current');
+            }
+
+            btn.onclick = () => goToQuestion(index);
+            questionList.appendChild(btn);
+        });
+    }
+
+    function toggleQuestionMenu() {
+        const isOpen = questionMenu.classList.contains('show');
+
+        if (isOpen) {
+            closeQuestionMenu();
+        } else {
+            buildQuestionList();
+            questionMenu.classList.add('show');
+            questionMenuOverlay.classList.add('show');
+        }
+    }
+
+    function closeQuestionMenu() {
+        questionMenu.classList.remove('show');
+        questionMenuOverlay.classList.remove('show');
+    }
+
+    function goToQuestion(index) {
+        if (index < 0 || index >= questions.length) return;
+
+        currentQuestionIndex = index;
+        loadQuestion(currentQuestionIndex);
+        buildQuestionList();
+        closeQuestionMenu();
+
+        // Đưa người dùng về khu vực câu hỏi nếu đang ở vị trí khác trên trang.
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    }
+
+    // KHỞI TẠO
+    function init() {
+        loadQuestion(0);
+        updateStats();
+        buildQuestionList();
+    }
+
+    // HIỂN THỊ CÂU HỎI
+    function loadQuestion(index) {
+        if (questions.length === 0) {
+            qText.innerText = "Chúc mừng! Bạn đã hoàn thành hết các câu hỏi.";
+            optionsContainer.innerHTML = "";
+            btnAction.style.display = 'none';
+            explanationArea.style.display = 'none';
+            return;
+        }
+
+        const q = questions[index];
+        qText.innerText = q.question;
+        
+        optionsContainer.innerHTML = '';
+        q.options.forEach((opt, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt;
+            btn.onclick = () => selectOption(i, btn);
+            optionsContainer.appendChild(btn);
+        });
+
+        // Ẩn nút "Câu tiếp theo" và "Kiểm tra" khi mới load câu hỏi
+        btnAction.style.display = 'none';
+        document.getElementById('btn-check').style.display = 'none';
+        
+        explanationArea.style.display = 'none';
+        
+        // Cập nhật nút điều hướng
+        btnPrev.disabled = index === 0;
+
+        // Cập nhật trạng thái câu đang chọn trong menu
+        if (typeof questionList !== 'undefined') {
+            questionList.querySelectorAll('.question-number-btn').forEach((btn, i) => {
+                btn.classList.toggle('current', i === index);
+            });
+        }
+    }
+
+    // CHỌN ĐÁP ÁN VÀ KIỂM TRA NGAY LẬP TỨC
+    function selectOption(index, btnElement) {
+        // Kiểm tra xem đã chọn chưa (dựa vào class disabled)
+        const buttons = document.querySelectorAll('.option-btn');
+        if (buttons[0].classList.contains('disabled')) return; // Đã trả lời rồi thì không cho chọn lại
+
+        const q = questions[currentQuestionIndex];
+
+        // Câu chọn nhiều đáp án: bật/tắt lựa chọn, chờ bấm "Kiểm tra đáp án"
+        if (q.multi) {
+            btnElement.classList.toggle('selected');
+            const anySelected = document.querySelectorAll('.option-btn.selected').length > 0;
+            document.getElementById('btn-check').style.display = anySelected ? 'block' : 'none';
+            return;
+        }
+
+        const correctIndex = q.answer;
+
+        // Khóa tất cả các nút lại
+        buttons.forEach(b => {
+            b.classList.add('disabled');
+            b.onclick = null;
+        });
+
+        // Logic kiểm tra đúng sai
+        if (index === correctIndex) {
+            // ĐÚNG
+            btnElement.classList.add('correct');
+            btnElement.innerText += " ✅ (Chính xác)";
+            // Chỉ cộng điểm nếu chưa từng trả lời (để tránh spam điểm khi quay lại)
+            if (!q.answered) { 
+                score++;
+                q.answered = true;
+            }
+        } else {
+            // SAI
+            btnElement.classList.add('wrong');
+            btnElement.innerText += " ❌";
+            
+            // Hiện đáp án đúng
+            buttons[correctIndex].classList.add('correct'); 
+            buttons[correctIndex].innerText += " (Đáp án đúng)";
+            
+            // Hiện giải thích
+            explanationArea.style.display = 'block';
+            explanationText.innerHTML = q.explanation;
+            
+            // Lưu vào danh sách sai
+            if (!wrongAnswers.find(item => item.id === q.id)) {
+                wrongAnswers.push(q);
+            }
+        }
+
+        updateStats();
+
+        // HIỆN NÚT "CÂU TIẾP THEO"
+        btnAction.style.display = 'block';
+        if (currentQuestionIndex === questions.length - 1) {
+             btnAction.innerText = "Hoàn thành";
+        } else {
+             btnAction.innerText = "Câu tiếp theo ❯";
+        }
+    }
+
+    // KIỂM TRA CÂU CHỌN NHIỀU ĐÁP ÁN
+    function checkMulti() {
+        const buttons = document.querySelectorAll('.option-btn');
+        if (buttons[0].classList.contains('disabled')) return;
+
+        const q = questions[currentQuestionIndex];
+        const correctSet = new Set(q.answer);
+        const chosen = [];
+        buttons.forEach((b, i) => { if (b.classList.contains('selected')) chosen.push(i); });
+
+        const isCorrect = chosen.length === correctSet.size && chosen.every(i => correctSet.has(i));
+
+        buttons.forEach((b, i) => {
+            b.classList.add('disabled');
+            b.onclick = null;
+            b.classList.remove('selected');
+            const picked = chosen.includes(i);
+            if (correctSet.has(i) && picked) {
+                b.classList.add('correct');
+                b.innerText += " ✅";
+            } else if (correctSet.has(i) && !picked) {
+                b.classList.add('missed');
+                b.innerText += " (Đáp án đúng - bạn chưa chọn)";
+            } else if (picked) {
+                b.classList.add('wrong');
+                b.innerText += " ❌";
+            }
+        });
+
+        if (isCorrect) {
+            if (!q.answered) { score++; q.answered = true; }
+        } else {
+            explanationArea.style.display = 'block';
+            explanationText.innerHTML = q.explanation;
+            if (!wrongAnswers.find(item => item.id === q.id)) wrongAnswers.push(q);
+        }
+
+        updateStats();
+        document.getElementById('btn-check').style.display = 'none';
+        btnAction.style.display = 'block';
+        btnAction.innerText = (currentQuestionIndex === questions.length - 1) ? "Hoàn thành" : "Câu tiếp theo ❯";
+    }
+
+    // ĐIỀU HƯỚNG
+    function changeQuestion(direction) {
+        currentQuestionIndex += direction;
+        
+        // Logic biên
+        if (currentQuestionIndex < 0) currentQuestionIndex = 0;
+        if (currentQuestionIndex >= questions.length) {
+            alert("Bạn đã hoàn thành danh sách câu hỏi hiện tại!");
+            currentQuestionIndex = questions.length - 1;
+            return;
+        }
+        
+        loadQuestion(currentQuestionIndex);
+    }
+
+    // CẬP NHẬT THỐNG KÊ
+    function updateStats() {
+        scoreDisplay.innerText = score;
+        wrongDisplay.innerText = wrongAnswers.length;
+        reviewBtn.innerText = `Ôn câu sai (${wrongAnswers.length})`;
+        
+        if (wrongAnswers.length > 0) {
+            reviewBtn.classList.replace('btn-secondary', 'btn-warning');
+            reviewBtn.disabled = false;
+        } else {
+            reviewBtn.classList.replace('btn-warning', 'btn-secondary');
+            reviewBtn.disabled = true;
+        }
+    }
+
+    // CHẾ ĐỘ ÔN CÂU SAI
+    function toggleReviewMode() {
+        if (wrongAnswers.length === 0) return;
+
+        isReviewMode = !isReviewMode;
+        
+        if (isReviewMode) {
+            questions = [...wrongAnswers]; // Chuyển sang list câu sai
+            reviewAlert.style.display = 'block';
+            reviewBtn.innerText = "Quay lại tất cả câu hỏi";
+        } else {
+            questions = [...originalQuestions]; // Quay lại list gốc
+            reviewAlert.style.display = 'none';
+        }
+        
+        // Reset lại từ đầu list mới
+        currentQuestionIndex = 0;
+        loadQuestion(0);
+        updateStats();
+        buildQuestionList();
+    }
+
+    // RANDOM CÂU HỎI
+    function shuffleQuestions() {
+        if (confirm("Bạn có muốn xáo trộn thứ tự câu hỏi để thử thách bản thân không? (Điểm số sẽ được reset)")) {
+            for (let i = questions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [questions[i], questions[j]] = [questions[j], questions[i]];
+            }
+            // Reset
+            currentQuestionIndex = 0;
+            score = 0;
+            loadQuestion(0);
+            updateStats();
+            buildQuestionList();
+        }
+    }    
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeQuestionMenu();
+        }
+    });
+
+    init();
+
+</script>
+
+</body>
+</html>
