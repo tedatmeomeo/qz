@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Website by ThanhDat</title>
+  <title>Website Ôn Thi - By ThanhDat</title>
 
-  <!-- Icon -->
+  <!-- Font Awesome 6 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
   <style>
@@ -44,6 +44,11 @@
       margin-bottom: 15px;
       background: linear-gradient(135deg, #00e1ff, #8a2be2);
       box-shadow: 0 0 15px rgba(0, 225, 255, 0.6);
+      transition: transform 0.3s ease;
+    }
+
+    .avatar:hover {
+      transform: scale(1.05);
     }
 
     .avatar img {
@@ -80,7 +85,7 @@
       flex-direction: column;
       gap: 15px;
       width: 100%;
-      max-width: 320px;
+      max-width: 340px;
     }
 
     /* Ô Liquid Glass chữ nhật bo tròn */
@@ -111,7 +116,7 @@
     .socials a i {
       font-size: 22px;
       color: #00e1ff;
-      width: 30px;
+      width: 32px;
       text-align: center;
       margin-right: 15px;
       transition: transform 0.3s ease, color 0.3s ease;
@@ -152,6 +157,16 @@
       color: #00ffff;
     }
 
+    .badge {
+      margin-left: auto;
+      font-size: 11px;
+      background: rgba(0, 225, 255, 0.2);
+      color: #00e1ff;
+      padding: 3px 8px;
+      border-radius: 12px;
+      border: 1px solid rgba(0, 225, 255, 0.4);
+    }
+
     footer {
       font-size: 12px;
       color: #888;
@@ -174,23 +189,30 @@
 
     <p class="desc">“AI làm !”</p>
 
-    <!-- Social -->
+    <!-- Danh sách các trang ôn thi -->
     <div class="socials">
-      <a href="KTCT_On_Thi_240_cau.html" target="_blank">
-        <i class="fab fa-github"></i>
+      <a href="KTCT_On_Thi_240_cau.html">
+        <i class="fas fa-scale-balanced"></i>
         <span>Kinh Tế Chính Trị</span>
+        <span class="badge">240 câu</span>
       </a>
-      <a href="">
-        <i class="fab fa-github"></i>
-        <span>không</span>
+
+      <a href="KiTCB_On_Thi_200_cau.html">
+        <i class="fas fa-file-invoice-dollar"></i>
+        <span>Kiểm Toán Căn Bản</span>
+        <span class="badge">200 câu</span>
       </a>
-      <a href="" target="_blank">
-        <i class="fab fa-github"></i>
-        <span>không</span>
+
+      <a href="NCKH_On_Thi_30_cau.html">
+        <i class="fas fa-graduation-cap"></i>
+        <span>Phương Pháp Nghiên Cứu</span>
+        <span class="badge">31 câu</span>
       </a>
-      <a href="" target="_blank">
-        <i class="fab fa-github"></i>
-        <span>không</span>
+
+      <a href="#" style="opacity: 0.6; cursor: default;">
+        <i class="fas fa-book-open"></i>
+        <span>Môn học tiếp theo...</span>
+        <span class="badge">Sắp ra mắt</span>
       </a>
     </div>
 
