@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -33,6 +34,67 @@
       justify-content: center;
       align-items: center;
       padding: 30px 20px;
+    }
+
+    /* TOP DONATE */
+    .top-donate {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      max-width: 340px;
+      height: 38px;
+      margin-bottom: 15px;
+      padding: 0 10px;
+      border-radius: 20px;
+
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(12px) saturate(180%);
+      -webkit-backdrop-filter: blur(12px) saturate(180%);
+
+      border: 1px solid rgba(0, 225, 255, 0.3);
+      box-shadow: inset 0 1px 2px rgba(255,255,255,0.15);
+
+      overflow: hidden;
+    }
+
+    .donate-title {
+      flex-shrink: 0;
+      color: #00e1ff;
+      font-size: 12px;
+      font-weight: bold;
+      margin-right: 10px;
+      white-space: nowrap;
+    }
+
+    .donate-marquee {
+      flex: 1;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .donate-content {
+      display: flex;
+      width: max-content;
+      animation: donateScroll 15s linear infinite;
+    }
+
+    .donate-content span {
+      color: white;
+      font-size: 12px;
+      padding-right: 35px;
+    }
+
+    @keyframes donateScroll {
+      from {
+        transform: translateX(0);
+      }
+      to {
+        transform: translateX(-50%);
+      }
+    }
+
+    .top-donate:hover .donate-content {
+      animation-play-state: paused;
     }
 
     /* Avatar */
@@ -79,7 +141,7 @@
       margin: 15px 0 25px;
     }
 
-    /* Social icons container - Xếp hàng dọc */
+    /* Social icons container */
     .socials {
       display: flex;
       flex-direction: column;
@@ -88,7 +150,7 @@
       max-width: 340px;
     }
 
-    /* Ô Liquid Glass chữ nhật bo tròn */
+    /* Liquid Glass */
     .socials a {
       display: flex;
       align-items: center;
@@ -99,15 +161,14 @@
       font-size: 16px;
       font-weight: 500;
       border-radius: 16px;
-      
-      /* Hiệu ứng Liquid Glass (Glassmorphism) */
+
       background: rgba(255, 255, 255, 0.08);
       backdrop-filter: blur(12px) saturate(180%);
       -webkit-backdrop-filter: blur(12px) saturate(180%);
       border: 1px solid rgba(255, 255, 255, 0.2);
-      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25),
                   inset 0 1px 1px 0 rgba(255, 255, 255, 0.3);
-      
+
       transition: all 0.3s ease;
       position: relative;
       overflow: hidden;
@@ -122,7 +183,6 @@
       transition: transform 0.3s ease, color 0.3s ease;
     }
 
-    /* Vệt sáng lướt qua khi hover */
     .socials a::before {
       content: '';
       position: absolute;
@@ -179,6 +239,24 @@
 
   <div class="container">
 
+    <!-- TOP DONATE -->
+    <div class="top-donate">
+      <span class="donate-title">Top donate:</span>
+
+      <div class="donate-marquee">
+        <div class="donate-content">
+          <span>Nguyễn Văn A - 100.000đ</span>
+          <span>Trần Văn B - 50.000đ</span>
+          <span>Lê Văn C - 200.000đ</span>
+
+          <!-- Lặp lại để chạy liên tục -->
+          <span>Nguyễn Văn A - 100.000đ</span>
+          <span>Trần Văn B - 50.000đ</span>
+          <span>Lê Văn C - 200.000đ</span>
+        </div>
+      </div>
+    </div>
+
     <!-- Avatar -->
     <div class="avatar">
       <img src="avt2.png" alt="avatar">
@@ -191,6 +269,7 @@
 
     <!-- Danh sách các trang ôn thi -->
     <div class="socials">
+
       <a href="KTCT.html">
         <i class="fas fa-scale-balanced"></i>
         <span>Kinh Tế Chính Trị</span>
@@ -206,16 +285,16 @@
       <a href="NCKH_On_Thi_30_cau.html">
         <i class="fas fa-graduation-cap"></i>
         <span>Phương Pháp Nghiên Cứu</span>
-        <span class="badge">31 câu</span>
+        <span class="badge">1 lồn câu</span>
       </a>
 
       <a href="#" style="opacity: 0.6; cursor: default;">
         <i class="fas fa-book-open"></i>
-        <span>Môn học tiếp theo...</span>
-        <span class="badge">Sắp ra mắt</span>
+        <span>...</span>
+        <span class="badge">abcxyz</span>
       </a>
-    </div>
 
+    </div>
   </div>
 
   <footer>
