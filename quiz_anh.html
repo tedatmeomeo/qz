@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ôn thi · 3 ảnh (điền từ)</title>
+<style>
+:root{--p:#007bff;--ok:#28a745;--bad:#dc3545;--bg:#f4f6f9;--tx:#333}
+*{box-sizing:border-box}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:var(--bg);color:var(--tx);margin:0;padding:20px;line-height:1.6}
+.container{max-width:820px;margin:0 auto;background:#fff;padding:28px;border-radius:15px;box-shadow:0 4px 15px rgba(0,0,0,.1)}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.home{color:var(--p);text-decoration:none;font-weight:600}
+.header{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #eee;padding-bottom:12px;margin-bottom:16px;flex-wrap:wrap;gap:8px}
+.title{font-size:1.35rem;font-weight:700;color:var(--p);margin:0}
+.stats{display:flex;gap:14px;font-weight:700;font-size:.92rem}.s-ok{color:var(--ok)}.s-bad{color:var(--bad)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.chip{border:1px solid #cfd8e3;background:#f8f9fa;border-radius:20px;padding:6px 14px;cursor:pointer;font-size:.9rem}
+.chip.on{background:var(--p);border-color:var(--p);color:#fff;font-weight:600}
+.grp{display:inline-block;background:#e7f1ff;color:#0056b3;border-radius:6px;padding:2px 10px;font-weight:600;font-size:.88rem;margin-bottom:10px}
+.qno{color:#6c757d;font-size:.88rem;margin-bottom:4px}
+.qt{font-size:1.2rem;font-weight:600;margin:6px 0 16px}
+.opts{display:grid;gap:12px}
+.opt{padding:13px 18px;border:2px solid #e0e0e0;border-radius:8px;background:#fff;text-align:left;font-size:1rem;cursor:pointer;font-family:inherit}
+.opt:hover:not(.dis){background:#f8f9fa;border-color:var(--p)}
+.opt.dis{cursor:default}.opt.ok{background:#d4edda;border-color:var(--ok);color:#155724;font-weight:700}
+.opt.bad{background:#f8d7da;border-color:var(--bad);color:#721c24}.opt.miss{background:#fff3cd;border-color:#ffc107;color:#856404;font-weight:700}
+.exp{margin-top:16px;padding:14px 18px;background:#fff3cd;border:1px solid #ffeeba;border-radius:8px;color:#856404}
+.psg{border:1px solid #dbe4ee;background:#fafcff;border-radius:8px;padding:10px 14px;margin:0 0 16px}
+.psg summary{cursor:pointer;font-weight:600;color:#0056b3}.psg div{margin-top:8px;font-size:.97rem;max-width:72ch}
+.hid{background:#343a40;color:#343a40;border-radius:3px;cursor:pointer;padding:0 2px}.hid.show{background:#ffe08a;color:#333}
+.cz{font-size:1.04rem;line-height:2.3;max-width:72ch}
+.cz select{font:inherit;font-size:.95rem;padding:2px 4px;border:2px solid #b8c4d2;border-radius:6px;background:#fff;max-width:170px}
+.cz select.ok{border-color:var(--ok);background:#d4edda}.cz select.bad{border-color:var(--bad);background:#f8d7da}
+.fix{color:#155724;font-weight:700;font-size:.9rem;margin:0 2px}
+.sum{margin-top:14px;font-weight:700}
+.notes{margin-top:12px;display:grid;gap:8px}.notes div{padding:10px 14px;background:#fff3cd;border:1px solid #ffeeba;border-radius:8px;color:#856404;font-size:.93rem}
+.foot{margin-top:26px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.btn{padding:10px 18px;border:none;border-radius:6px;cursor:pointer;font-weight:700;font-size:.95rem;font-family:inherit;color:#fff;background:#6c757d}
+.btn:disabled{opacity:.5;cursor:not-allowed}.btn.pr{background:var(--p)}.btn.wa{background:#ffc107;color:#333}.btn.su{background:var(--ok)}
+.mbtn{position:fixed;top:16px;right:16px;z-index:1001;width:46px;height:46px;border:none;border-radius:10px;background:var(--p);color:#fff;font-size:24px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.18)}
+.ov{display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.25)}.ov.show{display:block}
+.menu{position:fixed;top:0;right:-380px;z-index:1000;width:340px;max-width:88vw;height:100vh;background:#fff;box-shadow:-5px 0 20px rgba(0,0,0,.18);padding:20px 16px;overflow-y:auto;transition:right .25s}
+.menu.show{right:0}.menu h3{margin:0 0 4px;color:var(--p)}.menu p{margin:0 0 12px;color:#666;font-size:.88rem}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}.mg{grid-column:1/-1;font-weight:700;font-size:.82rem;color:#0056b3;margin-top:8px}
+.nb{border:1px solid #d9d9d9;background:#f8f9fa;border-radius:7px;padding:8px 2px;cursor:pointer;font-weight:600;font-size:.85rem;font-family:inherit}
+.nb.cur{outline:2px solid var(--p)}.nb.ok{background:#d4edda;border-color:var(--ok)}.nb.bad{background:#f8d7da;border-color:var(--bad)}
+@media(max-width:600px){.container{padding:16px}.qt{font-size:1.05rem}}
+</style></head><body>
+<button class="mbtn" onclick="tm()" aria-label="Danh sách câu hỏi">☰</button><div class="ov" id="ov" onclick="tm()"></div>
+<aside class="menu" id="menu"><h3>📚 Danh sách câu hỏi</h3><p id="mi"></p><div class="grid" id="grid"></div></aside>
+<div class="container">
+<div class="top"><a class="home" href="index.html">← Trang chủ</a><span id="alert" style="display:none;background:#cce5ff;color:#004085;padding:4px 10px;border-radius:6px;font-size:.88rem">Đang ôn lại các câu sai</span></div>
+<div class="header"><h1 class="title" id="ttl"></h1><div class="stats"><span class="s-ok">Đúng: <span id="sc">0</span></span><span class="s-bad">Sai: <span id="sw">0</span></span></div></div>
+<div class="chips" id="chips"></div>
+<div id="q"></div>
+<div class="foot"><button class="btn" id="bp" onclick="mv(-1)">❮ Câu trước</button><button class="btn" id="br" onclick="rv()">Ôn câu sai (0)</button><button class="btn" id="bl" onclick="lm()" style="display:none">🙈 Học thuộc đoạn văn</button><button class="btn" onclick="sh()">🔀 Trộn câu</button><button class="btn pr" id="bn" onclick="mv(1)">Câu tiếp ❯</button></div>
+</div>
+<script>
+const D={"title": "Ôn thi · 3 ảnh (điền từ)", "sets": [{"id": "i1", "title": "Câu 1 · Định nghĩa", "kind": "cloze", "items": [{"title": "Câu 1 — Hoàn thành định nghĩa", "n": "1", "text": "The word \"{1}\" means a period of time during which a student works for a company to get experience of that job.\nA {2} is an official employee of the firm who is learning and practising the job that they are originally hired for.\nA {3} is a formal letter written by someone who knows you and says if you are suitable for a job or a course.\nThe word \"{4}\" refers to the strong feeling among team members and makes them try their best to do the jobs.\nA {5} is a plan that gives a list of tasks and the time at which each task should be done.\nA {6} is a possible future customer with the high chance of buying products, and the company may already be in contact with them.\nA {7} is a new customer of the company when an existing customer recommends them.\nCustomer {8} refers to the pleasure that a customer gets when buying something as good as they expect.\nA {9} is one of the equal parts of a company that people can buy as a way of investing money.\nA {10} is a business plan or method for achieving something, especially over a long period of time.", "bank": ["internship", "morale", "profit", "prospect", "reference", "referral", "satisfaction", "schedule", "sector", "share", "strategy", "trainee"], "b": [{"n": 1, "o": null, "a": "internship"}, {"n": 2, "o": null, "a": "trainee"}, {"n": 3, "o": null, "a": "reference"}, {"n": 4, "o": null, "a": "morale", "e": "⚠️ Trong ảnh bạn chọn <i>profit<\/i> (lợi nhuận) — chưa đúng. \"Strong feeling among team members…\" = <b>morale<\/b> (tinh thần làm việc)."}, {"n": 5, "o": null, "a": "schedule", "e": "⚠️ Trong ảnh bạn chọn <i>sector<\/i> (lĩnh vực) — chưa đúng. Kế hoạch liệt kê công việc theo thời gian = <b>schedule<\/b> (lịch trình)."}, {"n": 6, "o": null, "a": "prospect"}, {"n": 7, "o": null, "a": "referral"}, {"n": 8, "o": null, "a": "satisfaction"}, {"n": 9, "o": null, "a": "share"}, {"n": 10, "o": null, "a": "strategy"}]}]}, {"id": "i2", "title": "Câu 2 · Cloze HR", "kind": "cloze", "items": [{"title": "Câu 2 — Chọn từ điền vào đoạn văn (HR talent)", "text": "With almost one-third of companies now operating a formal talent strategy, anyone with any {1} in Human Resources (HR) will be aware of the significance of this concept in terms of organizational best practice. In fact, organizations have {2} the need for continuous investment  in the intellectual capital of their staff to generate competitive {3}. This has placed increased {4} on HR to show their added value and justify investment as “business critical”. Following the recent recession, many organisations have attempted to retain and {5} the highflyers (ambitious and talented people), by putting talent management firmly back onto the executive agenda. {6} in the right people and stretching their capabilities is once more a key focus for HR. Programmers originally {7} on the top talent but then came the recognition that everyone needs to realize their full {8}; the result of this has been a blended approach to talent management and monitoring. In addition, many organizations are keen on managing selected subgroups, such as graduates with Masters {9} and those with good research skills. Base on research carried out by the Chartered Institute of Personnel and Development, this paper {10} recent trends in the development of HR talent management.", "b": [{"n": 26, "o": null, "a": "interest", "e": "⚠️ Trong ảnh bạn chọn <i>purpose<\/i> — chưa đúng; \"any <b>interest<\/b> in HR\" (quan tâm đến HR)."}, {"n": 27, "o": null, "a": "recognized", "e": "⚠️ Trong ảnh bạn chọn <i>offered<\/i> — chưa đúng; \"have <b>recognized<\/b> the need…\" (nhận ra nhu cầu)."}, {"n": 28, "o": null, "a": "advantage"}, {"n": 29, "o": null, "a": "pressure"}, {"n": 30, "o": null, "a": "attract"}, {"n": 31, "o": null, "a": "investing"}, {"n": 32, "o": null, "a": "focused"}, {"n": 33, "o": null, "a": "potential"}, {"n": 34, "o": null, "a": "degree"}, {"n": 35, "o": null, "a": "demonstrates"}], "n": "2", "bank": ["advantage", "attract", "degree", "demonstrates", "focused", "interest", "investing", "potential", "pressure", "recognized"]}]}, {"id": "i3", "title": "Câu 3 · Cloze văn hóa", "kind": "cloze", "items": [{"title": "Câu 3 — Chọn từ trong bảng (cross-cultural training)", "text": "Johan, who works for a consultancy firm that {1} in cross-cultural training for multinational organizations, is introducing a workshop as follows. “Training in cultural awareness is a vital {2} in the development of the global managers of the future. Apart from the cultural differences between countries, you need to be aware of the cultural impact of working in different business {3} and (e.g., IT, banking, or entertainment) different functional roles. How people in an organisation act towards each other, {4} with customers, approach their work, even how they dress, can be very similar and fit the organisation’s values, beliefs, and the traditions that are {5} by all staff. Senior managers have {6} for setting the corporate culture and influencing the way members of staff behave in the {7}. As managers move from one country to another and encounter different types of management, it is {8} that they get away from restricted cultural environments and from any negative cultural assumptions. During this workshop, I hope we can {9} some of the ways in which people from different organisational or geographical {10} can have different norms, unwritten rules, and codes of behaviors.”", "b": [{"n": 26, "o": null, "a": "specializes", "e": "⚠️ Trong ảnh bạn chọn <i>workplace<\/i> — chưa đúng; \"a consultancy firm that <b>specializes<\/b> in…\" (chuyên về)."}, {"n": 27, "o": null, "a": "element"}, {"n": 28, "o": null, "a": "sectors"}, {"n": 29, "o": null, "a": "deal"}, {"n": 30, "o": null, "a": "shared"}, {"n": 31, "o": null, "a": "responsibility", "e": "⚠️ Trong ảnh bạn chọn <i>apply<\/i> — chưa đúng; \"Senior managers have <b>responsibility<\/b> for…\" (chịu trách nhiệm)."}, {"n": 32, "o": null, "a": "workplace"}, {"n": 33, "o": null, "a": "essential"}, {"n": 34, "o": null, "a": "explore"}, {"n": 35, "o": null, "a": "cultures"}], "n": "3", "bank": ["apply", "cultures", "deal", "element", "essential", "explore", "limit", "responsibility", "sectors", "shared", "specializes", "workplace"]}]}]};
+const $=s=>document.querySelector(s),esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'),LT='ABCD';
+let si=0;const S=D.sets.map(s=>({ord:s.items.map((_,i)=>i),i:0,res:{},rev:false,learn:false}));
+const cs=()=>S[si],cd=()=>D.sets[si];
+const lst=()=>{const s=cs();return s.rev?s.ord.filter(k=>s.res[k]&&s.res[k].bad):s.ord};
+function tm(){$('#menu').classList.toggle('show');$('#ov').classList.toggle('show')}
+function psg(p){const s=cs();let b=esc(p);if(s.learn){let n=0;b=b.replace(/[A-Za-z’']{5,}/g,w=>(n++%5==2)?'<span class="hid" onclick="this.classList.toggle(\'show\')">'+w+'</span>':w)}
+ return '<details class="psg" open><summary>📖 Đoạn văn'+(s.learn?' — bấm vào ô đen để xem từ':'')+'</summary><div>'+b.replace(/\n/g,'<br>')+'</div></details>'}
+function rMcq(it,k){const r=cs().res[k],tf=cd().tf;let h=(it.g?'<span class="grp">'+esc(it.g)+'</span>':'')+(it.p?psg(it.p):'')+'<div class="qt">'+esc(it.q)+'</div><div class="opts">';
+ it.o.forEach((o,j)=>{let c='opt';if(r){c+=' dis';if(j==it.a)c+=r.pick==j?' ok':' miss';else if(j==r.pick)c+=' bad'}
+  h+='<button class="'+c+'" onclick="pk('+k+','+j+')"><b>'+(tf?'':LT[j]+'. ')+'</b>'+esc(o)+(r&&j==it.a&&r.pick==j?' ✅':'')+(r&&j==r.pick&&j!=it.a?' ❌':'')+'</button>'});
+ h+='</div>';if(r)h+='<div class="exp"><b>💡 Đáp án đúng: '+(tf?'':LT[it.a]+'. ')+esc(it.o[it.a])+'</b>'+(it.e?'<br>'+it.e:'')+'</div>';return h}
+function pk(k,j){const s=cs();if(s.res[k])return;s.res[k]={pick:j,bad:j!=cd().items[k].a};render()}
+function rCz(it,k){const r=cs().res[k];let h='<span class="grp">'+esc(it.title)+'</span><div class="cz">';
+ h+=esc(it.text).replace(/\n/g,'<br>').replace(/\{(\d+)\}/g,(m,n)=>{const i=n-1,b=it.b[i],o=(b.o||it.bank).slice(),v=r?r.picks[i]:'',ok=r&&v==b.a;
+  return '<select id="b'+i+'" '+(r?'disabled class="'+(ok?'ok':'bad')+'"':'')+'><option value="">'+b.n+'</option>'+o.map(x=>'<option'+(x==v?' selected':'')+'>'+esc(x)+'</option>').join('')+'</select>'+(r&&!ok?'<span class="fix">→ '+esc(b.a)+'</span>':'')});
+ h+='</div>';
+ if(r){h+='<div class="sum">Kết quả: '+r.ok+'/'+r.total+' chỗ đúng</div>';const nt=it.b.filter((b,i)=>b.e&&r.picks[i]!=b.a);if(nt.length)h+='<div class="notes">'+nt.map(b=>'<div><b>('+b.n+')</b> '+b.e+'</div>').join('')+'</div>';
+  h+='<div style="margin-top:12px"><button class="btn wa" onclick="rs('+k+')">↺ Làm lại</button></div>'}
+ else h+='<div style="margin-top:14px"><button class="btn su" onclick="ck('+k+')">Chấm điểm</button></div>';return h}
+function ck(k){const it=cd().items[k],p=it.b.map((b,i)=>$('#b'+i).value);cs().res[k]={picks:p,ok:it.b.filter((b,i)=>p[i]==b.a).length,total:it.b.length};const r=cs().res[k];r.bad=r.ok<r.total;render()}
+function rs(k){delete cs().res[k];render()}
+function render(){const s=cs(),set=cd(),ls=lst();if(s.i>=ls.length)s.i=Math.max(0,ls.length-1);
+ $('#ttl').textContent=D.title;$('#chips').innerHTML=D.sets.map((x,i)=>'<button class="chip'+(i==si?' on':'')+'" onclick="ss('+i+')">'+esc(x.title)+'</button>').join('');
+ let r=0,w=0,nw=0;Object.keys(s.res).forEach(k=>{const x=s.res[k];if(set.kind=='mcq'){x.bad?w++:r++}else{r+=x.ok;w+=x.total-x.ok}if(x.bad)nw++});
+ $('#sc').textContent=r;$('#sw').textContent=w;$('#br').textContent=s.rev?'Quay lại tất cả':'Ôn câu sai ('+nw+')';$('#br').className='btn'+(nw||s.rev?' wa':'');$('#br').disabled=!nw&&!s.rev;
+ $('#alert').style.display=s.rev?'inline':'none';$('#bl').style.display=set.pass?'':'none';$('#bl').textContent=s.learn?'👁 Hiện đủ đoạn văn':'🙈 Học thuộc đoạn văn';
+ if(!ls.length){$('#q').innerHTML='<p>Không có câu nào.</p>'}else{const k=ls[s.i],it=set.items[k];
+  $('#q').innerHTML='<div class="qno">'+(set.kind=='mcq'?'Câu '+it.n+' / '+set.items.length:'Đoạn '+(s.i+1)+' / '+ls.length)+'</div>'+(set.kind=='mcq'?rMcq(it,k):rCz(it,k))}
+ $('#bp').disabled=s.i==0;$('#bn').disabled=s.i>=ls.length-1;
+ let g='',lg=null;ls.forEach((k,x)=>{const it=set.items[k],q=s.res[k];if(set.kind=='mcq'&&it.g&&it.g!=lg){g+='<div class="mg">'+esc(it.g)+'</div>';lg=it.g}
+  g+='<button class="nb'+(x==s.i?' cur':'')+(q?(q.bad?' bad':' ok'):'')+'" onclick="go('+x+')">'+esc(it.n)+'</button>'});
+ $('#grid').innerHTML=g;$('#mi').textContent=set.title+' — '+ls.length+' mục. Xanh = đúng, đỏ = sai.'}
+function go(x){cs().i=x;if($('#menu').classList.contains('show'))tm();render();scrollTo(0,0)}
+function mv(d){const s=cs();s.i=Math.max(0,Math.min(lst().length-1,s.i+d));render();scrollTo(0,0)}
+function ss(i){si=i;render()}
+function rv(){const s=cs();s.rev=!s.rev;s.i=0;render()}
+function lm(){cs().learn=!cs().learn;render()}
+function sh(){if(!confirm('Trộn thứ tự câu hỏi? (Kết quả của phần này sẽ được làm mới)'))return;const s=cs();for(let i=s.ord.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[s.ord[i],s.ord[j]]=[s.ord[j],s.ord[i]]}s.res={};s.rev=false;s.i=0;render()}
+document.addEventListener('keydown',e=>{if(e.target.tagName=='SELECT')return;if(e.key=='Escape'&&$('#menu').classList.contains('show'))tm();else if(e.key=='ArrowRight')mv(1);else if(e.key=='ArrowLeft')mv(-1);
+ else if(cd().kind=='mcq'&&'abcd'.includes(e.key.toLowerCase())&&e.key.length==1){const ls=lst();if(ls.length)pk(ls[cs().i],'abcd'.indexOf(e.key.toLowerCase()))}});
+render();
+</script></body></html>
